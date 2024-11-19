@@ -1,0 +1,62 @@
+/* Stili per la mappa */
+.map-container {
+    height: 300px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+/* Stili per le card dei brand */
+.brand-card {
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover {
+    background: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transform: translateY(-2px);
+}
+
+.brand-name {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Stili per le categorie */
+.category-card {
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Stili per i punti di forza */
+.strength-item {
+    border-left: 3px solid #198754;
+}
+
+/* Stili per il header */
+.welcome-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+/* Stili per i tab */
+.nav-tabs .nav-link {
+    color: #6c757d;
+}
+
+.nav-tabs .nav-link.active {
+    color: #198754;
+    border-bottom-color: #198754;
+}
+
+/* Stili per i bottoni */
+.btn-custom {
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+} 

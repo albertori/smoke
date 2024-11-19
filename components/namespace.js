@@ -1,0 +1,1 @@
+window.NSA = window.NSA || {}; 

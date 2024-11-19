@@ -1,0 +1,685 @@
+/* Sfondo generale del sito */
+body {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 25%,
+        #f1f3f5 50%,
+        #f8f9fa 75%,
+        #ffffff 100%
+    );
+    min-height: 100vh;
+}
+
+/* Sfumatura più sottile per le sezioni */
+.tab-content {
+    background: linear-gradient(to bottom right, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.brands-section {
+    background: linear-gradient(to bottom, 
+        #f8f9fa 0%,
+        #ffffff 50%,
+        #f8f9fa 100%
+    );
+    padding: 3rem 0;
+    border-radius: 8px;
+}
+
+.brand-card {
+    background: linear-gradient(145deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    );
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 8px;
+}
+
+.brand-card:hover {
+    background: linear-gradient(145deg, 
+        #ffffff 0%,
+        #f1f3f5 100%
+    );
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.brand-card:hover .brand-icon {
+    transform: scale(1.1);
+    color: #1976d2;
+}
+
+.brand-name {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.brand-icon {
+    font-size: 2.5rem;
+    color: #0d47a1;
+    display: block;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* Stili per la location card */
+.location-card {
+    margin-bottom: 20px;
+}
+
+.location-card .map-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.location-card .map-wrapper {
+    position: relative;
+    height: 300px;
+}
+
+.location-card .loading-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.location-card .address-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    border-left: 4px solid #0d6efd;
+}
+
+.location-card .address-icon {
+    font-size: 1.25rem;
+    color: #0d6efd;
+    margin-right: 0.5rem;
+}
+
+.location-card .address-title {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.location-card .address-text {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 7s ease-in-out;
+    transform: scale(1.1);
+}
+
+.carousel-fade .carousel-item {
+    transition: opacity 1.5s ease-in-out;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section h1 {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-section .lead {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link {
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+.address-box {
+    background: linear-gradient(to right, 
+        #f8f9fa 0%,
+        #ffffff 100%
+    );
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    border-left: 4px solid #0d6efd;
+}
+
+.address-icon {
+    font-size: 2rem;
+    color: #0d47a1;
+    margin-right: 1rem;
+}
+
+.category-title {
+    position: relative;
+    padding-bottom: 0.5rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #0d47a1;
+    border-radius: 2px;
+}
+
+/* Stili per i tab e il contenuto */
+.tab-pane {
+    background: linear-gradient(to bottom right, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.list-group-item {
+    background: linear-gradient(to right, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background: linear-gradient(to right, 
+        #f8f9fa 0%,
+        #ffffff 100%
+    );
+}
+
+.nav-tabs .nav-link {
+    background: linear-gradient(to bottom, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    border: 1px solid rgba(0,0,0,0.1);
+    margin-right: 4px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link.active {
+    background: linear-gradient(to bottom, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    );
+    border-bottom-color: transparent;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    background: linear-gradient(to bottom, 
+        #f8f9fa 0%,
+        #ffffff 100%
+    );
+}
+
+/* Stili per la sezione contatti */
+.list-unstyled li {
+    background: linear-gradient(to right, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    padding: 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.list-unstyled li:hover {
+    background: linear-gradient(to right, 
+        #f8f9fa 0%,
+        #ffffff 100%
+    );
+    transform: translateX(5px);
+}
+
+.list-unstyled li a {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.list-unstyled li a:hover {
+    color: #0a58ca;
+}
+
+.app-container {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 25%,
+        #f1f3f5 50%,
+        #f8f9fa 75%,
+        #ffffff 100%
+    );
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    );
+    border-radius: 8px;
+}
+
+.gradient-item {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f5f6f7 20%,
+        #e9ecef 50%,
+        #f5f6f7 80%,
+        #ffffff 100%
+    );
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.gradient-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.tab-content {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    ) !important;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.tab-pane {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    ) !important;
+}
+
+/* Forza le sfumature anche sui componenti React */
+[class*="tab-"], 
+[class*="list-"], 
+[class*="card-"] {
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    ) !important;
+}
+
+/* Stili per i tab responsive */
+.nav-pills {
+    background: linear-gradient(to right, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    );
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.nav-pills .nav-link {
+    border-radius: 8px;
+    padding: 1rem;
+    color: #495057;
+    transition: all 0.3s ease;
+    margin: 0.2rem;
+}
+
+.nav-pills .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.nav-pills .nav-link i {
+    font-size: 1.2rem;
+}
+
+/* Stili specifici per mobile */
+@media (max-width: 768px) {
+    .nav-pills {
+        padding: 0.5rem;
+    }
+
+    .nav-pills .nav-link {
+        text-align: left;
+        padding: 0.8rem 1rem;
+        margin-bottom: 0.3rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-pills .nav-link i {
+        margin-right: 1rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    .tab-content {
+        padding: 1rem;
+    }
+}
+
+.welcome-section {
+    background: linear-gradient(to bottom right, 
+        #ffffff 0%,
+        #fafbfc 100%
+    );
+    border-left: 4px solid #0d6efd;
+}
+
+.welcome-section p {
+    color: #495057;
+    line-height: 1.7;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .welcome-section {
+        padding: 1.5rem !important;
+    }
+    
+    .welcome-section p {
+        font-size: 1rem;
+    }
+}
+
+/* Stile per il carousel e le immagini */
+.carousel {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    max-height: 400px;
+}
+
+.carousel-item img {
+    border-radius: 15px;
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
+    max-height: 400px;
+}
+
+.carousel-inner {
+    max-height: 400px;
+}
+
+.carousel-caption {
+    background: linear-gradient(to top, 
+        rgba(0,0,0,0.7) 0%,
+        rgba(0,0,0,0.4) 50%,
+        rgba(0,0,0,0) 100%
+    );
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    padding: 1.5rem;
+    bottom: 0;
+}
+
+/* Miglioriamo anche i controlli del carousel */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 0.8;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    padding: 1.5rem;
+}
+
+.aroma-card {
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f5f6f7 20%,
+        #e9ecef 50%,
+        #f5f6f7 80%,
+        #ffffff 100%
+    );
+    margin-bottom: 0.25rem;
+    border-radius: 8px;
+}
+
+.aroma-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f0f2f4 20%,
+        #e2e6ea 50%,
+        #f0f2f4 80%,
+        #ffffff 100%
+    );
+}
+
+.aroma-card .card-body {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.aroma-card .card-title {
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.aroma-card .card-subtitle {
+    font-size: 1rem;
+}
+
+.aroma-card .card-text {
+    font-size: 1rem;
+    line-height: 1.2;
+    margin-top: 0.25rem;
+}
+
+.aroma-card .badge {
+    font-size: 0.85rem;
+    padding: 0.25em 0.5em;
+}
+
+.input-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.input-group .form-control:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+}
+
+.input-group-text {
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus + .input-group-text {
+    border-color: #0d6efd;
+}
+
+.badge {
+    font-weight: normal;
+    padding: 0.5em 0.8em;
+}
+
+.whatsapp-link {
+    color: #333;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.whatsapp-link:hover {
+    color: #25D366; /* Colore ufficiale di WhatsApp */
+    transform: translateX(5px);
+}
+
+.whatsapp-link i.bi-whatsapp {
+    font-size: 1.4rem;
+}
+
+.whatsapp-link i.bi-arrow-right-circle {
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-link:hover i.bi-arrow-right-circle {
+    opacity: 1;
+    transform: translateX(5px);
+}
+
+.nic-calculator-section {
+    position: relative;
+    z-index: 1;
+    margin: 4rem 0;
+    padding-top: 2rem;
+}
+
+.calculator-header {
+    margin-bottom: 3rem;
+}
+
+.calculator-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.calculator-card {
+    border-radius: 20px !important;
+    border: none;
+    background: white;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
+    transform: translateY(0);
+    margin-bottom: 2rem;
+}
+
+.calculator-card .card-body {
+    padding: 2rem;
+}
+
+.calculator-card .form-control {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+
+.calculator-card .btn-primary {
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+}
+
+.calculator-card .list-group {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.calculator-card .list-group-item:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.calculator-card .list-group-item:last-child {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.calculator-card .badge {
+    border-radius: 8px;
+}
+
+.directions-section .card {
+    border-radius: 10px;
+    background: linear-gradient(135deg, 
+        #ffffff 0%,
+        #f5f6f7 20%,
+        #e9ecef 50%,
+        #f5f6f7 80%,
+        #ffffff 100%
+    );
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.directions-section .card-body {
+    padding: 1.5rem;
+}
+
+.directions-text {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    font-family: inherit;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    overflow: visible;
+}
+
+.directions-text strong {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.directions-section h5 i {
+    color: #0d6efd;
+}
+ 
