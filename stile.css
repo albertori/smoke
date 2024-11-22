@@ -1,0 +1,51 @@
+.calculator-shortcut {
+    border-left: 4px solid #0d6efd;
+    transition: all 0.3s ease;
+    margin-top: -20px;  /* Per avvicinarlo al carousel */
+    position: relative;
+    z-index: 10;  /* Per assicurarsi che sia sopra altri elementi */
+}
+
+.calculator-shortcut:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.calculator-shortcut .btn {
+    padding: .5rem 1.5rem;
+    font-weight: 500;
+}
+
+/* Stili per la hero section */
+.hero-section {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.hero-section h1 {
+    color: #212529;
+    font-weight: 600;
+}
+
+.hero-section .lead {
+    color: #6c757d;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-section .btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+/* Stili per il bottone del calcolatore */
+#calcButton {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#calcButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+} 

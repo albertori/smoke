@@ -219,26 +219,32 @@ const BrandsList = () => {
 const NicCalculator = () => {
     const [targetVolume, setTargetVolume] = React.useState(100);
     const [targetStrength, setTargetStrength] = React.useState(8);
+    const [baseStrength, setBaseStrength] = React.useState(20); // Forza del booster
     const [result, setResult] = React.useState(null);
+
+    // Array delle concentrazioni disponibili per i booster
+    const availableStrengths = [4, 8, 9, 12, 16, 18, 20];
 
     const calculateNicotine = (e) => {
         e.preventDefault();
-        const baseStrength = 20;
-        const baseVolume = 10;
+        const baseVolume = 10; // Volume fisso del booster (10ml)
+        
+        // Calcoli con supporto decimale
         const nicVolumeNeeded = (targetVolume * targetStrength) / baseStrength;
         const bottlesNeeded = Math.ceil(nicVolumeNeeded / baseVolume);
         const pureBaseNeeded = targetVolume - (bottlesNeeded * baseVolume);
+        const actualStrength = ((bottlesNeeded * baseVolume * baseStrength) / targetVolume);
 
         setResult({
             bottles: bottlesNeeded,
-            pureBase: Math.max(0, pureBaseNeeded),
-            totalVolume: bottlesNeeded * baseVolume + Math.max(0, pureBaseNeeded),
-            actualStrength: ((bottlesNeeded * baseVolume * baseStrength) / targetVolume).toFixed(1)
+            pureBase: Math.max(0, parseFloat(pureBaseNeeded.toFixed(1))),
+            totalVolume: parseFloat((bottlesNeeded * baseVolume + Math.max(0, pureBaseNeeded)).toFixed(1)),
+            actualStrength: parseFloat(actualStrength.toFixed(1))
         });
     };
 
     return (
-        <div className="nic-calculator-section py-5 bg-light">
+        <div id="nicCalculator" className="nic-calculator-section py-5 bg-light">
             <div className="container">
                 <h4 className="text-center mb-4">Calcolatore Diluizione Nicotina</h4>
                 <div className="row justify-content-center">
@@ -254,6 +260,7 @@ const NicCalculator = () => {
                                             value={targetVolume}
                                             onChange={(e) => setTargetVolume(Number(e.target.value))}
                                             min="1"
+                                            step="0.1"
                                         />
                                     </div>
                                     <div className="mb-3">
@@ -268,6 +275,20 @@ const NicCalculator = () => {
                                             step="0.1"
                                         />
                                     </div>
+                                    <div className="mb-3">
+                                        <label className="form-label">Concentrazione booster (mg/ml)</label>
+                                        <select 
+                                            className="form-select"
+                                            value={baseStrength}
+                                            onChange={(e) => setBaseStrength(Number(e.target.value))}
+                                        >
+                                            {availableStrengths.map(strength => (
+                                                <option key={strength} value={strength}>
+                                                    {strength} mg/ml
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                     <button type="submit" className="btn btn-primary w-100">
                                         Calcola
                                     </button>
@@ -278,7 +299,7 @@ const NicCalculator = () => {
                                         <h6 className="mb-3">Risultato:</h6>
                                         <ul className="list-group">
                                             <li className="list-group-item d-flex justify-content-between align-items-center">
-                                                Shot nicotina necessari (10ml/20mg):
+                                                Shot nicotina necessari (10ml/{baseStrength}mg):
                                                 <span className="badge bg-primary rounded-pill">{result.bottles}</span>
                                             </li>
                                             <li className="list-group-item d-flex justify-content-between align-items-center">
@@ -554,8 +575,34 @@ const InfoTab = () => {
 const App = () => {
     const [activeTab, setActiveTab] = React.useState('hours');
 
+    const scrollToCalculator = (e) => {
+        e.preventDefault();
+        const calculator = document.getElementById('nicCalculator');
+        if (calculator) {
+            const headerOffset = 80;
+            const elementPosition = calculator.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    };
+
     return (
         <div className="app-container">
+            {/* Bottone Calcolatore */}
+            <div className="text-center mb-5">
+                <a href="#nicCalculator" 
+                   className="btn btn-primary btn-lg" 
+                   onClick={scrollToCalculator}>
+                    <i className="bi bi-calculator me-2"></i>
+                    Calcola la tua Base Neutra
+                </a>
+            </div>
+
+            {/* Resto dei componenti */}
             <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
             <div className="tab-content">
                 {activeTab === 'hours' && <HoursTab />}
