@@ -171,44 +171,69 @@ const LocationMap = () => {
 // ============================================
 const BrandsList = () => {
     const categories = {
-        'Pod Systems': [
-            { name: 'JustFog', icon: 'bi-circle' },
-            { name: 'Uwell', icon: 'bi-square' },
-            { name: 'Voopoo', icon: 'bi-triangle' },
-            { name: 'SMOK', icon: 'bi-star' }
+        'Hardware': [
+            { name: 'JustFog', icon: 'bi-cpu' },
+            { name: 'Uwell', icon: 'bi-cpu' },
+            { name: 'Voopoo', icon: 'bi-cpu' },
+            { name: 'SMOK', icon: 'bi-cpu' },
+            { name: 'Vaporesso', icon: 'bi-cpu' },
+            { name: 'Geekvape', icon: 'bi-cpu' },
+            { name: 'Lost Vape', icon: 'bi-cpu' },
+            { name: 'Aspire', icon: 'bi-cpu' },
+            { name: 'Innokin', icon: 'bi-cpu' },
+            { name: 'Eleaf', icon: 'bi-cpu' }
         ],
-        'Box Mod': [
-            { name: 'Vaporesso', icon: 'bi-circle-fill' },
-            { name: 'Geekvape', icon: 'bi-square-fill' },
-            { name: 'Lost Vape', icon: 'bi-triangle-fill' },
-            { name: 'Aspire', icon: 'bi-star-fill' }
+        'Aromi': [
+            { name: 'TNT Vape', icon: 'bi-droplet' },
+            { name: 'La Tabaccheria', icon: 'bi-droplet' },
+            { name: 'Vaporart', icon: 'bi-droplet' },
+            { name: 'Flavourart', icon: 'bi-droplet' },
+            { name: 'Dea', icon: 'bi-droplet' },
+            { name: 'Suprem-e', icon: 'bi-droplet' },
+            { name: 'Blendfeel', icon: 'bi-droplet' },
+            { name: 'Shot Series', icon: 'bi-droplet' }
         ],
-        'Starter Kit': [
-            { name: 'Innokin', icon: 'bi-heart' },
-            { name: 'Eleaf', icon: 'bi-heart-fill' },
-            { name: 'Joyetech', icon: 'bi-diamond' },
-            { name: 'Kanger', icon: 'bi-diamond-fill' }
+        'Accessori': [
+            { name: 'Cotton Bacon', icon: 'bi-tools' },
+            { name: 'Coil Master', icon: 'bi-tools' },
+            { name: 'Wotofo', icon: 'bi-tools' },
+            { name: 'Vandy Vape', icon: 'bi-tools' },
+            { name: 'Fiber Freaks', icon: 'bi-tools' },
+            { name: 'Kendo', icon: 'bi-tools' }
         ]
     };
 
     return (
-        <div className="brands-section mt-5">
-            <h3 className="text-center mb-5">I Nostri Marchi</h3>
-            {Object.entries(categories).map(([category, brands]) => (
-                <div key={category} className="mb-5">
-                    <h5 className="category-title mb-4">{category}</h5>
-                    <div className="row g-4">
-                        {brands.map((brand, index) => (
-                            <div key={index} className="col-md-3">
-                                <div className="brand-card text-center p-4">
-                                    <i className={`bi ${brand.icon} brand-icon mb-3`}></i>
-                                    <h6 className="brand-name">{brand.name}</h6>
+        <div className="brands-section py-5 bg-light">
+            <div className="container">
+                <h3 className="text-center mb-4">I Nostri Marchi</h3>
+                <div className="row g-4">
+                    {Object.entries(categories).map(([category, brands]) => (
+                        <div key={category} className="col-md-4">
+                            <div className="category-card h-100 bg-white rounded-3 p-3 shadow-sm">
+                                <h5 className="category-title border-bottom pb-2 mb-3">
+                                    <i className={`bi ${
+                                        category === 'Hardware' ? 'bi-cpu' : 
+                                        category === 'Aromi' ? 'bi-droplet' : 
+                                        'bi-tools'
+                                    } me-2`}></i>
+                                    {category}
+                                </h5>
+                                <div className="row row-cols-2 g-2">
+                                    {brands.map((brand, index) => (
+                                        <div key={index} className="col">
+                                            <div className="brand-item d-flex align-items-center p-2 rounded-2 border">
+                                                <i className={`bi ${brand.icon} me-2 text-primary`}></i>
+                                                <span className="brand-name">{brand.name}</span>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            </div>
         </div>
     );
 };
