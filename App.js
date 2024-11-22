@@ -650,6 +650,164 @@ const InfoTab = () => {
 };
 
 // ============================================
+// Componente ConsumptionCalculator
+// ============================================
+const ConsumptionCalculator = () => {
+    const [cigarettesPerDay, setCigarettesPerDay] = React.useState(20);
+    const [cigarettePackPrice, setCigarettePackPrice] = React.useState(5.20);
+    const [liquidMlPerDay, setLiquidMlPerDay] = React.useState(3);
+    const [liquidBottlePrice, setLiquidBottlePrice] = React.useState(20);
+    const [liquidBottleSize, setLiquidBottleSize] = React.useState(10);
+
+    // Calcoli
+    const cigarettesMonthCost = (cigarettesPerDay / 20) * cigarettePackPrice * 30;
+    const cigarettesYearCost = cigarettesMonthCost * 12;
+    const liquidBottlesPerMonth = Math.ceil((liquidMlPerDay * 30) / liquidBottleSize);
+    const liquidMonthCost = liquidBottlesPerMonth * liquidBottlePrice;
+    const liquidYearCost = liquidMonthCost * 12;
+    const monthlySavings = cigarettesMonthCost - liquidMonthCost;
+    const yearlySavings = cigarettesYearCost - liquidYearCost;
+    const dailySavings = monthlySavings / 30;  // Calcolo risparmio giornaliero
+
+    return (
+        <div className="calculator-container my-5" id="savingsCalculator">
+            <div className="container">
+                <div className="card shadow-sm">
+                    <div className="card-header bg-primary text-white py-3">
+                        <h5 className="card-title mb-0 text-center">
+                            <i className="bi bi-piggy-bank me-2"></i>
+                            Calcola il Tuo Risparmio
+                        </h5>
+                    </div>
+                    <div className="card-body p-4">
+                        <div className="row g-4">
+                            <div className="col-md-8">
+                                <div className="row g-3">
+                                    {/* Input Sigarette */}
+                                    <div className="col-md-6">
+                                        <label className="form-label small">Sigarette al giorno</label>
+                                        <div className="input-group">
+                                            <span className="input-group-text bg-danger text-white">
+                                                <i className="bi bi-slash-circle"></i>
+                                            </span>
+                                            <input 
+                                                type="number" 
+                                                className="form-control"
+                                                value={cigarettesPerDay}
+                                                onChange={(e) => setCigarettesPerDay(Number(e.target.value))}
+                                                min="1"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label small">Prezzo pacchetto (€)</label>
+                                        <div className="input-group">
+                                            <span className="input-group-text">€</span>
+                                            <input 
+                                                type="number" 
+                                                className="form-control"
+                                                value={cigarettePackPrice}
+                                                onChange={(e) => setCigarettePackPrice(Number(e.target.value))}
+                                                step="0.10"
+                                                min="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    {/* Input Svapo */}
+                                    <div className="col-md-4">
+                                        <label className="form-label small">ML al giorno</label>
+                                        <div className="input-group">
+                                            <span className="input-group-text bg-primary text-white">
+                                                <i className="bi bi-droplet"></i>
+                                            </span>
+                                            <input 
+                                                type="number" 
+                                                className="form-control"
+                                                value={liquidMlPerDay}
+                                                onChange={(e) => setLiquidMlPerDay(Number(e.target.value))}
+                                                step="0.5"
+                                                min="0"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label className="form-label small">
+                                            Prezzo bottiglia liquido (€)
+                                            <i className="bi bi-info-circle ms-1" 
+                                               data-bs-toggle="tooltip" 
+                                               data-bs-placement="top" 
+                                               title="Prezzo di una bottiglia di liquido pronto (es. aroma + base)"></i>
+                                        </label>
+                                        <div className="input-group">
+                                            <span className="input-group-text">€</span>
+                                            <input 
+                                                type="number" 
+                                                className="form-control"
+                                                value={liquidBottlePrice}
+                                                onChange={(e) => setLiquidBottlePrice(Number(e.target.value))}
+                                                step="0.50"
+                                                min="0"
+                                                placeholder="es. 20€"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <label className="form-label small">Formato (ml)</label>
+                                        <select 
+                                            className="form-select"
+                                            value={liquidBottleSize}
+                                            onChange={(e) => setLiquidBottleSize(Number(e.target.value))}
+                                        >
+                                            <option value="10">10ml (Shot)</option>
+                                            <option value="20">20ml</option>
+                                            <option value="30">30ml</option>
+                                            <option value="60">60ml</option>
+                                            <option value="100">100ml</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Risultati */}
+                            <div className="col-md-4">
+                                <div className="h-100 d-flex flex-column justify-content-center">
+                                    <div className="text-center p-3 bg-light rounded">
+                                        <div className="mb-3">
+                                            <h6 className="text-muted mb-2">Risparmio Giornaliero</h6>
+                                            <h5 className="text-success mb-0">
+                                                {dailySavings.toFixed(2)}€
+                                            </h5>
+                                        </div>
+                                        <div className="mb-3">
+                                            <h6 className="text-muted mb-2">Risparmio Mensile</h6>
+                                            <h4 className="text-success mb-0">
+                                                {monthlySavings.toFixed(2)}€
+                                            </h4>
+                                        </div>
+                                        <div className="mb-3">
+                                            <h6 className="text-muted mb-2">Risparmio Annuale</h6>
+                                            <h3 className="text-success mb-0">
+                                                {yearlySavings.toFixed(2)}€
+                                            </h3>
+                                        </div>
+                                        <div>
+                                            <h6 className="text-muted mb-2">Bottiglie al Mese</h6>
+                                            <h5 className="text-primary mb-0">
+                                                {liquidBottlesPerMonth}
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ============================================
 // Componente App principale - DEVE ESSERE DEFINITO DOPO
 // ============================================
 const App = () => {
@@ -689,9 +847,11 @@ const App = () => {
                 {activeTab === 'map' && <LocationMap />}
                 {activeTab === 'info' && <InfoTab />}
                 {activeTab === 'aromi' && <SearchAromi />}
+                {activeTab === 'savingsCalculator' && <ConsumptionCalculator />}
             </div>
             <BrandsList />
             <NicCalculator />
+            <ConsumptionCalculator />
             <Features />
             <Newsletter />
         </div>
