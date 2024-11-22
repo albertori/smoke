@@ -471,8 +471,9 @@ const SearchAromi = () => {
 
     return (
         <div className="aromi-container">
+            {/* Barra di ricerca */}
             <div className="row g-2 mb-4">
-                <div className="col-md-6">
+                <div className="col-12 col-md-6">
                     <div className="input-group">
                         <span className="input-group-text bg-white">
                             <i className="bi bi-shop"></i>
@@ -486,7 +487,7 @@ const SearchAromi = () => {
                         />
                     </div>
                 </div>
-                <div className="col-md-6">
+                <div className="col-12 col-md-6">
                     <div className="input-group">
                         <span className="input-group-text bg-white">
                             <i className="bi bi-search"></i>
@@ -502,28 +503,92 @@ const SearchAromi = () => {
                 </div>
             </div>
 
-            <div className="row g-2">
+            {/* Lista aromi - Versione Desktop */}
+            <div className="d-none d-lg-block">
                 {aromiFiltrati.length === 0 ? (
-                    <div className="col-12 text-center">
+                    <div className="text-center">
                         <p className="text-muted">Nessun aroma trovato</p>
                     </div>
                 ) : (
-                    aromiFiltrati.map((aroma, index) => (
-                        <div key={index} className="col-md-4 col-lg-3">
-                            <div className="card aroma-card">
-                                <div className="card-body py-2">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <h6 className="card-subtitle text-primary mb-0">{aroma.Marca}</h6>
-                                        {aroma.Nicotina !== "0" && (
-                                            <span className="badge bg-info">Nic: {aroma.Nicotina}</span>
-                                        )}
+                    <div className="table-responsive">
+                        <table className="table table-hover table-sm align-middle">
+                            <thead className="table-light">
+                                <tr>
+                                    <th>Marca</th>
+                                    <th>Nome</th>
+                                    <th>Descrizione</th>
+                                    <th>Formato</th>
+                                    <th>Nicotina</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {aromiFiltrati.map((aroma, index) => (
+                                    <tr key={index}>
+                                        <td className="text-primary fw-semibold">{aroma.Marca}</td>
+                                        <td>{aroma.Nome}</td>
+                                        <td className="text-muted">{aroma.Descrizione}</td>
+                                        <td>
+                                            <span className="badge bg-light text-dark">
+                                                {aroma.NomeFormato}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {aroma.Nicotina !== "0" ? (
+                                                <span className="badge bg-info">
+                                                    {aroma.Nicotina} mg
+                                                </span>
+                                            ) : (
+                                                <span className="badge bg-secondary">
+                                                    0 mg
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* Lista aromi - Versione Mobile */}
+            <div className="d-lg-none">
+                {aromiFiltrati.length === 0 ? (
+                    <div className="text-center">
+                        <p className="text-muted">Nessun aroma trovato</p>
+                    </div>
+                ) : (
+                    <div className="list-group">
+                        {aromiFiltrati.map((aroma, index) => (
+                            <div key={index} className="list-group-item">
+                                <div className="d-flex flex-column">
+                                    <div className="d-flex justify-content-between align-items-start mb-1">
+                                        <span className="text-primary fw-semibold">{aroma.Marca}</span>
+                                        <div>
+                                            {aroma.Nicotina !== "0" ? (
+                                                <span className="badge bg-info ms-2">
+                                                    {aroma.Nicotina} mg
+                                                </span>
+                                            ) : (
+                                                <span className="badge bg-secondary ms-2">
+                                                    0 mg
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                    <h5 className="card-title mb-0 mt-1">{aroma.Nome}</h5>
-                                    <p className="card-text text-muted mb-0">{aroma.Descrizione}</p>
+                                    <div className="mb-1">
+                                        <strong>{aroma.Nome}</strong>
+                                    </div>
+                                    <div className="text-muted small mb-1">{aroma.Descrizione}</div>
+                                    <div>
+                                        <span className="badge bg-light text-dark">
+                                            {aroma.NomeFormato}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
             </div>
         </div>
