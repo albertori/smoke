@@ -1,0 +1,4 @@
+[33m09b6e57[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Miglioramenti UI: ottimizzato layout marchi per categorie (Hardware, Aromi, Accessori), corretto visualizzazione orari domenicali, aggiunta immagine decorativa alla sezione orari
+[33ma5ce3f8[m Ottimizzata visualizzazione aromi (desktop/mobile) e migliorato calcolatore nicotina con più opzioni
+[33mbd8ca3b[m Miglioramenti al calcolatore di nicotina: aggiunto supporto per decimali e diverse concentrazioni di booster (4,8,9,12,16,18,20mg). Aggiunto bottone di riferimento al calcolatore sotto la descrizione del negozio.
+[33m6e1bc4a[m prima versione funzionante

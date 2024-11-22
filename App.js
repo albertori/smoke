@@ -410,48 +410,38 @@ const Newsletter = () => {
 // Componente HoursTab
 // ============================================
 const HoursTab = () => {
-    const [orari, setOrari] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        fetch('/nuovo_nsa/orari.txt')
-            .then(response => response.text())
-            .then(data => {
-                const righe = data.split('\n').map(riga => {
-                    const [giorno, mattina, pomeriggio] = riga.split(';');
-                    return { giorno, mattina, pomeriggio };
-                });
-                setOrari(righe);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Errore nel caricamento degli orari:', error);
-                setLoading(false);
-            });
-    }, []);
-
-    if (loading) {
-        return <div className="text-center p-3">Caricamento orari...</div>;
-    }
+    const orari = [
+        { giorno: 'Lunedì', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Martedì', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Mercoledì', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Giovedì', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Venerdì', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Sabato', mattina: '09:30-13:00', pomeriggio: '16:00-20:00' },
+        { giorno: 'Domenica', mattina: 'Chiuso', pomeriggio: 'Chiuso' }
+    ];
 
     return (
-        <div className="tab-pane active">
-            <h6 className="mb-3">Orari di apertura</h6>
-            <div className="list-group">
+        <div className="hours-card">
+            <h5 className="card-title mb-3">
+                <i className="bi bi-clock"></i> Orari di Apertura
+            </h5>
+            <div className="hours-list">
                 {orari.map((orario, index) => (
-                    <div key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                        <strong>{orario.giorno}</strong>
-                        <div>
-                            <span className="badge bg-primary me-2">{orario.mattina}</span>
-                            {orario.pomeriggio !== 'Chiuso' && 
-                                <span className="badge bg-primary">{orario.pomeriggio}</span>
-                            }
-                            {orario.pomeriggio === 'Chiuso' && orario.mattina !== 'Chiuso' &&
+                    <div key={index} className="hours-item d-flex justify-content-between align-items-center mb-2">
+                        <span className="day">{orario.giorno}</span>
+                        <div className="hours">
+                            {orario.mattina === 'Chiuso' && orario.pomeriggio === 'Chiuso' ? (
                                 <span className="badge bg-secondary">Chiuso</span>
-                            }
-                            {orario.mattina === 'Chiuso' &&
-                                <span className="badge bg-secondary">Chiuso</span>
-                            }
+                            ) : (
+                                <div className="d-flex">
+                                    {orario.mattina !== 'Chiuso' && 
+                                        <span className="badge bg-primary me-2">{orario.mattina}</span>
+                                    }
+                                    {orario.pomeriggio !== 'Chiuso' && 
+                                        <span className="badge bg-primary">{orario.pomeriggio}</span>
+                                    }
+                                </div>
+                            )}
                         </div>
                     </div>
                 ))}
