@@ -813,12 +813,12 @@ const ConsumptionCalculator = () => {
 const App = () => {
     const [activeTab, setActiveTab] = React.useState('hours');
 
-    const scrollToCalculator = (e) => {
+    const scrollToCalculator = (e, targetId) => {
         e.preventDefault();
-        const calculator = document.getElementById('nicCalculator');
-        if (calculator) {
+        const element = document.getElementById(targetId);
+        if (element) {
             const headerOffset = 80;
-            const elementPosition = calculator.getBoundingClientRect().top;
+            const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
             
             window.scrollTo({
@@ -830,14 +830,22 @@ const App = () => {
 
     return (
         <div className="app-container">
-            {/* Bottone Calcolatore */}
+            {/* Bottoni Calcolatori */}
             <div className="text-center mb-5">
-                <a href="#nicCalculator" 
-                   className="btn btn-primary btn-lg" 
-                   onClick={scrollToCalculator}>
-                    <i className="bi bi-calculator me-2"></i>
-                    Calcola la tua Base Neutra
-                </a>
+                <div className="d-flex justify-content-center gap-3">
+                    <a href="#nicCalculator" 
+                       className="btn btn-primary btn-lg" 
+                       onClick={(e) => scrollToCalculator(e, 'nicCalculator')}>
+                        <i className="bi bi-calculator me-2"></i>
+                        Calcola la tua Base Neutra
+                    </a>
+                    <a href="#savingsCalculator" 
+                       className="btn btn-success btn-lg" 
+                       onClick={(e) => scrollToCalculator(e, 'savingsCalculator')}>
+                        <i className="bi bi-piggy-bank me-2"></i>
+                        Calcola il Risparmio
+                    </a>
+                </div>
             </div>
 
             {/* Resto dei componenti */}
@@ -847,7 +855,6 @@ const App = () => {
                 {activeTab === 'map' && <LocationMap />}
                 {activeTab === 'info' && <InfoTab />}
                 {activeTab === 'aromi' && <SearchAromi />}
-                {activeTab === 'savingsCalculator' && <ConsumptionCalculator />}
             </div>
             <BrandsList />
             <NicCalculator />
