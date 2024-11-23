@@ -1,11 +1,11 @@
 /* Sfondo generale del sito */
 body {
     background: linear-gradient(135deg, 
-        #ffffff 0%,
-        #f8f9fa 25%,
-        #f1f3f5 50%,
-        #f8f9fa 75%,
-        #ffffff 100%
+        #e3f2fd 0%,
+        #bbdefb 25%,
+        #90caf9 50%,
+        #bbdefb 75%,
+        #e3f2fd 100%
     );
     min-height: 100vh;
 }
@@ -718,5 +718,172 @@ body {
 
 .scroll-to-top i {
     font-size: 1.5rem;
+}
+
+/* Bottoni con colori più intensi e sfumature */
+.btn-primary {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #303f9f, #3f51b5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.4);
+}
+
+.btn-primary:after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(45deg);
+    animation: buttonGlow 3s infinite;
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #2e7d32, #43a047);
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success:hover {
+    background: linear-gradient(45deg, #1b5e20, #2e7d32);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+}
+
+.btn-success:after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(45deg);
+    animation: buttonGlow 3s infinite;
+}
+
+@keyframes buttonGlow {
+    0% { transform: rotate(45deg) translateX(-100%); }
+    100% { transform: rotate(45deg) translateX(100%); }
+}
+
+/* Card con bordi colorati e hover effect */
+.card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* Colori specifici per diverse sezioni */
+.calculator-card {
+    border-left-color: #3f51b5;
+}
+
+.brand-card {
+    border-left-color: #2e7d32;
+}
+
+/* Tab navigation più vivace */
+.nav-pills .nav-link {
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+    border-radius: 10px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    color: #3f51b5;
+    font-weight: 500;
+}
+
+.nav-pills .nav-link.active {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(63, 81, 181, 0.3);
+    color: white;
+}
+
+/* Newsletter section più vibrante */
+.newsletter-section {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0);
+    color: white;
+    padding: 3rem 0;
+    margin-top: 3rem;
+    box-shadow: 0 4px 20px rgba(63, 81, 181, 0.3);
+}
+
+/* Features con icone colorate */
+.features-section {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.9),
+        rgba(248, 249, 250, 0.9)
+    );
+    padding: 3rem 0;
+    margin: 3rem 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.features-section .feature-icon {
+    font-size: 2.5rem;
+    background: -webkit-linear-gradient(45deg, #3f51b5, #5c6bc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Titoli più evidenti */
+h2, h3, h4, h5 {
+    color: #3f51b5;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+/* Bordi colorati per le sezioni */
+.section-border {
+    border-bottom: 4px solid #3f51b5;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Effetto arcobaleno sottile per alcune card */
+.rainbow-border {
+    position: relative;
+    border-radius: 15px;
+    padding: 3px;
+    background: linear-gradient(60deg, #3f51b5, #5c6bc0, #2e7d32, #43a047);
+    background-size: 300% 300%;
+    animation: gradientBorder 3s ease alternate infinite;
+}
+
+@keyframes gradientBorder {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+/* Aggiunta di un sottile pattern di sfondo */
+.pattern-bg {
+    background-image: linear-gradient(45deg, rgba(63, 81, 181, 0.05) 25%, transparent 25%),
+                      linear-gradient(-45deg, rgba(63, 81, 181, 0.05) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, rgba(63, 81, 181, 0.05) 75%),
+                      linear-gradient(-45deg, transparent 75%, rgba(63, 81, 181, 0.05) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }
  
