@@ -807,6 +807,46 @@ const ConsumptionCalculator = () => {
     );
 };
 
+// Componente ScrollToTop
+const ScrollToTop = () => {
+    const [isVisible, setIsVisible] = React.useState(false);
+
+    // Controlla lo scroll e mostra/nasconde il bottone
+    const toggleVisibility = () => {
+        if (window.pageYOffset > 300) {
+            setIsVisible(true);
+        } else {
+            setIsVisible(false);
+        }
+    };
+
+    // Funzione per scrollare in cima
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
+    // Aggiunge l'event listener per lo scroll
+    React.useEffect(() => {
+        window.addEventListener('scroll', toggleVisibility);
+        return () => {
+            window.removeEventListener('scroll', toggleVisibility);
+        };
+    }, []);
+
+    return (
+        <button 
+            className={`scroll-to-top ${isVisible ? 'visible' : ''}`}
+            onClick={scrollToTop}
+            aria-label="Torna in cima"
+        >
+            <i className="bi bi-arrow-up"></i>
+        </button>
+    );
+};
+
 // ============================================
 // Componente App principale - DEVE ESSERE DEFINITO DOPO
 // ============================================
@@ -861,6 +901,9 @@ const App = () => {
             <ConsumptionCalculator />
             <Features />
             <Newsletter />
+            
+            {/* Aggiungi ScrollToTop alla fine */}
+            <ScrollToTop />
         </div>
     );
 };
