@@ -653,149 +653,143 @@ const InfoTab = () => {
 // Componente ConsumptionCalculator
 // ============================================
 const ConsumptionCalculator = () => {
-    const [cigarettesPerDay, setCigarettesPerDay] = React.useState(20);
-    const [cigarettePackPrice, setCigarettePackPrice] = React.useState(5.20);
-    const [liquidMlPerDay, setLiquidMlPerDay] = React.useState(3);
-    const [liquidBottlePrice, setLiquidBottlePrice] = React.useState(20);
-    const [liquidBottleSize, setLiquidBottleSize] = React.useState(10);
+    const [sigarette, setSigarette] = React.useState(1);
+    const [prezzo, setPrezzo] = React.useState(5.20);
+    const [mlGiorno, setMlGiorno] = React.useState(3);
+    const [formatoLiquido, setFormatoLiquido] = React.useState('10ml');
+    const [prezzi, setPrezzi] = React.useState({
+        '10ml': 7,
+        '20ml': 0,
+        '60ml': 0,
+        '100ml': 0
+    });
 
-    // Calcoli
-    const cigarettesMonthCost = (cigarettesPerDay / 20) * cigarettePackPrice * 30;
-    const cigarettesYearCost = cigarettesMonthCost * 12;
-    const liquidBottlesPerMonth = Math.ceil((liquidMlPerDay * 30) / liquidBottleSize);
-    const liquidMonthCost = liquidBottlesPerMonth * liquidBottlePrice;
-    const liquidYearCost = liquidMonthCost * 12;
-    const monthlySavings = cigarettesMonthCost - liquidMonthCost;
-    const yearlySavings = cigarettesYearCost - liquidYearCost;
-    const dailySavings = monthlySavings / 30;  // Calcolo risparmio giornaliero
+    const formati = [
+        { value: '10ml', label: '10ml (Pronti)' },
+        { value: '20ml', label: '20ml' },
+        { value: '60ml', label: '60ml' },
+        { value: '100ml', label: '100ml' }
+    ];
+
+    const calcolaRisparmio = () => {
+        const spesaSigaretteGiorno = sigarette * prezzo;
+        const spesaSigaretteMese = spesaSigaretteGiorno * 30;
+        const spesaSigaretteAnno = spesaSigaretteMese * 12;
+
+        const mlMese = mlGiorno * 30;
+        const mlPerBottiglia = parseInt(formatoLiquido);
+        const bottiglieMese = Math.ceil(mlMese / mlPerBottiglia);
+        const spesaLiquidiMese = bottiglieMese * prezzi[formatoLiquido];
+        const spesaLiquidiGiorno = spesaLiquidiMese / 30;
+        const spesaLiquidiAnno = spesaLiquidiMese * 12;
+
+        return {
+            giornaliero: spesaSigaretteGiorno - spesaLiquidiGiorno,
+            mensile: spesaSigaretteMese - spesaLiquidiMese,
+            annuale: spesaSigaretteAnno - spesaLiquidiAnno
+        };
+    };
+
+    const handlePrezzoChange = (formato, nuovoPrezzo) => {
+        setPrezzi(prevPrezzi => {
+            // Crea un nuovo oggetto con tutti i prezzi azzerati
+            const nuoviPrezzi = Object.keys(prevPrezzi).reduce((acc, key) => {
+                acc[key] = 0;
+                return acc;
+            }, {});
+            // Imposta solo il prezzo del formato selezionato
+            nuoviPrezzi[formato] = nuovoPrezzo;
+            return nuoviPrezzi;
+        });
+        setFormatoLiquido(formato); // Seleziona automaticamente il formato per cui si sta impostando il prezzo
+    };
+
+    const risparmio = calcolaRisparmio();
 
     return (
-        <div className="calculator-container my-5" id="savingsCalculator">
-            <div className="container">
-                <div className="card shadow-sm">
-                    <div className="card-header bg-primary text-white py-3">
-                        <h5 className="card-title mb-0 text-center">
-                            <i className="bi bi-piggy-bank me-2"></i>
-                            Calcola il Tuo Risparmio
-                        </h5>
-                    </div>
-                    <div className="card-body p-4">
-                        <div className="row g-4">
-                            <div className="col-md-8">
-                                <div className="row g-3">
-                                    {/* Input Sigarette */}
-                                    <div className="col-md-6">
-                                        <label className="form-label small">Sigarette al giorno</label>
-                                        <div className="input-group">
-                                            <span className="input-group-text bg-danger text-white">
-                                                <i className="bi bi-slash-circle"></i>
-                                            </span>
-                                            <input 
-                                                type="number" 
-                                                className="form-control"
-                                                value={cigarettesPerDay}
-                                                onChange={(e) => setCigarettesPerDay(Number(e.target.value))}
-                                                min="1"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label small">Prezzo pacchetto (€)</label>
-                                        <div className="input-group">
-                                            <span className="input-group-text">€</span>
-                                            <input 
-                                                type="number" 
-                                                className="form-control"
-                                                value={cigarettePackPrice}
-                                                onChange={(e) => setCigarettePackPrice(Number(e.target.value))}
-                                                step="0.10"
-                                                min="0"
-                                            />
-                                        </div>
-                                    </div>
-                                    {/* Input Svapo */}
-                                    <div className="col-md-4">
-                                        <label className="form-label small">ML al giorno</label>
-                                        <div className="input-group">
-                                            <span className="input-group-text bg-primary text-white">
-                                                <i className="bi bi-droplet"></i>
-                                            </span>
-                                            <input 
-                                                type="number" 
-                                                className="form-control"
-                                                value={liquidMlPerDay}
-                                                onChange={(e) => setLiquidMlPerDay(Number(e.target.value))}
-                                                step="0.5"
-                                                min="0"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-4">
-                                        <label className="form-label small">
-                                            Prezzo bottiglia liquido (€)
-                                            <i className="bi bi-info-circle ms-1" 
-                                               data-bs-toggle="tooltip" 
-                                               data-bs-placement="top" 
-                                               title="Prezzo di una bottiglia di liquido pronto (es. aroma + base)"></i>
-                                        </label>
-                                        <div className="input-group">
-                                            <span className="input-group-text">€</span>
-                                            <input 
-                                                type="number" 
-                                                className="form-control"
-                                                value={liquidBottlePrice}
-                                                onChange={(e) => setLiquidBottlePrice(Number(e.target.value))}
-                                                step="0.50"
-                                                min="0"
-                                                placeholder="es. 20€"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="col-md-4">
-                                        <label className="form-label small">Formato (ml)</label>
-                                        <select 
-                                            className="form-select"
-                                            value={liquidBottleSize}
-                                            onChange={(e) => setLiquidBottleSize(Number(e.target.value))}
-                                        >
-                                            <option value="10">10ml (Shot)</option>
-                                            <option value="20">20ml</option>
-                                            <option value="30">30ml</option>
-                                            <option value="60">60ml</option>
-                                            <option value="100">100ml</option>
-                                        </select>
-                                    </div>
+        <div className="card shadow-sm p-4 mb-5" id="savingsCalculator">
+            <h3 className="mb-4">
+                <i className="bi bi-piggy-bank text-success me-2"></i>
+                Calcola il tuo risparmio
+            </h3>
+            <div className="row g-3">
+                <div className="col-md-6">
+                    <label className="form-label">Pacchetti di sigarette al giorno</label>
+                    <input 
+                        type="number" 
+                        className="form-control" 
+                        value={sigarette} 
+                        onChange={(e) => setSigarette(Number(e.target.value))}
+                        min="0"
+                    />
+                </div>
+                <div className="col-md-6">
+                    <label className="form-label">Prezzo pacchetto (€)</label>
+                    <input 
+                        type="number" 
+                        className="form-control" 
+                        value={prezzo} 
+                        onChange={(e) => setPrezzo(Number(e.target.value))}
+                        min="0"
+                        step="0.10"
+                    />
+                </div>
+                <div className="col-md-6">
+                    <label className="form-label">ml di liquido al giorno</label>
+                    <input 
+                        type="number" 
+                        className="form-control" 
+                        value={mlGiorno} 
+                        onChange={(e) => setMlGiorno(Number(e.target.value))}
+                        min="0"
+                    />
+                </div>
+
+                {/* Prezzi dei formati */}
+                <div className="col-12">
+                    <label className="form-label">Prezzi dei liquidi</label>
+                    <div className="row g-2">
+                        {formati.map(formato => (
+                            <div key={formato.value} className="col-md-3">
+                                <div className="input-group">
+                                    <span className="input-group-text">{formato.label}</span>
+                                    <input
+                                        type="number"
+                                        className="form-control"
+                                        value={prezzi[formato.value]}
+                                        onChange={(e) => handlePrezzoChange(formato.value, Number(e.target.value))}
+                                        min="0"
+                                        step="0.10"
+                                        placeholder="Prezzo"
+                                    />
+                                    <span className="input-group-text">€</span>
                                 </div>
                             </div>
-                            
-                            {/* Risultati */}
-                            <div className="col-md-4">
-                                <div className="h-100 d-flex flex-column justify-content-center">
-                                    <div className="text-center p-3 bg-light rounded">
-                                        <div className="mb-3">
-                                            <h6 className="text-muted mb-2">Risparmio Giornaliero</h6>
-                                            <h5 className="text-success mb-0">
-                                                {dailySavings.toFixed(2)}€
-                                            </h5>
-                                        </div>
-                                        <div className="mb-3">
-                                            <h6 className="text-muted mb-2">Risparmio Mensile</h6>
-                                            <h4 className="text-success mb-0">
-                                                {monthlySavings.toFixed(2)}€
-                                            </h4>
-                                        </div>
-                                        <div className="mb-3">
-                                            <h6 className="text-muted mb-2">Risparmio Annuale</h6>
-                                            <h3 className="text-success mb-0">
-                                                {yearlySavings.toFixed(2)}€
-                                            </h3>
-                                        </div>
-                                        <div>
-                                            <h6 className="text-muted mb-2">Bottiglie al Mese</h6>
-                                            <h5 className="text-primary mb-0">
-                                                {liquidBottlesPerMonth}
-                                            </h5>
-                                        </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="col-12">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title mb-3">Il tuo risparmio stimato:</h5>
+                            <div className="row g-3">
+                                <div className="col-md-4">
+                                    <div className="alert alert-info mb-0">
+                                        <strong>Giornaliero:</strong><br/>
+                                        {risparmio.giornaliero.toFixed(2)}€
+                                    </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <div className="alert alert-success mb-0">
+                                        <strong>Mensile:</strong><br/>
+                                        {risparmio.mensile.toFixed(2)}€
+                                    </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <div className="alert alert-warning mb-0">
+                                        <strong>Annuale:</strong><br/>
+                                        {risparmio.annuale.toFixed(2)}€
                                     </div>
                                 </div>
                             </div>
