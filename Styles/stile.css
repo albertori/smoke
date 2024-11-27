@@ -443,16 +443,38 @@ body {
     max-height: 400px;
 }
 
-.carousel-item img {
-    border-radius: 15px;
-    height: 400px;
-    object-fit: cover;
-    width: 100%;
-    max-height: 400px;
+.carousel-item {
+    max-height: 500px;
+    overflow: hidden;
 }
 
-.carousel-inner {
-    max-height: 400px;
+.carousel-item img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Responsive per schermi più piccoli */
+@media (max-width: 768px) {
+    .carousel-item {
+        max-height: 300px;
+    }
+    
+    .carousel-item img {
+        height: 300px;
+    }
+}
+
+/* Per schermi molto piccoli */
+@media (max-width: 576px) {
+    .carousel-item {
+        max-height: 200px;
+    }
+    
+    .carousel-item img {
+        height: 200px;
+    }
 }
 
 .carousel-caption {
@@ -885,5 +907,106 @@ h2, h3, h4, h5 {
                       linear-gradient(-45deg, transparent 75%, rgba(63, 81, 181, 0.05) 75%);
     background-size: 20px 20px;
     background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Stili per la sezione recensioni Google */
+.google-reviews {
+    padding: 3rem 0;
+    background-color: #f8f9fa;
+    margin: 2rem 0;
+}
+
+.google-reviews .container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .google-reviews {
+        padding: 2rem 0;
+    }
+}
+
+.review-card {
+    background: linear-gradient(145deg, 
+        #ffffff 0%,
+        #f8f9fa 100%
+    );
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid #4285f4;
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.reviewer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    border: 2px solid #4285f4;
+}
+
+.reviewer-name {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.review-date {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.review-stars {
+    color: #fbbc05;
+    margin-bottom: 0.5rem;
+}
+
+.review-text {
+    color: #495057;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.google-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.google-badge img {
+    height: 30px;
+    margin-right: 1rem;
+}
+
+.google-rating {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Responsive per le recensioni */
+@media (max-width: 768px) {
+    .google-reviews {
+        padding: 2rem 1rem;
+    }
+    
+    .review-card {
+        padding: 1rem;
+    }
 }
  

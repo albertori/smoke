@@ -53,16 +53,19 @@ const LocationMap = () => {
     React.useEffect(() => {
         let isMounted = true;
 
-        const initMap = () => {
+        const initMap = async () => {
             if (!mapRef.current || !isMounted) return;
 
             try {
+                // Ridotto il delay a 300ms
+                await new Promise((resolve) => setTimeout(resolve, 300));
+
                 const location = { 
                     lat: 41.940270, 
                     lng: 12.531830 
                 };
 
-                const map = new window.google.maps.Map(mapRef.current, {
+                const map = new google.maps.Map(mapRef.current, {
                     zoom: 16,
                     center: location,
                     mapTypeControl: false,
@@ -71,21 +74,17 @@ const LocationMap = () => {
                     zoomControl: true,
                 });
 
-                const marker = new window.google.maps.Marker({
+                const marker = new google.maps.Marker({
                     position: location,
                     map: map,
                     title: 'NoSmokingArea'
                 });
 
-                if (isMounted) {
-                    setIsLoading(false);
-                }
+                setIsLoading(false);
             } catch (err) {
                 console.error('Errore mappa:', err);
-                if (isMounted) {
-                    setError('Errore nel caricamento della mappa');
-                    setIsLoading(false);
-                }
+                setError('Errore nel caricamento della mappa');
+                setIsLoading(false);
             }
         };
 
@@ -105,7 +104,8 @@ const LocationMap = () => {
 
             script.onload = () => {
                 if (isMounted) {
-                    initMap();
+                    // Ridotto il delay a 300ms
+                    setTimeout(initMap, 300);
                 }
             };
 
@@ -135,7 +135,7 @@ const LocationMap = () => {
                 <div 
                     ref={mapRef} 
                     className="map-container"
-                    style={{ opacity: isLoading ? 0 : 1 }}
+                    style={{ height: '400px', opacity: isLoading ? 0 : 1 }}
                 />
                 {isLoading && (
                     <div className="loading-overlay">
@@ -153,12 +153,12 @@ const LocationMap = () => {
                 )}
             </div>
             
-            <div className="address-box">
+            <div className="address-box mt-3">
                 <div className="d-flex align-items-center">
-                    <i className="bi bi-pin-map-fill address-icon"></i>
+                    <i className="bi bi-pin-map-fill address-icon me-2"></i>
                     <div>
-                        <h6 className="address-title">Il nostro indirizzo</h6>
-                        <p className="address-text">Piazza Carnaro 8/a</p>
+                        <h6 className="address-title mb-1">Il nostro indirizzo</h6>
+                        <p className="address-text mb-0">Piazza Carnaro 8/a</p>
                     </div>
                 </div>
             </div>
@@ -627,7 +627,7 @@ const InfoTab = () => {
                     <a href="mailto:info@nosmokingarea.it">info@nosmokingarea.it</a>
                 </li>
                 <li className="gradient-item p-3 mb-2">
-                    <a href="https://wa.me/351665887" 
+                    <a href="https://wa.me/+39351665887" 
                        className="whatsapp-link text-decoration-none"
                        target="_blank"
                        rel="noopener noreferrer">
@@ -847,56 +847,38 @@ const ScrollToTop = () => {
 const App = () => {
     const [activeTab, setActiveTab] = React.useState('hours');
 
-    const scrollToCalculator = (e, targetId) => {
-        e.preventDefault();
-        const element = document.getElementById(targetId);
-        if (element) {
-            const headerOffset = 80;
-            const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
-    };
+    // Aggiungi questo useEffect per ascoltare i click dalla navbar
+    React.useEffect(() => {
+        const handleTabChange = (event) => {
+            console.log('Tab changed to:', event.detail); // Per debug
+            setActiveTab(event.detail);
+        };
+        
+        document.addEventListener('setTab', handleTabChange);
+        return () => document.removeEventListener('setTab', handleTabChange);
+    }, []);
 
     return (
         <div className="app-container">
-            {/* Bottoni Calcolatori */}
-            <div className="text-center mb-5">
-                <div className="d-flex justify-content-center gap-3">
-                    <a href="#nicCalculator" 
-                       className="btn btn-primary btn-lg" 
-                       onClick={(e) => scrollToCalculator(e, 'nicCalculator')}>
-                        <i className="bi bi-calculator me-2"></i>
-                        Calcola la tua Base Neutra
-                    </a>
-                    <a href="#savingsCalculator" 
-                       className="btn btn-success btn-lg" 
-                       onClick={(e) => scrollToCalculator(e, 'savingsCalculator')}>
-                        <i className="bi bi-piggy-bank me-2"></i>
-                        Calcola il Risparmio
-                    </a>
-                </div>
+            {/* Tabs di navigazione */}
+            <div id="main-tabs">
+                <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
-            {/* Resto dei componenti */}
-            <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+            {/* Contenuto principale */}
             <div className="tab-content">
                 {activeTab === 'hours' && <HoursTab />}
                 {activeTab === 'map' && <LocationMap />}
                 {activeTab === 'info' && <InfoTab />}
                 {activeTab === 'aromi' && <SearchAromi />}
             </div>
+
+            {/* Altri componenti */}
             <BrandsList />
             <NicCalculator />
             <ConsumptionCalculator />
             <Features />
             <Newsletter />
-            
-            {/* Aggiungi ScrollToTop alla fine */}
             <ScrollToTop />
         </div>
     );
