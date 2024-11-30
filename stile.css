@@ -344,4 +344,14 @@
 
 .calculation-item:last-child {
     margin-bottom: 0;
+}
+
+.exact-result {
+    border-left: 4px solid #0d6efd;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.exact-result strong {
+    color: #0d6efd;
 } 

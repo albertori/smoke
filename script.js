@@ -1,23 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Aggiungi base
-    document.getElementById('addBase').addEventListener('click', function() {
-        const template = document.querySelector('.nicotine-base-row').cloneNode(true);
-        template.querySelector('.base-strength').value = '';
-        document.getElementById('nicotineBases').appendChild(template);
-        
-        // Aggiungi event listener al nuovo pulsante di rimozione
-        template.querySelector('.remove-base').addEventListener('click', function() {
-            if (document.querySelectorAll('.nicotine-base-row').length > 1) {
-                this.closest('.nicotine-base-row').remove();
-            }
-        });
-    });
+    const selectedBases = new Set();
     
-    // Rimuovi base
-    document.querySelectorAll('.remove-base').forEach(button => {
-        button.addEventListener('click', function() {
-            if (document.querySelectorAll('.nicotine-base-row').length > 1) {
-                this.closest('.nicotine-base-row').remove();
+    // Gestione selezione basi
+    document.querySelectorAll('.base-option').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const strength = this.dataset.strength;
+            if (this.classList.contains('btn-primary')) {
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-primary');
+                selectedBases.delete(parseInt(strength));
+            } else {
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-primary');
+                selectedBases.add(parseInt(strength));
             }
         });
     });
@@ -32,45 +30,36 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        const bases = [];
-        document.querySelectorAll('.nicotine-base-row').forEach(row => {
-            const strength = parseFloat(row.querySelector('.base-strength').value);
-            const type = row.querySelector('.base-type').value;
-            if (strength) {
-                bases.push({ strength, type });
-            }
-        });
-        
-        if (bases.length === 0) {
-            alert('Aggiungi almeno una base di nicotina');
+        if (selectedBases.size === 0) {
+            alert('Seleziona almeno una base di nicotina');
             return;
         }
         
-        // Ordina le basi dalla più forte alla più debole
-        bases.sort((a, b) => b.strength - a.strength);
+        // Converti Set in array e ordina
+        const bases = Array.from(selectedBases).sort((a, b) => b - a);
         
         // Calcola le quantità necessarie
-        let remainingNicotine = finalAmount * targetStrength;
+        const targetNicotine = finalAmount * targetStrength;
+        let remainingNicotine = targetNicotine;
         let remainingVolume = finalAmount;
         const results = [];
         
-        for (const base of bases) {
+        for (const baseStrength of bases) {
             if (remainingNicotine <= 0 || remainingVolume <= 0) break;
             
-            const maxVolumeFromThisBase = Math.min(
-                remainingVolume,
-                (remainingNicotine / base.strength) * 1
-            );
-            
-            if (maxVolumeFromThisBase > 0) {
-                results.push({
-                    strength: base.strength,
-                    type: base.type,
-                    volume: Math.round(maxVolumeFromThisBase * 10) / 10
-                });
-                
-                remainingNicotine -= maxVolumeFromThisBase * base.strength;
-                remainingVolume -= maxVolumeFromThisBase;
+            // Calcola quanti shot da 10ml sono necessari
+            const maxShots = Math.floor(remainingNicotine / (baseStrength * 10));
+            if (maxShots > 0) {
+                const shotsToUse = Math.min(maxShots, Math.floor(remainingVolume / 10));
+                if (shotsToUse > 0) {
+                    results.push({
+                        strength: baseStrength,
+                        shots: shotsToUse
+                    });
+                    
+                    remainingNicotine -= shotsToUse * baseStrength * 10;
+                    remainingVolume -= shotsToUse * 10;
+                }
             }
         }
         
@@ -78,22 +67,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultDiv = document.getElementById('calculationResult');
         resultDiv.innerHTML = '';
         
-        results.forEach(result => {
-            const item = document.createElement('div');
-            item.className = 'calculation-item';
-            item.innerHTML = `
-                <strong>${result.volume}ml</strong> di base ${result.strength}mg/ml (${result.type.toUpperCase()})
+        if (results.length > 0) {
+            // Calcola la concentrazione effettiva
+            let totalNicotine = 0;
+            let totalVolume = 0;
+            
+            results.forEach(result => {
+                totalNicotine += result.shots * result.strength * 10;
+                totalVolume += result.shots * 10;
+                
+                const item = document.createElement('div');
+                item.className = 'calculation-item';
+                item.innerHTML = `
+                    <strong>${result.shots}</strong> base${result.shots > 1 ? 'i' : ''} da 10ml a ${result.strength}mg/ml
+                `;
+                resultDiv.appendChild(item);
+            });
+            
+            if (remainingVolume > 0) {
+                const item = document.createElement('div');
+                item.className = 'calculation-item';
+                item.innerHTML = `
+                    <strong>${Math.round(remainingVolume * 10) / 10}ml</strong> di base neutra
+                `;
+                resultDiv.appendChild(item);
+                totalVolume += remainingVolume;
+            }
+            
+            // Aggiungi il risultato esatto
+            const exactStrength = totalNicotine / totalVolume;
+            const exactResult = document.createElement('div');
+            exactResult.className = 'exact-result mt-3 p-3 bg-primary bg-opacity-10 rounded';
+            exactResult.innerHTML = `
+                <strong>Risultato esatto:</strong> ${Math.round(exactStrength * 100) / 100}mg/ml 
+                in ${totalVolume}ml totali
             `;
-            resultDiv.appendChild(item);
-        });
-        
-        if (remainingVolume > 0) {
-            const item = document.createElement('div');
-            item.className = 'calculation-item';
-            item.innerHTML = `
-                <strong>${Math.round(remainingVolume * 10) / 10}ml</strong> di base neutra
-            `;
-            resultDiv.appendChild(item);
+            resultDiv.appendChild(exactResult);
+            
+        } else {
+            resultDiv.innerHTML = '<div class="alert alert-warning">Non è possibile raggiungere la concentrazione desiderata con le basi selezionate</div>';
         }
     });
 }); 

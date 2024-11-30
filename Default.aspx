@@ -189,6 +189,11 @@
         </div>
     </div>
 
+    <!-- Calcolatore di nicotina esistente -->
+    <div class="calculator-section">
+        <!-- ... il tuo calcolatore attuale ... -->
+    </div>
+
     <!-- Bottone per il calcolatore avanzato -->
     <div class="text-center mt-4">
         <button type="button" class="btn btn-primary btn-lg advanced-calc-btn" data-bs-toggle="modal" data-bs-target="#advancedCalculator">
@@ -218,28 +223,24 @@
                                 <input type="number" class="form-control" id="targetStrength" min="0">
                             </div>
                             
-                            <!-- Sezione basi di nicotina disponibili -->
+                            <!-- Basi di nicotina disponibili predefinite -->
                             <div class="col-12">
-                                <h6 class="mb-3">Basi di Nicotina Disponibili</h6>
-                                <div id="nicotineBases" class="mb-3">
-                                    <div class="row g-2 mb-2 nicotine-base-row">
-                                        <div class="col-md-5">
-                                            <input type="number" class="form-control base-strength" placeholder="Concentrazione (mg)">
-                                        </div>
-                                        <div class="col-md-5">
-                                            <select class="form-select base-type">
-                                                <option value="pg">Base PG</option>
-                                                <option value="vg">Base VG</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button type="button" class="btn btn-danger btn-sm w-100 remove-base"><i class="bi bi-trash"></i></button>
-                                        </div>
-                                    </div>
+                                <h6 class="mb-3">Basi di Nicotina Disponibili:</h6>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="20">20mg</button>
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="18">18mg</button>
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="16">16mg</button>
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="8">8mg</button>
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="6">6mg</button>
+                                    <button type="button" class="btn btn-outline-primary base-option" data-strength="3">3mg</button>
                                 </div>
-                                <button type="button" class="btn btn-success btn-sm" id="addBase">
-                                    <i class="bi bi-plus-circle me-1"></i>Aggiungi Base
-                                </button>
+                            </div>
+                            
+                            <!-- Basi selezionate -->
+                            <div class="col-12">
+                                <div id="selectedBases" class="mt-3">
+                                    <!-- Le basi selezionate verranno mostrate qui -->
+                                </div>
                             </div>
                             
                             <!-- Risultato -->
@@ -261,4 +262,7 @@
             </div>
         </div>
     </div>
+
+    <!-- Script per il calcolatore avanzato -->
+    <script src="script.js"></script>
 </asp:Content>
