@@ -175,4 +175,173 @@
         max-width: 200px;
         margin-bottom: 1.5rem;
     }
+}
+
+/* Stili per la lista delle caratteristiche */
+.features-list {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.feature-item {
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.feature-item:hover {
+    background-color: rgba(25, 135, 84, 0.05);
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature-text h4 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.feature-text p {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+@media (max-width: 767.98px) {
+    .feature-item {
+        padding: 0.25rem;
+    }
+    
+    .feature-icon {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .feature-text h4 {
+        font-size: 0.9rem;
+    }
+    
+    .feature-text p {
+        font-size: 0.8rem;
+    }
+}
+
+/* Stili per la sezione servizi */
+.services-section {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.service-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(25, 135, 84, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.service-icon i {
+    font-size: 1.75rem;
+    color: #198754;
+}
+
+.service-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.service-description {
+    color: #6c757d;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+    .services-section {
+        padding: 1.5rem;
+    }
+    
+    .service-card {
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    
+    .service-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .service-icon i {
+        font-size: 1.5rem;
+    }
+}
+
+/* Stili per il calcolatore avanzato */
+.advanced-calc-btn {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.advanced-calc-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.calculator-advanced {
+    background-color: #fff;
+    border-radius: 0.5rem;
+}
+
+.nicotine-base-row {
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.nicotine-base-row:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.result-section {
+    border-left: 4px solid #0d6efd;
+}
+
+#calculationResult {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.calculation-item {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #fff;
+}
+
+.calculation-item:last-child {
+    margin-bottom: 0;
 } 
