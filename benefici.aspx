@@ -68,6 +68,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Progress bar giornaliera -->
+            <div class="daily-progress-container">
+                <div class="daily-progress">
+                    <div class="progress-bar" id="dailyProgressBar"></div>
+                </div>
+                <div class="time-markers">
+                    <span>00:00</span>
+                    <span>06:00</span>
+                    <span>12:00</span>
+                    <span>18:00</span>
+                    <span>24:00</span>
+                </div>
+            </div>
         </div>
     </form>
 
