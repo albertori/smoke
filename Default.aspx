@@ -16,40 +16,25 @@
     <!-- Bootstrap Icons - Versione più recente -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Aggiungi questo stile nella sezione head o nel tuo CSS -->
+    <style>
+        .carousel-inner {
+            height: 500px; /* Puoi regolare questa altezza in base alle tue esigenze */
+        }
+        
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <!-- Header con carousel di immagini -->
     <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img src="/nuovo_nsa/img/ecig.jpg" class="d-block w-100" alt="Sigaretta elettronica 1">
-                <div class="carousel-caption">
-                    <h2 class="display-4">NoSmokingArea</h2>
-                    <p>Scopri un mondo di alternative al fumo tradizionale</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="/nuovo_nsa/img/ecig1.jpg" class="d-block w-100" alt="Sigaretta elettronica 2">
-                <div class="carousel-caption">
-                    <h2 class="display-4">NoSmokingArea</h2>
-                    <p>Scopri un mondo di alternative al fumo tradizionale</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="/nuovo_nsa/img/ecig2.jpg" class="d-block w-100" alt="Sigaretta elettronica 3">
-                <div class="carousel-caption">
-                    <h2 class="display-4">NoSmokingArea</h2>
-                    <p>Scopri un mondo di alternative al fumo tradizionale</p>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <img src="/nuovo_nsa/img/ecig3.jpg" class="d-block w-100" alt="Sigaretta elettronica 4">
-                <div class="carousel-caption">
-                    <h2 class="display-4">NoSmokingArea</h2>
-                    <p>Scopri un mondo di alternative al fumo tradizionale</p>
-                </div>
-            </div>
+        <div class="carousel-inner" id="carouselInner">
+            <!-- Le immagini verranno caricate qui via JavaScript -->
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -78,6 +63,22 @@
         </div>
     </div>
 
+    <!-- Aggiungi questa sezione dopo la sezione di benvenuto -->
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10">
+                <div class="featured-brand p-4 bg-white rounded shadow-sm">
+                    <h2 class="h4 mb-3">KIWI - Sigarette Elettroniche di Alta Qualità</h2>
+                    <p class="lead">
+                        Scopri la linea completa di prodotti <strong>KIWI</strong> nel nostro negozio. 
+                        Siamo rivenditori autorizzati di sigarette elettroniche <em>KIWI</em>, 
+                        uno dei marchi più popolari e affidabili nel settore dello svapo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Root element per React -->
     <div id="root"></div>
 
@@ -91,7 +92,7 @@
                 <div class="content-sections">
                     <div class="content-section mb-5">
                         <h2 class="h4 mb-3">Esperti in Sigarette Elettroniche a Roma</h2>
-                        <p>Dal 2011, NoSmokingArea &egrave; il punto di riferimento per gli appassionati di svapo a Roma. Il nostro team di esperti &egrave; costantemente aggiornato sulle ultime novit&agrave; del settore per offrirti consulenza professionale e prodotti di alta qualit&agrave;.</p>
+                        <p>Dal 2011, NoSmokingArea &egrave; il punto di riferimento per gli appassionati di svapo a Roma. Il nostro team di esperti &egrave; costantemente aggiornato sulle ultime novit&agrave; del settore, inclusi i nuovi prodotti <strong>KIWI</strong>, per offrirti consulenza professionale e prodotti di alta qualit&agrave;.</p>
                         <p>Che tu sia un principiante o un esperto dello svapo, troverai da noi:</p>
                         <div class="features-list p-4 bg-light rounded shadow-sm border border-2 border-success border-opacity-25">
                             <ul class="list-unstyled mb-0">
@@ -101,7 +102,7 @@
                                     </div>
                                     <div class="feature-text">
                                         <h4 class="h6 mb-1">Consulenza Personalizzata</h4>
-                                        <p class="mb-0 text-muted small">Per la scelta del dispositivo pi&ugrave; adatto</p>
+                                        <p class="mb-0 text-muted small">Per la scelta del dispositivo pi&ugrave; adatto, inclusi i prodotti KIWI</p>
                                     </div>
                                 </li>
                                 <li class="mb-3 d-flex align-items-center feature-item">
@@ -265,4 +266,41 @@
 
     <!-- Script per il calcolatore avanzato -->
     <script src="script.js"></script>
+
+    <script>
+        fetch('mdb-database/slideshow.json')
+            .then(response => response.json())
+            .then(data => {
+                const carouselInner = document.getElementById('carouselInner');
+                // Verifica se i dati sono nel formato vecchio (con "images") o nuovo
+                const images = data.images || data;
+                images.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = `carousel-item${index === 0 ? ' active' : ''}`;
+                    // Gestisce sia il vecchio formato (stringa URL) che il nuovo formato (oggetto)
+                    const imageUrl = typeof item === 'string' ? item : item.url;
+                    const description = typeof item === 'string' ? 'Scopri un mondo di alternative al fumo tradizionale' : item.description;
+                    
+                    div.innerHTML = `
+                        <img src="${imageUrl}" class="d-block w-100" alt="${description}">
+                        <div class="carousel-caption">
+                            <h2 class="display-4">NoSmokingArea</h2>
+                            <p>${description}</p>
+                        </div>
+                    `;
+                    carouselInner.appendChild(div);
+                });
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento delle immagini:', error);
+                const carouselInner = document.getElementById('carouselInner');
+                carouselInner.innerHTML = `
+                    <div class="carousel-item active">
+                        <div class="d-flex justify-content-center align-items-center bg-light" style="height: 400px;">
+                            <p class="text-center text-muted">Impossibile caricare le immagini</p>
+                        </div>
+                    </div>
+                `;
+            });
+    </script>
 </asp:Content>
