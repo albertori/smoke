@@ -48,244 +48,54 @@ body::before {
 }
 
 .progress-card {
-    background: linear-gradient(145deg, #f6f8fc, #e8eef7); /* Sfondo con gradiente */
+    background: linear-gradient(145deg, #f6f8fc, #e8eef7);
     border-radius: 20px;
     padding: 20px;
     margin-bottom: 25px;
     box-shadow: 
-        10px 10px 20px var(--shadow-color),
-        -10px -10px 20px var(--light-shadow);
+        4px 4px 8px rgba(0, 0, 0, 0.2),    /* Ombra più netta */
+        -4px -4px 8px rgba(255, 255, 255, 0.8); /* Ombra chiara più netta */
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(200, 200, 200, 0.5); /* Bordo più visibile */
     position: relative;
     overflow: hidden;
 }
 
 .progress-card:hover {
     transform: translateY(-5px);
-    background: linear-gradient(145deg, #ffffff, #f0f6ff); /* Gradiente più chiaro all'hover */
     box-shadow: 
-        15px 15px 25px var(--shadow-color),
-        -12px -12px 22px var(--light-shadow);
+        6px 6px 12px rgba(0, 0, 0, 0.25),    /* Ombra hover più netta */
+        -6px -6px 12px rgba(255, 255, 255, 0.85);
 }
 
-.progress-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--success-color));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.progress-card:hover::before {
-    opacity: 1;
-}
-
-.progress-card i {
-    font-size: 1.8rem;
-    background: linear-gradient(135deg, #4A90E2, #2ECC71);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 15px;
-    display: block;
-}
-
-.progress-card h3 {
-    color: var(--text-color);
-    font-size: 1.6rem;
-    font-weight: 600;
-    margin: 10px 0;
-    padding: 12px 18px;
-    background: linear-gradient(145deg, #ffffff, #e8eef7); /* Sfondo più deciso */
-    border-radius: 15px;
-    box-shadow: 
-        5px 5px 10px rgba(0, 0, 0, 0.1),
-        -5px -5px 10px rgba(255, 255, 255, 0.8),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.8),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-card h3::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(145deg, 
-        rgba(255,255,255,0.2) 0%, 
-        rgba(255,255,255,0) 100%);
-    pointer-events: none;
-}
-
-.progress-card p {
-    color: var(--text-color);
-    font-size: 1rem;
-    margin: 10px 0;
-    padding: 8px 15px;
-    background: linear-gradient(145deg, #f8fafd, #e6ecf5); /* Sfondo più deciso */
-    border-radius: 12px;
-    box-shadow: 
-        3px 3px 6px rgba(0, 0, 0, 0.1),
-        -3px -3px 6px rgba(255, 255, 255, 0.8),
-        inset 1px 1px 2px rgba(255, 255, 255, 0.8),
-        inset -1px -1px 2px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-}
-
-.progress-card p::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(145deg, 
-        rgba(255,255,255,0.2) 0%, 
-        rgba(255,255,255,0) 100%);
-    pointer-events: none;
-}
-
-#nonFumareBtn {
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 110px;
     height: 110px;
     border-radius: 50%;
-    background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: var(--primary-color);
+    box-shadow: 
+        4px 4px 8px rgba(0, 0, 0, 0.2),
+        -4px -4px 8px rgba(255, 255, 255, 0.8);
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 
-        16px 16px 32px var(--shadow-color),
-        -8px -8px 24px var(--light-shadow),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.4),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
-    transform: translateY(-4px);
-}
-
-#nonFumareBtn::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border-radius: 50%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2));
-    z-index: 0;
-}
-
-#nonFumareBtn:hover {
-    transform: translateY(-6px) scale(1.05);
-    background: linear-gradient(145deg, var(--accent-color), var(--primary-color));
-    box-shadow: 
-        20px 20px 40px var(--shadow-color),
-        -10px -10px 30px var(--light-shadow),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.4),
-        inset -2px -2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#nonFumareBtn:active {
-    transform: translateY(-2px) scale(0.95);
-    background: linear-gradient(145deg, var(--secondary-color), var(--primary-color));
-}
-
-.button-number {
-    font-size: 34px;
-    font-weight: bold;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
 }
 
 .circular-text {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    animation: rotate 20s linear infinite;
-}
-
-.circular-text text {
     fill: white;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    font-size: 12px;
 }
 
 .button-content {
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-@keyframes rotate {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@media (max-width: 768px) {
-    .app-container {
-        flex-direction: row;
-        padding: 15px;
-    }
-
-    .stats-container {
-        width: 32%;
-    }
-
-    .progress-card {
-        padding: 15px;
-        margin-bottom: 15px;
-    }
-
-    .progress-card i {
-        font-size: 1.4rem;
-    }
-
-    .progress-card h3 {
-        font-size: 1.2rem;
-        padding: 8px 12px;
-    }
-
-    .progress-card p {
-        font-size: 0.8rem;
-        padding: 6px 10px;
-    }
-
-    #nonFumareBtn {
-        width: 90px;
-        height: 90px;
-    }
-
-    .button-number {
-        font-size: 30px;
-    }
-
-    .circular-text text {
-        font-size: 9px;
-    }
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .daily-progress-container {
@@ -366,4 +176,12 @@ body::before {
     .time-markers {
         font-size: 0.7rem;
     }
+}
+
+#clickButton {
+    z-index: 10; /* Assicura che il bottone sia sopra gli altri elementi */
+}
+
+#nonFumareBtn {
+    position: relative; /* Necessario per il posizionamento assoluto del bottone interno */
 } 

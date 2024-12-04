@@ -1,8 +1,8 @@
 using System;
+using System.Web.Services;
+using System.Web.Script.Services;
 using System.Configuration;
 using System.Data.OleDb;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace NomeProgetto
 {
@@ -12,82 +12,71 @@ namespace NomeProgetto
         {
             if (!IsPostBack)
             {
-                CaricaStatistiche();
+                // Eventuali inizializzazioni necessarie
             }
         }
 
-        private void CaricaStatistiche()
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static object IncrementaContatore()
         {
-            using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            try
             {
-                conn.Open();
-                using (OleDbCommand cmd = new OleDbCommand(
-                    "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo " +
-                    "FROM Progressi " +
-                    "ORDER BY ID DESC", conn))
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
-                    using (OleDbDataReader reader = cmd.ExecuteReader())
+                    conn.Open();
+                    
+                    // Leggi i valori attuali
+                    int sigarette = 0;
+                    double risparmio = 0;
+                    int catrame = 0;
+                    int tempo = 0;
+                    
+                    using (OleDbCommand cmdRead = new OleDbCommand(
+                        "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi ORDER BY ID DESC", conn))
                     {
-                        if (reader.Read())
+                        using (OleDbDataReader reader = cmdRead.ExecuteReader())
                         {
-                            int sigarette = reader["Sigarette"] != DBNull.Value ? Convert.ToInt32(reader["Sigarette"]) : 0;
-                            sigaretteLabel.Text = sigarette.ToString();
-                            sigaretteButtonLabel.Text = sigarette.ToString();
-                            
-                            double risparmio = reader["Risparmio"] != DBNull.Value ? Convert.ToDouble(reader["Risparmio"]) : 0;
-                            risparmioLabel.Text = risparmio.ToString("0.00");
-                            
-                            int catrame = reader["Catrame"] != DBNull.Value ? Convert.ToInt32(reader["Catrame"]) : 0;
-                            catrameLabel.Text = catrame.ToString();
-                            
-                            int tempo = reader["Tempo"] != DBNull.Value ? Convert.ToInt32(reader["Tempo"]) : 0;
-                            tempoLabel.Text = tempo.ToString();
-                        }
-                        else
-                        {
-                            sigaretteLabel.Text = "0";
-                            sigaretteButtonLabel.Text = "0";
-                            risparmioLabel.Text = "0.00";
-                            catrameLabel.Text = "0";
-                            tempoLabel.Text = "0";
+                            if (reader.Read())
+                            {
+                                sigarette = Convert.ToInt32(reader["Sigarette"]);
+                                risparmio = Convert.ToDouble(reader["Risparmio"]);
+                                catrame = Convert.ToInt32(reader["Catrame"]);
+                                tempo = Convert.ToInt32(reader["Tempo"]);
+                            }
                         }
                     }
+
+                    // Incrementa i valori
+                    sigarette++;
+                    risparmio += 0.30;
+                    catrame += 10;
+                    tempo += 5;
+
+                    // Inserisci nuova riga
+                    using (OleDbCommand cmdInsert = new OleDbCommand(
+                        "INSERT INTO Progressi (DataOra, Sigarette, Risparmio, Catrame, Tempo) VALUES (NOW(), ?, ?, ?, ?)", conn))
+                    {
+                        cmdInsert.Parameters.AddWithValue("@Sigarette", sigarette);
+                        cmdInsert.Parameters.AddWithValue("@Risparmio", risparmio);
+                        cmdInsert.Parameters.AddWithValue("@Catrame", catrame);
+                        cmdInsert.Parameters.AddWithValue("@Tempo", tempo);
+                        cmdInsert.ExecuteNonQuery();
+                    }
+
+                    return new {
+                        sigarette = sigarette,
+                        risparmio = risparmio,
+                        catrame = catrame,
+                        tempo = tempo
+                    };
                 }
             }
-        }
-
-        protected void nonFumareBtn_Click(object sender, EventArgs e)
-        {
-            int sigaretteAttuali = Convert.ToInt32(sigaretteLabel.Text);
-            double risparmioAttuale = Convert.ToDouble(risparmioLabel.Text);
-            int catrameAttuale = Convert.ToInt32(catrameLabel.Text);
-            int tempoAttuale = Convert.ToInt32(tempoLabel.Text);
-
-            sigaretteAttuali++;
-            risparmioAttuale += 0.30;
-            catrameAttuale += 10;
-            tempoAttuale += 5;
-
-            using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            catch (Exception ex)
             {
-                conn.Open();
-                using (OleDbCommand cmd = new OleDbCommand(
-                    "INSERT INTO Progressi (DataOra, Sigarette, Risparmio, Catrame, Tempo) " +
-                    "VALUES (NOW(), ?, ?, ?, ?)", conn))
-                {
-                    cmd.Parameters.AddWithValue("@Sigarette", sigaretteAttuali);
-                    cmd.Parameters.AddWithValue("@Risparmio", risparmioAttuale);
-                    cmd.Parameters.AddWithValue("@Catrame", catrameAttuale);
-                    cmd.Parameters.AddWithValue("@Tempo", tempoAttuale);
-                    cmd.ExecuteNonQuery();
-                }
+                System.Diagnostics.Debug.WriteLine("Errore in IncrementaContatore: " + ex.Message);
+                throw;
             }
-
-            sigaretteLabel.Text = sigaretteAttuali.ToString();
-            sigaretteButtonLabel.Text = sigaretteAttuali.ToString();
-            risparmioLabel.Text = risparmioAttuale.ToString("0.00");
-            catrameLabel.Text = catrameAttuale.ToString();
-            tempoLabel.Text = tempoAttuale.ToString();
         }
     }
 } 

@@ -8,31 +8,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Benefici - Stop Smoking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="Styles/benefici.css" />
 </head>
 <body>
     <form id="form1" runat="server">
         <div class="container py-4">
-            <div class="app-container">
+            <div class="app-container d-flex justify-content-between align-items-center">
                 <!-- Statistiche a sinistra -->
                 <div class="stats-container">
                     <div class="progress-card">
-                        <i class="bi bi-x-circle"></i>
-                        <h3><asp:Label ID="sigaretteLabel" runat="server" Text="0" /></h3>
-                        <p>Sigarette non fumate</p>
+                        <h3>
+                            <i class="fas fa-smoking-ban"></i>
+                            Sigarette non fumate
+                        </h3>
+                        <div class="value" id="sigaretteLabel">0</div>
+                        <div class="label">Totale</div>
                     </div>
                     
                     <div class="progress-card">
-                        <i class="bi bi-piggy-bank"></i>
-                        <h3>&euro;<asp:Label ID="risparmioLabel" runat="server" Text="0.00" /></h3>
-                        <p>Risparmiati</p>
+                        <h3>
+                            <i class="fas fa-euro-sign"></i>
+                            Risparmio
+                        </h3>
+                        <div class="value" id="risparmioLabel">0.00</div>
+                        <div class="label">Euro risparmiati</div>
                     </div>
                 </div>
 
                 <!-- Bottone centrale -->
                 <div class="button-container">
-                    <div id="nonFumareBtn">
+                    <div id="nonFumareBtn" class="rounded-circle">
                         <svg class="circular-text" viewBox="0 0 100 100">
                             <path id="curve" fill="transparent" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0"/>
                             <text>
@@ -42,29 +48,32 @@
                             </text>
                         </svg>
                         <div class="button-content">
-                            <span class="button-number">
-                                <asp:Label ID="sigaretteButtonLabel" runat="server" Text="0" />
-                            </span>
+                            <span class="button-number" id="sigaretteButtonLabel">0</span>
                         </div>
-                        <asp:Button ID="clickButton" runat="server" 
-                                   OnClick="nonFumareBtn_Click"
-                                   Style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0;"
-                                   Text="" />
+                        <button id="clickButton" type="button" 
+                                style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; cursor: pointer;">
+                        </button>
                     </div>
                 </div>
 
                 <!-- Statistiche a destra -->
                 <div class="stats-container">
                     <div class="progress-card">
-                        <i class="bi bi-droplet"></i>
-                        <h3><asp:Label ID="catrameLabel" runat="server" Text="0" />mg</h3>
-                        <p>Catrame evitato</p>
+                        <h3>
+                            <i class="fas fa-lungs"></i>
+                            Catrame evitato
+                        </h3>
+                        <div class="value" id="catrameLabel">0</div>
+                        <div class="label">mg non inalati</div>
                     </div>
-                    
+
                     <div class="progress-card">
-                        <i class="bi bi-clock"></i>
-                        <h3><asp:Label ID="tempoLabel" runat="server" Text="0" />min</h3>
-                        <p>Tempo risparmiato</p>
+                        <h3>
+                            <i class="fas fa-clock"></i>
+                            Tempo recuperato
+                        </h3>
+                        <div class="value" id="tempoLabel">0</div>
+                        <div class="label">minuti guadagnati</div>
                     </div>
                 </div>
             </div>
