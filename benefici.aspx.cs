@@ -78,5 +78,50 @@ namespace NomeProgetto
                 throw;
             }
         }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static object GetDatiIniziali()
+        {
+            try
+            {
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    
+                    int sigarette = 0;
+                    double risparmio = 0;
+                    int catrame = 0;
+                    int tempo = 0;
+                    
+                    using (OleDbCommand cmdRead = new OleDbCommand(
+                        "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi ORDER BY ID DESC", conn))
+                    {
+                        using (OleDbDataReader reader = cmdRead.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                sigarette = Convert.ToInt32(reader["Sigarette"]);
+                                risparmio = Convert.ToDouble(reader["Risparmio"]);
+                                catrame = Convert.ToInt32(reader["Catrame"]);
+                                tempo = Convert.ToInt32(reader["Tempo"]);
+                            }
+                        }
+                    }
+
+                    return new {
+                        sigarette = sigarette,
+                        risparmio = risparmio,
+                        catrame = catrame,
+                        tempo = tempo
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore in GetDatiIniziali: " + ex.Message);
+                throw;
+            }
+        }
     }
 } 

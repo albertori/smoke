@@ -38,9 +38,12 @@
 
                 <!-- Bottone centrale -->
                 <div class="button-container">
-                    <div id="nonFumareBtn" class="rounded-circle">
+                    <div id="nonFumareBtn">
                         <svg class="circular-text" viewBox="0 0 100 100">
-                            <path id="curve" fill="transparent" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0"/>
+                            <defs>
+                                <path id="curve" fill="transparent" 
+                                      d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"/>
+                            </defs>
                             <text>
                                 <textPath href="#curve" startOffset="50%" text-anchor="middle">
                                     Non ho fumato
@@ -50,9 +53,7 @@
                         <div class="button-content">
                             <span class="button-number" id="sigaretteButtonLabel">0</span>
                         </div>
-                        <button id="clickButton" type="button" 
-                                style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; cursor: pointer;">
-                        </button>
+                        <button id="clickButton" type="button"></button>
                     </div>
                 </div>
 
