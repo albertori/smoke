@@ -1,0 +1,57 @@
+const translations = {
+    it: {
+        title: "Benefici - Stop Smoking",
+        sigaretteNonFumate: "Sigarette non fumate",
+        totale: "Totale",
+        risparmio: "Risparmio",
+        euroRisparmiati: "Euro risparmiati",
+        catrameEvitato: "Catrame evitato",
+        mgNonInalati: "mg non inalati",
+        tempoRecuperato: "Tempo recuperato",
+        minutiGuadagnati: "minuti guadagnati",
+        nonHoFumato: "Non ho fumato",
+        personalizza: "Personalizza",
+        colorePrincipale: "Colore Principale",
+        coloreSfondo: "Colore Sfondo",
+        coloreTesto: "Colore Testo",
+        ripristinaColori: "Ripristina Colori",
+        lingua: "Lingua"
+    },
+    en: {
+        title: "Benefits - Stop Smoking",
+        sigaretteNonFumate: "Cigarettes not smoked",
+        totale: "Total",
+        risparmio: "Savings",
+        euroRisparmiati: "Euros saved",
+        catrameEvitato: "Tar avoided",
+        mgNonInalati: "mg not inhaled",
+        tempoRecuperato: "Time recovered",
+        minutiGuadagnati: "minutes gained",
+        nonHoFumato: "I didn't smoke",
+        personalizza: "Customize",
+        colorePrincipale: "Primary Color",
+        coloreSfondo: "Background Color",
+        coloreTesto: "Text Color",
+        ripristinaColori: "Reset Colors",
+        lingua: "Language"
+    },
+    es: {
+        title: "Beneficios - Dejar de Fumar",
+        sigaretteNonFumate: "Cigarrillos no fumados",
+        totale: "Total",
+        risparmio: "Ahorro",
+        euroRisparmiati: "Euros ahorrados",
+        catrameEvitato: "Alquitrán evitado",
+        mgNonInalati: "mg no inhalados",
+        tempoRecuperato: "Tiempo recuperado",
+        minutiGuadagnati: "minutos ganados",
+        nonHoFumato: "No he fumado",
+        personalizza: "Personalizar",
+        colorePrincipale: "Color Principal",
+        coloreSfondo: "Color de Fondo",
+        coloreTesto: "Color del Texto",
+        ripristinaColori: "Restablecer Colores",
+        lingua: "Idioma"
+    }
+    // Aggiungi altre lingue secondo necessità
+}; 

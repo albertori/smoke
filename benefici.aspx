@@ -9,6 +9,7 @@
     <title>Benefici - Stop Smoking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
     <link rel="stylesheet" href="Styles/benefici.css" />
 </head>
 <body>
@@ -18,21 +19,21 @@
                 <!-- Statistiche a sinistra -->
                 <div class="stats-container">
                     <div class="progress-card">
-                        <h3>
+                        <h3 id="sigaretteTitle">
                             <i class="fas fa-smoking-ban"></i>
                             Sigarette non fumate
                         </h3>
                         <div class="value" id="sigaretteLabel">0</div>
-                        <div class="label">Totale</div>
+                        <div class="label" id="sigaretteLabel">Totale</div>
                     </div>
                     
                     <div class="progress-card">
-                        <h3>
+                        <h3 id="risparmioTitle">
                             <i class="fas fa-euro-sign"></i>
                             Risparmio
                         </h3>
                         <div class="value" id="risparmioLabel">0.00</div>
-                        <div class="label">Euro risparmiati</div>
+                        <div class="label" id="risparmioLabel">Euro risparmiati</div>
                     </div>
                 </div>
 
@@ -92,10 +93,52 @@
                     <span>24:00</span>
                 </div>
             </div>
+
+            <!-- Aggiungi questo dopo il div daily-progress-container -->
+            <div class="settings-panel" id="settingsPanel">
+                <button class="settings-toggle" id="settingsToggle" type="button">
+                    <i class="fas fa-cog"></i>
+                </button>
+                
+                <div class="settings-content">
+                    <h3 id="settingsTitle">Personalizza</h3>
+                    
+                    <div class="language-selector">
+                        <label id="languageLabel">Lingua</label>
+                        <select id="languageSelect">
+                            <option value="it">Italiano</option>
+                            <option value="en">English</option>
+                            <option value="es">Español</option>
+                            <option value="fr">Français</option>
+                            <option value="de">Deutsch</option>
+                        </select>
+                    </div>
+
+                    <div class="color-picker-group">
+                        <label id="primaryColorLabel">Colore Principale</label>
+                        <input type="color" id="primaryColorPicker" value="#4A90E2">
+                    </div>
+                    
+                    <div class="color-picker-group">
+                        <label id="bgColorLabel">Colore Sfondo</label>
+                        <input type="color" id="bgColorPicker" value="#D1E3F9">
+                    </div>
+                    
+                    <div class="color-picker-group">
+                        <label id="textColorLabel">Colore Testo</label>
+                        <input type="color" id="textColorPicker" value="#2C3E50">
+                    </div>
+
+                    <button class="reset-button" id="resetColors">
+                        Ripristina Colori
+                    </button>
+                </div>
+            </div>
         </div>
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="Scripts/benefici.js"></script>
+    <script src="Scripts/translations.js"></script>
 </body>
 </html> 

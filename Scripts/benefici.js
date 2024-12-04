@@ -105,4 +105,146 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(updateDailyProgress, 1000);
     // Esegui subito la prima volta
     updateDailyProgress();
+
+    // Gestione pannello impostazioni
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const primaryColorPicker = document.getElementById('primaryColorPicker');
+    const bgColorPicker = document.getElementById('bgColorPicker');
+    const textColorPicker = document.getElementById('textColorPicker');
+    const resetButton = document.getElementById('resetColors');
+
+    // Colori default
+    const defaultColors = {
+        primary: '#4A90E2',
+        background: '#D1E3F9',
+        text: '#2C3E50'
+    };
+
+    // Toggle pannello
+    settingsToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        settingsPanel.classList.toggle('open');
+    });
+
+    // Carica colori salvati
+    function loadSavedColors() {
+        const savedColors = JSON.parse(localStorage.getItem('themeColors')) || defaultColors;
+        primaryColorPicker.value = savedColors.primary;
+        bgColorPicker.value = savedColors.background;
+        textColorPicker.value = savedColors.text;
+        applyColors(savedColors);
+    }
+
+    // Applica colori
+    function applyColors(colors) {
+        document.documentElement.style.setProperty('--primary-color', colors.primary);
+        document.documentElement.style.setProperty('--background-gradient-1', colors.background);
+        document.documentElement.style.setProperty('--background-gradient-2', adjustColor(colors.background, -20));
+        document.documentElement.style.setProperty('--text-color', colors.text);
+        
+        // Salva i colori
+        localStorage.setItem('themeColors', JSON.stringify(colors));
+    }
+
+    // Funzione per schiarire/scurire un colore
+    function adjustColor(color, amount) {
+        return '#' + color.replace(/^#/, '').replace(/../g, color => 
+            ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+    }
+
+    // Event listeners per i color picker
+    primaryColorPicker.addEventListener('change', () => {
+        const colors = {
+            primary: primaryColorPicker.value,
+            background: bgColorPicker.value,
+            text: textColorPicker.value
+        };
+        applyColors(colors);
+    });
+
+    bgColorPicker.addEventListener('change', () => {
+        const colors = {
+            primary: primaryColorPicker.value,
+            background: bgColorPicker.value,
+            text: textColorPicker.value
+        };
+        applyColors(colors);
+    });
+
+    textColorPicker.addEventListener('change', () => {
+        const colors = {
+            primary: primaryColorPicker.value,
+            background: bgColorPicker.value,
+            text: textColorPicker.value
+        };
+        applyColors(colors);
+    });
+
+    // Reset colori
+    resetButton.addEventListener('click', () => {
+        applyColors(defaultColors);
+        primaryColorPicker.value = defaultColors.primary;
+        bgColorPicker.value = defaultColors.background;
+        textColorPicker.value = defaultColors.text;
+    });
+
+    // Carica i colori salvati all'avvio
+    loadSavedColors();
+
+    // Gestione lingua
+    const languageSelect = document.getElementById('languageSelect');
+    
+    // Carica lingua salvata o usa italiano come default
+    const savedLanguage = localStorage.getItem('selectedLanguage') || 'it';
+    languageSelect.value = savedLanguage;
+    
+    // Applica traduzioni al caricamento
+    applyTranslations(savedLanguage);
+    
+    // Gestione cambio lingua
+    languageSelect.addEventListener('change', (e) => {
+        const selectedLang = e.target.value;
+        localStorage.setItem('selectedLanguage', selectedLang);
+        applyTranslations(selectedLang);
+    });
+    
+    // Funzione per applicare le traduzioni
+    function applyTranslations(lang) {
+        // Aggiorna il titolo della pagina
+        document.title = translations[lang].title;
+        
+        // Aggiorna i testi nell'interfaccia
+        const elements = {
+            'sigaretteTitle': translations[lang].sigaretteNonFumate,
+            'sigaretteLabel': translations[lang].totale,
+            'risparmioTitle': translations[lang].risparmio,
+            'risparmioLabel': translations[lang].euroRisparmiati,
+            'catrameTitle': translations[lang].catrameEvitato,
+            'catrameLabel': translations[lang].mgNonInalati,
+            'tempoTitle': translations[lang].tempoRecuperato,
+            'tempoLabel': translations[lang].minutiGuadagnati,
+            'nonHoFumato': translations[lang].nonHoFumato,
+            'settingsTitle': translations[lang].personalizza,
+            'primaryColorLabel': translations[lang].colorePrincipale,
+            'bgColorLabel': translations[lang].coloreSfondo,
+            'textColorLabel': translations[lang].coloreTesto,
+            'resetButton': translations[lang].ripristinaColori,
+            'languageLabel': translations[lang].lingua
+        };
+
+        // Aggiorna tutti i testi
+        for (const [id, text] of Object.entries(elements)) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = text;
+            }
+        }
+
+        // Aggiorna il testo del bottone circolare
+        const textPath = document.querySelector('textPath');
+        if (textPath) {
+            textPath.textContent = translations[lang].nonHoFumato;
+        }
+    }
 }); 

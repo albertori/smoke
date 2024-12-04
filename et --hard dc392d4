@@ -1,0 +1,14 @@
+[33mdc392d4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Aggiunto Google Analytics e banner consenso cookie per conformità GDPR
+[33m008eb57[m Aggiunta sezione recensioni Google con widget Elfsight
+[33m83fe8d1[m SEO: Ottimizzazione contenuti e meta tag per sigarette elettroniche Roma Montesacro
+[33me0b18d1[m Versione iniziale funzionante
+[33mec4ac9b[m Ripristinato ConsumptionCalculator con valori di default aggiornati e gestione prezzi per formato
+[33mc785eed[m Miglioramento UI: aggiunta palette colori vivace - Aggiunto sfondo con gradiente - Implementati bordi colorati per le card - Aggiunti effetti hover più evidenti - Migliorata visibilità dei titoli - Aggiunto pattern di sfondo sottile - Ottimizzate le sezioni con sfondi sfumati
+[33me4b69eb[m Aggiunto bottone scroll-to-top con animazioni - Implementato bottone circolare fisso - Aggiunta animazione di fade in/out - Aggiunto effetto hover con elevazione - Implementato scroll smooth verso l'alto
+[33mee85486[m Aggiunto bottone per il calcolo del risparmio accanto al calcolatore di nicotina. Implementato lo scroll smooth verso entrambi i calcolatori.
+[33m94e491e[m Add savings calculator improvements: daily savings and 100ml option
+[33m1b7ecb1[m Fix React Fragment
+[33m09b6e57[m Miglioramenti UI: ottimizzato layout marchi per categorie (Hardware, Aromi, Accessori), corretto visualizzazione orari domenicali, aggiunta immagine decorativa alla sezione orari
+[33ma5ce3f8[m Ottimizzata visualizzazione aromi (desktop/mobile) e migliorato calcolatore nicotina con più opzioni
+[33mbd8ca3b[m Miglioramenti al calcolatore di nicotina: aggiunto supporto per decimali e diverse concentrazioni di booster (4,8,9,12,16,18,20mg). Aggiunto bottone di riferimento al calcolatore sotto la descrizione del negozio.
+[33m6e1bc4a[m prima versione funzionante
