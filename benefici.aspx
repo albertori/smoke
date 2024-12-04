@@ -103,6 +103,15 @@
                 <div class="settings-content">
                     <h3 id="settingsTitle">Personalizza</h3>
                     
+                    <!-- Aggiungiamo lo switch qui -->
+                    <div class="switch-container">
+                        <label class="switch">
+                            <input type="checkbox" id="smokeSwitch">
+                            <span class="slider"></span>
+                        </label>
+                        <span id="switchLabel">Modalità sigarette non fumate</span>
+                    </div>
+                    
                     <div class="language-selector">
                         <label id="languageLabel">Lingua</label>
                         <select id="languageSelect">
