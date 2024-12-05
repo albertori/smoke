@@ -149,5 +149,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="Scripts/benefici.js"></script>
     <script src="Scripts/translations.js"></script>
+    <script src="Scripts/switchMode.js"></script>
 </body>
 </html> 

@@ -1,0 +1,51 @@
+{
+    "name": "Non Ho Fumato",
+    "short_name": "Non Ho Fumato",
+    "description": "App per tracciare i benefici dello smettere di fumare",
+    "start_url": "/benefici.aspx",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#ffffff",
+    "theme_color": "#4CAF50",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "/images/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot1.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "platform": "wide",
+            "label": "Schermata principale dell'app"
+        },
+        {
+            "src": "/images/screenshot2.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "platform": "wide",
+            "label": "Pannello impostazioni"
+        }
+    ],
+    "categories": ["health", "lifestyle"],
+    "prefer_related_applications": false,
+    "lang": "it",
+    "dir": "ltr",
+    "related_applications": [],
+    "shortcuts": [
+        {
+            "name": "Apri Statistiche",
+            "url": "/benefici.aspx",
+            "description": "Visualizza i tuoi progressi"
+        }
+    ]
+} 

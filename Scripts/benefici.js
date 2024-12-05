@@ -247,4 +247,56 @@ document.addEventListener('DOMContentLoaded', function() {
             textPath.textContent = translations[lang].nonHoFumato;
         }
     }
+
+    const smokeSwitch = document.getElementById('smokeSwitch');
+    const buttonLabel = document.getElementById('buttonLabel');
+    const buttonContainer = document.getElementById('buttonContainer');
+    
+    // Log per debugging
+    console.log('Elementi trovati:', {
+        smokeSwitch: !!smokeSwitch,
+        buttonLabel: !!buttonLabel,
+        buttonContainer: !!buttonContainer
+    });
+
+    if (!smokeSwitch || !buttonLabel || !buttonContainer) {
+        console.error('Elementi mancanti:', {
+            smokeSwitch: !smokeSwitch,
+            buttonLabel: !buttonLabel,
+            buttonContainer: !buttonContainer
+        });
+        return;
+    }
+
+    console.log('Smoke switch trovato:', smokeSwitch);
+
+    smokeSwitch.addEventListener('change', function() {
+        console.log('Cambio modalità:', this.checked);
+        if (this.checked) {
+            buttonLabel.textContent = 'Ho Fumato';
+            buttonContainer.classList.remove('green');
+            buttonContainer.classList.add('red');
+            localStorage.setItem('mode', 'smoked');
+        } else {
+            buttonLabel.textContent = 'Non Ho Fumato';
+            buttonContainer.classList.remove('red');
+            buttonContainer.classList.add('green');
+            localStorage.setItem('mode', 'notSmoked');
+        }
+    });
+
+    // Carica la modalità salvata
+    const savedMode = localStorage.getItem('mode');
+    console.log('Modalità salvata:', savedMode);
+    if (savedMode === 'smoked') {
+        smokeSwitch.checked = true;
+        buttonLabel.textContent = 'Ho Fumato';
+        buttonContainer.classList.remove('green');
+        buttonContainer.classList.add('red');
+    } else {
+        smokeSwitch.checked = false;
+        buttonLabel.textContent = 'Non Ho Fumato';
+        buttonContainer.classList.remove('red');
+        buttonContainer.classList.add('green');
+    }
 }); 
