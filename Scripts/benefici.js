@@ -299,4 +299,51 @@ document.addEventListener('DOMContentLoaded', function() {
         buttonContainer.classList.remove('red');
         buttonContainer.classList.add('green');
     }
+
+    function incrementaContatore() {
+        fetch('benefici.aspx/IncrementaContatore', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Raw data ricevuti:', JSON.stringify(data));
+            
+            if (data.d.success === false) {
+                console.log('Operazione offline:', data.d.error);
+                // Usa i dati di fallback
+                updateUI(data.d.data);
+                return;
+            }
+
+            // Aggiorna l'interfaccia con i dati ricevuti
+            updateUI(data.d);
+        })
+        .catch(error => {
+            console.log('Errore nella chiamata:', error);
+        });
+    }
+
+    function updateUI(data) {
+        // Verifica che data contenga tutti i campi necessari
+        const defaultData = {
+            giorni: 0,
+            ore: 0,
+            minuti: 0,
+            sigarette: 0,
+            soldi: 0
+        };
+
+        // Unisci i dati ricevuti con i valori di default
+        const safeData = { ...defaultData, ...data };
+
+        document.getElementById('giorni').textContent = safeData.giorni.toFixed(0);
+        document.getElementById('ore').textContent = safeData.ore.toFixed(0);
+        document.getElementById('minuti').textContent = safeData.minuti.toFixed(0);
+        document.getElementById('sigarette').textContent = safeData.sigarette.toFixed(0);
+        document.getElementById('soldi').textContent = safeData.soldi.toFixed(2);
+    }
 }); 
