@@ -72,22 +72,51 @@ body {
     width: 200px;
     height: 200px;
     border-radius: 50%;
-    background: white;
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
     cursor: pointer;
-    transition: transform 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 
+        8px 8px 15px rgba(0, 0, 0, 0.2),
+        -8px -8px 15px rgba(255, 255, 255, 0.7),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+}
+
+#nonFumareBtn:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        12px 12px 20px rgba(0, 0, 0, 0.2),
+        -12px -12px 20px rgba(255, 255, 255, 0.7),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
 }
 
 #nonFumareBtn.clicked {
-    transform: scale(0.95);
+    transform: translateY(2px);
+    box-shadow: 
+        4px 4px 10px rgba(0, 0, 0, 0.2),
+        -4px -4px 10px rgba(255, 255, 255, 0.7),
+        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
+        inset -2px -2px 4px rgba(255, 255, 255, 0.5);
 }
 
 #nonFumareBtn.green {
-    background-color: #4CAF50;
+    background: linear-gradient(145deg, #52c234, #47a82e);
+    box-shadow: 
+        8px 8px 15px rgba(0, 0, 0, 0.2),
+        -8px -8px 15px rgba(255, 255, 255, 0.7),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
 }
 
 #nonFumareBtn.red {
-    background-color: #f44336;
+    background: linear-gradient(145deg, #ff416c, #e60000);
+    box-shadow: 
+        8px 8px 15px rgba(0, 0, 0, 0.2),
+        -8px -8px 15px rgba(255, 255, 255, 0.7),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        inset -1px -1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Testo circolare */
@@ -110,6 +139,7 @@ body {
 .circular-text text {
     fill: #333;
     font-size: 12px;
+    font-weight: 500;
 }
 
 /* Contenuto del bottone */
@@ -125,6 +155,7 @@ body {
     font-size: 48px;
     font-weight: bold;
     color: #333;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 #clickButton {

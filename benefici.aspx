@@ -6,10 +6,33 @@
 <head runat="server">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Meta tag PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Non Ho Fumato">
+    <meta name="apple-mobile-web-app-title" content="Non Ho Fumato">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="msapplication-navbutton-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/benefici.aspx">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="images/icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="images/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/icon-180x180.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="images/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/icon-16x16.png">
+    
     <title>Benefici - Stop Smoking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
     <link rel="stylesheet" href="Styles/benefici.css" />
 </head>
 <body>
@@ -32,7 +55,7 @@
                             <i class="fas fa-euro-sign"></i>
                             Risparmio
                         </h3>
-                        <div class="value" id="risparmioLabel">0.00</div>
+                        <div class="value" id="risparmioValue">0.00</div>
                         <div class="label" id="risparmioLabel">Euro risparmiati</div>
                     </div>
                 </div>

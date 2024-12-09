@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function aggiornaDati(data) {
         document.getElementById('sigaretteLabel').textContent = data.sigarette;
         document.getElementById('sigaretteButtonLabel').textContent = data.sigarette;
-        document.getElementById('risparmioLabel').textContent = data.risparmio.toFixed(2);
+        document.getElementById('risparmioValue').textContent = data.risparmio.toFixed(2);
         document.getElementById('catrameLabel').textContent = data.catrame;
         document.getElementById('tempoLabel').textContent = data.tempo;
     }
