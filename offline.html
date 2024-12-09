@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non Ho Fumato - Offline</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .offline-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+
+        .retry-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .retry-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="icon">📡</div>
+        <h1>Sei Offline</h1>
+        <p>Sembra che tu sia offline. Non preoccuparti, puoi continuare a usare le funzionalità base dell'app.</p>
+        <p>Alcune funzionalità potrebbero non essere disponibili fino a quando non torni online.</p>
+        <button class="retry-button" onclick="window.location.reload()">Riprova</button>
+    </div>
+
+    <script>
+        // Controlla periodicamente la connessione
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html> 
