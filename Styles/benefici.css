@@ -395,4 +395,9 @@ input:checked + .slider:before {
 #switchLabel {
     font-size: 14px;
     color: var(--text-color, #2C3E50);
+}
+
+/* Nascondi il selettore della lingua */
+.language-selector {
+    display: none;
 } 

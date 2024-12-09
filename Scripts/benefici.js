@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inizializzazione applicazione...');
+    
+    if (!verificaElementi()) {
+        console.error('Impossibile inizializzare: elementi HTML mancanti');
+        return;
+    }
     // Carica i dati iniziali
     fetch('benefici.aspx/GetDatiIniziali', {
         method: 'POST',
@@ -192,112 +198,41 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carica i colori salvati all'avvio
     loadSavedColors();
 
-    // Gestione lingua
-    const languageSelect = document.getElementById('languageSelect');
-    
-    // Carica lingua salvata o usa italiano come default
-    const savedLanguage = localStorage.getItem('selectedLanguage') || 'it';
-    languageSelect.value = savedLanguage;
-    
-    // Applica traduzioni al caricamento
-    applyTranslations(savedLanguage);
-    
-    // Gestione cambio lingua
-    languageSelect.addEventListener('change', (e) => {
-        const selectedLang = e.target.value;
-        localStorage.setItem('selectedLanguage', selectedLang);
-        applyTranslations(selectedLang);
-    });
-    
-    // Funzione per applicare le traduzioni
-    function applyTranslations(lang) {
-        // Aggiorna il titolo della pagina
-        document.title = translations[lang].title;
-        
-        // Aggiorna i testi nell'interfaccia
-        const elements = {
-            'sigaretteTitle': translations[lang].sigaretteNonFumate,
-            'sigaretteLabel': translations[lang].totale,
-            'risparmioTitle': translations[lang].risparmio,
-            'risparmioLabel': translations[lang].euroRisparmiati,
-            'catrameTitle': translations[lang].catrameEvitato,
-            'catrameLabel': translations[lang].mgNonInalati,
-            'tempoTitle': translations[lang].tempoRecuperato,
-            'tempoLabel': translations[lang].minutiGuadagnati,
-            'nonHoFumato': translations[lang].nonHoFumato,
-            'settingsTitle': translations[lang].personalizza,
-            'primaryColorLabel': translations[lang].colorePrincipale,
-            'bgColorLabel': translations[lang].coloreSfondo,
-            'textColorLabel': translations[lang].coloreTesto,
-            'resetButton': translations[lang].ripristinaColori,
-            'languageLabel': translations[lang].lingua
-        };
-
-        // Aggiorna tutti i testi
-        for (const [id, text] of Object.entries(elements)) {
-            const element = document.getElementById(id);
-            if (element) {
-                element.textContent = text;
-            }
-        }
-
-        // Aggiorna il testo del bottone circolare
-        const textPath = document.querySelector('textPath');
-        if (textPath) {
-            textPath.textContent = translations[lang].nonHoFumato;
-        }
-    }
-
+    // SOSTITUISCI la sezione dello switch con questa versione corretta
     const smokeSwitch = document.getElementById('smokeSwitch');
-    const buttonLabel = document.getElementById('buttonLabel');
-    const buttonContainer = document.getElementById('buttonContainer');
-    
-    // Log per debugging
-    console.log('Elementi trovati:', {
-        smokeSwitch: !!smokeSwitch,
-        buttonLabel: !!buttonLabel,
-        buttonContainer: !!buttonContainer
-    });
+    const textPath = document.querySelector('textPath');
+    const nonFumareBtn = document.getElementById('nonFumareBtn');
 
-    if (!smokeSwitch || !buttonLabel || !buttonContainer) {
-        console.error('Elementi mancanti:', {
-            smokeSwitch: !smokeSwitch,
-            buttonLabel: !buttonLabel,
-            buttonContainer: !buttonContainer
+    if (smokeSwitch && textPath && nonFumareBtn) {
+        smokeSwitch.addEventListener('change', function() {
+            console.log('Cambio modalità:', this.checked);
+            if (this.checked) {
+                textPath.textContent = 'Ho Fumato';
+                nonFumareBtn.classList.remove('green');
+                nonFumareBtn.classList.add('red');
+                localStorage.setItem('mode', 'smoked');
+            } else {
+                textPath.textContent = 'Non Ho Fumato';
+                nonFumareBtn.classList.remove('red');
+                nonFumareBtn.classList.add('green');
+                localStorage.setItem('mode', 'notSmoked');
+            }
         });
-        return;
-    }
 
-    console.log('Smoke switch trovato:', smokeSwitch);
-
-    smokeSwitch.addEventListener('change', function() {
-        console.log('Cambio modalità:', this.checked);
-        if (this.checked) {
-            buttonLabel.textContent = 'Ho Fumato';
-            buttonContainer.classList.remove('green');
-            buttonContainer.classList.add('red');
-            localStorage.setItem('mode', 'smoked');
+        // Carica la modalità salvata
+        const savedMode = localStorage.getItem('mode');
+        console.log('Modalità salvata:', savedMode);
+        if (savedMode === 'smoked') {
+            smokeSwitch.checked = true;
+            textPath.textContent = 'Ho Fumato';
+            nonFumareBtn.classList.remove('green');
+            nonFumareBtn.classList.add('red');
         } else {
-            buttonLabel.textContent = 'Non Ho Fumato';
-            buttonContainer.classList.remove('red');
-            buttonContainer.classList.add('green');
-            localStorage.setItem('mode', 'notSmoked');
+            smokeSwitch.checked = false;
+            textPath.textContent = 'Non Ho Fumato';
+            nonFumareBtn.classList.remove('red');
+            nonFumareBtn.classList.add('green');
         }
-    });
-
-    // Carica la modalità salvata
-    const savedMode = localStorage.getItem('mode');
-    console.log('Modalità salvata:', savedMode);
-    if (savedMode === 'smoked') {
-        smokeSwitch.checked = true;
-        buttonLabel.textContent = 'Ho Fumato';
-        buttonContainer.classList.remove('green');
-        buttonContainer.classList.add('red');
-    } else {
-        smokeSwitch.checked = false;
-        buttonLabel.textContent = 'Non Ho Fumato';
-        buttonContainer.classList.remove('red');
-        buttonContainer.classList.add('green');
     }
 
     function incrementaContatore() {
@@ -345,5 +280,41 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('minuti').textContent = safeData.minuti.toFixed(0);
         document.getElementById('sigarette').textContent = safeData.sigarette.toFixed(0);
         document.getElementById('soldi').textContent = safeData.soldi.toFixed(2);
+    }
+
+    // Funzione per verificare gli elementi necessari
+    function verificaElementi() {
+        const elementiRichiesti = {
+            'sigaretteLabel': document.getElementById('sigaretteLabel'),
+            'sigaretteButtonLabel': document.getElementById('sigaretteButtonLabel'),
+            'risparmioLabel': document.getElementById('risparmioLabel'),
+            'catrameLabel': document.getElementById('catrameLabel'),
+            'tempoLabel': document.getElementById('tempoLabel'),
+            'clickButton': document.getElementById('clickButton'),
+            'nonFumareBtn': document.getElementById('nonFumareBtn'),
+            'smokeSwitch': document.getElementById('smokeSwitch'),
+            'switchLabel': document.getElementById('switchLabel')
+        };
+
+        const elementiTrovati = {};
+        const elementiMancanti = {};
+        let tuttoPresente = true;
+
+        for (let [key, element] of Object.entries(elementiRichiesti)) {
+            if (element) {
+                elementiTrovati[key] = true;
+            } else {
+                elementiMancanti[key] = true;
+                tuttoPresente = false;
+            }
+        }
+
+        console.log('Elementi trovati:', elementiTrovati);
+        
+        if (!tuttoPresente) {
+            console.error('Elementi mancanti:', elementiMancanti);
+        }
+
+        return tuttoPresente;
     }
 }); 
