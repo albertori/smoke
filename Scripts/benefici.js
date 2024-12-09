@@ -261,6 +261,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Salva i nuovi dati
         salvaDatiLocali(datiAttuali);
         
+        // Salva l'azione per la sincronizzazione futura
+        salvaAzioneOffline('incremento');
+        
         // Aggiorna l'UI
         aggiornaDati(datiAttuali);
     }
@@ -303,11 +306,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Aggiungi listener per i cambiamenti dello stato della connessione
     window.addEventListener('online', function() {
-        console.log('Tornato online');
-        // Qui potremmo aggiungere la logica per sincronizzare i dati con il server
+        console.log('Tornato online - Avvio sincronizzazione');
+        sincronizzaDati();
     });
 
     window.addEventListener('offline', function() {
         console.log('Andato offline');
     });
+
+    // Aggiungi questa funzione per salvare le azioni offline
+    function salvaAzioneOffline(azione) {
+        const azioniOffline = JSON.parse(localStorage.getItem('azioniOffline') || '[]');
+        azioniOffline.push({
+            timestamp: new Date().getTime(),
+            azione: azione
+        });
+        localStorage.setItem('azioniOffline', JSON.stringify(azioniOffline));
+    }
+
+    // Funzione per sincronizzare i dati con il server
+    function sincronizzaDati() {
+        const azioniOffline = JSON.parse(localStorage.getItem('azioniOffline') || '[]');
+        
+        if (azioniOffline.length === 0) {
+            console.log('Nessuna azione da sincronizzare');
+            return;
+        }
+
+        console.log('Sincronizzazione dati:', azioniOffline.length, 'azioni da processare');
+
+        // Ordina le azioni per timestamp
+        azioniOffline.sort((a, b) => a.timestamp - b.timestamp);
+
+        // Processa le azioni in sequenza
+        const processaAzioni = async () => {
+            for (const azione of azioniOffline) {
+                try {
+                    const response = await fetch('benefici.aspx/IncrementaContatore', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({}),
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+                    if (data && data.d) {
+                        console.log('Azione sincronizzata con successo');
+                    } else {
+                        console.error('Errore nella sincronizzazione');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Errore durante la sincronizzazione:', error);
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        processaAzioni().then(success => {
+            if (success) {
+                // Pulisci le azioni offline solo se tutto è andato a buon fine
+                localStorage.removeItem('azioniOffline');
+                console.log('Sincronizzazione completata con successo');
+                
+                // Aggiorna i dati attuali
+                fetch('benefici.aspx/GetDatiIniziali', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.d) {
+                        salvaDatiLocali(data.d);
+                        aggiornaDati(data.d);
+                    }
+                });
+            }
+        });
+    }
 }); 
