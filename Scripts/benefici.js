@@ -6,29 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     // Carica i dati iniziali
-    fetch('benefici.aspx/GetDatiIniziali', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({}),
-        credentials: 'include'
-    })
-    .then(response => response.text())
-    .then(rawData => {
-        try {
-            const data = JSON.parse(rawData);
-            if (data && data.d) {
-                aggiornaDati(data.d);
-            }
-        } catch (e) {
-            console.error('Errore nel parsing JSON:', e);
-        }
-    })
-    .catch(error => {
-        console.error('Errore nel caricamento dati iniziali:', error);
-    });
+    caricaDatiIniziali();
 
     // Funzione per aggiornare i dati nell'UI
     function aggiornaDati(data) {
@@ -46,50 +24,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Gestione click bottone
     document.getElementById('clickButton').addEventListener('click', function(e) {
-        e.preventDefault(); // Previene il postback
-        console.log('Click registrato'); // Debug
+        e.preventDefault();
+        console.log('Click registrato');
         
         // Effetto click visuale
         document.getElementById('nonFumareBtn').classList.add('clicked');
         setTimeout(() => document.getElementById('nonFumareBtn').classList.remove('clicked'), 200);
 
-        // Chiamata AJAX
-        fetch('benefici.aspx/IncrementaContatore', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({}),
-            credentials: 'include'
-        })
-        .then(response => {
-            console.log('Risposta ricevuta:', response); // Debug
-            return response.text();
-        })
-        .then(rawData => {
-            console.log('Raw data:', rawData); // Vediamo i dati grezzi
-            try {
-                const data = JSON.parse(rawData);
-                console.log('Parsed data:', data);
-                
+        // Verifica se siamo online
+        if (navigator.onLine) {
+            // Online: chiamata al server
+            fetch('benefici.aspx/IncrementaContatore', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({}),
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
                 if (data && data.d) {
-                    document.getElementById('sigaretteLabel').textContent = data.d.sigarette;
-                    document.getElementById('sigaretteButtonLabel').textContent = data.d.sigarette;
-                    document.getElementById('risparmioLabel').textContent = data.d.risparmio.toFixed(2);
-                    document.getElementById('catrameLabel').textContent = data.d.catrame;
-                    document.getElementById('tempoLabel').textContent = data.d.tempo;
-                } else {
-                    console.error('Formato dati non valido:', data);
+                    salvaDatiLocali(data.d);
+                    aggiornaDati(data.d);
                 }
-            } catch (e) {
-                console.error('Errore nel parsing JSON:', e);
-                console.error('Raw data ricevuti:', rawData);
-            }
-        })
-        .catch(error => {
-            console.error('Errore nella chiamata:', error);
-        });
+            })
+            .catch(error => {
+                console.log('Errore nella chiamata al server, uso dati locali');
+                incrementaLocale();
+            });
+        } else {
+            // Offline: incremento locale
+            console.log('Modalità offline: incremento locale');
+            incrementaLocale();
+        }
     });
 
     function updateDailyProgress() {
@@ -235,8 +204,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function incrementaContatore() {
-        fetch('benefici.aspx/IncrementaContatore', {
+    // Funzione per salvare i dati nel localStorage
+    function salvaDatiLocali(dati) {
+        localStorage.setItem('datiProgressi', JSON.stringify(dati));
+        console.log('Dati salvati localmente:', dati);
+    }
+
+    // Funzione per recuperare i dati dal localStorage
+    function recuperaDatiLocali() {
+        const dati = localStorage.getItem('datiProgressi');
+        return dati ? JSON.parse(dati) : {
+            sigarette: 0,
+            risparmio: 0,
+            catrame: 0,
+            tempo: 0
+        };
+    }
+
+    // Modifica la funzione che gestisce GetDatiIniziali
+    function caricaDatiIniziali() {
+        fetch('benefici.aspx/GetDatiIniziali', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -245,41 +232,37 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Raw data ricevuti:', JSON.stringify(data));
-            
-            if (data.d.success === false) {
-                console.log('Operazione offline:', data.d.error);
-                // Usa i dati di fallback
-                updateUI(data.d.data);
-                return;
+            if (data && data.d) {
+                // Salva i dati nel localStorage
+                salvaDatiLocali(data.d);
+                // Aggiorna l'UI
+                aggiornaDati(data.d);
             }
-
-            // Aggiorna l'interfaccia con i dati ricevuti
-            updateUI(data.d);
         })
         .catch(error => {
-            console.log('Errore nella chiamata:', error);
+            console.log('Errore nel caricamento dati, uso dati locali');
+            const datiLocali = recuperaDatiLocali();
+            if (datiLocali) {
+                aggiornaDati(datiLocali);
+            }
         });
     }
 
-    function updateUI(data) {
-        // Verifica che data contenga tutti i campi necessari
-        const defaultData = {
-            giorni: 0,
-            ore: 0,
-            minuti: 0,
-            sigarette: 0,
-            soldi: 0
-        };
-
-        // Unisci i dati ricevuti con i valori di default
-        const safeData = { ...defaultData, ...data };
-
-        document.getElementById('giorni').textContent = safeData.giorni.toFixed(0);
-        document.getElementById('ore').textContent = safeData.ore.toFixed(0);
-        document.getElementById('minuti').textContent = safeData.minuti.toFixed(0);
-        document.getElementById('sigarette').textContent = safeData.sigarette.toFixed(0);
-        document.getElementById('soldi').textContent = safeData.soldi.toFixed(2);
+    // Funzione per incrementare i dati localmente
+    function incrementaLocale() {
+        const datiAttuali = recuperaDatiLocali();
+        
+        // Incrementa i valori
+        datiAttuali.sigarette++;
+        datiAttuali.risparmio += 0.30;
+        datiAttuali.catrame += 10;
+        datiAttuali.tempo += 5;
+        
+        // Salva i nuovi dati
+        salvaDatiLocali(datiAttuali);
+        
+        // Aggiorna l'UI
+        aggiornaDati(datiAttuali);
     }
 
     // Funzione per verificare gli elementi necessari
@@ -317,4 +300,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return tuttoPresente;
     }
+
+    // Aggiungi listener per i cambiamenti dello stato della connessione
+    window.addEventListener('online', function() {
+        console.log('Tornato online');
+        // Qui potremmo aggiungere la logica per sincronizzare i dati con il server
+    });
+
+    window.addEventListener('offline', function() {
+        console.log('Andato offline');
+    });
 }); 

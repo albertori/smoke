@@ -1,19 +1,47 @@
-const CACHE_NAME = 'non-ho-fumato-v1';
+const CACHE_NAME = 'nosmokingarea-v1';
 const CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 const ASSETS_TO_CACHE = [
-    '/',
     '/benefici.aspx',
     '/Scripts/benefici.js',
     '/Scripts/translations.js',
     '/Scripts/switchMode.js',
-    '/Scripts/register-sw.js',
     '/Styles/benefici.css',
-    '/images/icon-96x96.png',
+    
+    // Icone
+    '/images/icon-114x114.png',
+    '/images/icon-120x120.png',
+    '/images/icon-144x144.png',
+    '/images/icon-152x152.png',
+    '/images/icon-16x16.png',
+    '/images/icon-180x180.png',
     '/images/icon-192x192.png',
+    '/images/icon-32x32.png',
+    '/images/icon-48x48.png',
     '/images/icon-512x512.png',
-    '/offline.html',
-    '/manifest.json'
+    '/images/icon-57x57.png',
+    '/images/icon-60x60.png',
+    '/images/icon-72x72.png',
+    '/images/icon-76x76.png',
+    '/images/icon-96x96.png',
+    
+    // Screenshot
+    '/images/screenshot-desktop.png',
+    '/images/screenshot-mobile.png',
+    '/images/screenshot1.png',
+    '/images/screenshot2.png',
+    
+    // Splash screens
+    '/images/splash-1125x2436.png',
+    '/images/splash-1242x2208.png',
+    '/images/splash-1536x2048.png',
+    '/images/splash-1668x2388.png',
+    '/images/splash-2048x2732.png',
+    
+    // CDN resources
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'
 ];
 
 function isResponseExpired(response) {
