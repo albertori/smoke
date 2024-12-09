@@ -166,6 +166,13 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Aggiungi questo dove preferisci nella pagina, magari in alto a destra -->
+            <div class="logout-container" style="position: absolute; top: 10px; right: 10px;">
+                <a href="logout.aspx" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
         </div>
     </form>
 

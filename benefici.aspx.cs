@@ -12,7 +12,78 @@ namespace NomeProgetto
         {
             if (!IsPostBack)
             {
-                // Eventuali inizializzazioni necessarie
+                // Verifica se l'utente è loggato
+                if (Session["UtenteID"] == null)
+                {
+                    Response.Redirect("login.aspx");
+                }
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static object GetDatiIniziali()
+        {
+            try
+            {
+                // Ottieni l'ID utente dalla sessione
+                var context = System.Web.HttpContext.Current;
+                int? userId = null;
+                
+                if (context.Session["UtenteID"] != null)
+                {
+                    userId = Convert.ToInt32(context.Session["UtenteID"]);
+                }
+
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    
+                    int sigarette = 0;
+                    double risparmio = 0;
+                    int catrame = 0;
+                    int tempo = 0;
+                    
+                    string query = "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi";
+                    if (userId.HasValue)
+                    {
+                        query += " WHERE UtenteID = ?";
+                    }
+                    query += " ORDER BY ID DESC";
+
+                    using (OleDbCommand cmdRead = new OleDbCommand(query, conn))
+                    {
+                        if (userId.HasValue)
+                        {
+                            cmdRead.Parameters.AddWithValue("?", userId.Value);
+                        }
+
+                        using (OleDbDataReader reader = cmdRead.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                sigarette = Convert.ToInt32(reader["Sigarette"]);
+                                risparmio = Convert.ToDouble(reader["Risparmio"]);
+                                catrame = Convert.ToInt32(reader["Catrame"]);
+                                tempo = Convert.ToInt32(reader["Tempo"]);
+                            }
+                        }
+                    }
+
+                    return new {
+                        sigarette = sigarette,
+                        risparmio = risparmio,
+                        catrame = catrame,
+                        tempo = tempo,
+                        userId = userId
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore in GetDatiIniziali: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Stack trace: " + ex.StackTrace);
+                throw new Exception("Errore nel recupero dei dati");
             }
         }
 
@@ -22,19 +93,39 @@ namespace NomeProgetto
         {
             try
             {
+                // Ottieni l'ID utente dalla sessione
+                var context = System.Web.HttpContext.Current;
+                int? userId = null;
+                
+                if (context.Session["UtenteID"] != null)
+                {
+                    userId = Convert.ToInt32(context.Session["UtenteID"]);
+                }
+
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
                     
-                    // Leggi i valori attuali
                     int sigarette = 0;
                     double risparmio = 0;
                     int catrame = 0;
                     int tempo = 0;
                     
-                    using (OleDbCommand cmdRead = new OleDbCommand(
-                        "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi ORDER BY ID DESC", conn))
+                    // Leggi i valori attuali
+                    string queryRead = "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi";
+                    if (userId.HasValue)
                     {
+                        queryRead += " WHERE UtenteID = ?";
+                    }
+                    queryRead += " ORDER BY ID DESC";
+
+                    using (OleDbCommand cmdRead = new OleDbCommand(queryRead, conn))
+                    {
+                        if (userId.HasValue)
+                        {
+                            cmdRead.Parameters.AddWithValue("?", userId.Value);
+                        }
+
                         using (OleDbDataReader reader = cmdRead.ExecuteReader())
                         {
                             if (reader.Read())
@@ -54,13 +145,28 @@ namespace NomeProgetto
                     tempo += 5;
 
                     // Inserisci nuova riga
-                    using (OleDbCommand cmdInsert = new OleDbCommand(
-                        "INSERT INTO Progressi (DataOra, Sigarette, Risparmio, Catrame, Tempo) VALUES (NOW(), ?, ?, ?, ?)", conn))
+                    string queryInsert = "INSERT INTO Progressi (DataOra, Sigarette, Risparmio, Catrame, Tempo";
+                    if (userId.HasValue)
                     {
-                        cmdInsert.Parameters.AddWithValue("@Sigarette", sigarette);
-                        cmdInsert.Parameters.AddWithValue("@Risparmio", risparmio);
-                        cmdInsert.Parameters.AddWithValue("@Catrame", catrame);
-                        cmdInsert.Parameters.AddWithValue("@Tempo", tempo);
+                        queryInsert += ", UtenteID";
+                    }
+                    queryInsert += ") VALUES (Now(), ?, ?, ?, ?";
+                    if (userId.HasValue)
+                    {
+                        queryInsert += ", ?";
+                    }
+                    queryInsert += ")";
+
+                    using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
+                    {
+                        cmdInsert.Parameters.AddWithValue("?", sigarette);
+                        cmdInsert.Parameters.AddWithValue("?", risparmio);
+                        cmdInsert.Parameters.AddWithValue("?", catrame);
+                        cmdInsert.Parameters.AddWithValue("?", tempo);
+                        if (userId.HasValue)
+                        {
+                            cmdInsert.Parameters.AddWithValue("?", userId.Value);
+                        }
                         cmdInsert.ExecuteNonQuery();
                     }
 
@@ -68,58 +174,44 @@ namespace NomeProgetto
                         sigarette = sigarette,
                         risparmio = risparmio,
                         catrame = catrame,
-                        tempo = tempo
+                        tempo = tempo,
+                        userId = userId
                     };
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Errore in IncrementaContatore: " + ex.Message);
-                throw;
+                System.Diagnostics.Debug.WriteLine("Stack trace: " + ex.StackTrace);
+                throw new Exception("Errore nell'incremento del contatore");
             }
         }
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static object GetDatiIniziali()
+        public static object VerificaAutenticazione(string email)
         {
             try
             {
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
-                    
-                    int sigarette = 0;
-                    double risparmio = 0;
-                    int catrame = 0;
-                    int tempo = 0;
-                    
-                    using (OleDbCommand cmdRead = new OleDbCommand(
-                        "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi ORDER BY ID DESC", conn))
+                    using (OleDbCommand cmd = new OleDbCommand("SELECT ID FROM Utenti WHERE Email = ?", conn))
                     {
-                        using (OleDbDataReader reader = cmdRead.ExecuteReader())
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null)
                         {
-                            if (reader.Read())
-                            {
-                                sigarette = Convert.ToInt32(reader["Sigarette"]);
-                                risparmio = Convert.ToDouble(reader["Risparmio"]);
-                                catrame = Convert.ToInt32(reader["Catrame"]);
-                                tempo = Convert.ToInt32(reader["Tempo"]);
-                            }
+                            int userId = Convert.ToInt32(result);
+                            return new { success = true, userId = userId };
                         }
                     }
-
-                    return new {
-                        sigarette = sigarette,
-                        risparmio = risparmio,
-                        catrame = catrame,
-                        tempo = tempo
-                    };
                 }
+                return new { success = false };
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Errore in GetDatiIniziali: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Errore in VerificaAutenticazione: " + ex.Message);
                 throw;
             }
         }
