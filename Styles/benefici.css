@@ -1,26 +1,19 @@
 :root {
     --primary-color: #4A90E2;
-    --secondary-color: #357ABD;
-    --accent-color: #FF6B6B;
-    --success-color: #2ECC71;
-    --background-color: #E4ECF7;
+    --secondary-color: #2ECC71;
+    --danger-color: #E74C3C;
     --background-gradient-1: #D1E3F9;
-    --background-gradient-2: #B7D1F3;
-    --card-background: #FFFFFF;
+    --background-gradient-2: #B6D0F6;
+    --card-bg: rgba(255, 255, 255, 0.95);
     --text-color: #2C3E50;
-    --shadow-color: rgba(74, 144, 226, 0.25);
-    --light-shadow: rgba(255, 255, 255, 0.95);
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 body {
-    background: linear-gradient(135deg, 
-        var(--background-gradient-1) 0%,
-        var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1), var(--background-gradient-2));
     min-height: 100vh;
-    position: relative;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+    color: var(--text-color);
 }
 
 .app-container {
@@ -40,89 +33,98 @@ body {
 }
 
 .progress-card {
-    background: linear-gradient(145deg, #f6f8fc, #e8eef7);
+    background: var(--card-bg);
     border-radius: 15px;
-    padding: 10px;
-    box-shadow: 
-        4px 4px 8px rgba(0, 0, 0, 0.2),
-        -4px -4px 8px rgba(255, 255, 255, 0.8);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow);
     transition: all 0.3s ease;
-    border: 1px solid rgba(200, 200, 200, 0.5);
-    text-align: center;
+}
+
+.progress-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hover-shadow);
 }
 
 .progress-card h3 {
-    font-size: 0.8rem;
-    margin: 0 0 5px 0;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 5px;
+    gap: 0.5rem;
 }
 
 .progress-card .value {
-    font-size: 1.2rem;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: var(--primary-color);
-    margin: 5px 0;
+    color: var(--text-color);
+    margin: 0.5rem 0;
 }
 
 .progress-card .label {
-    font-size: 0.65rem;
-    color: var(--text-color);
-    opacity: 0.8;
-    margin-top: 2px;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    box-shadow: 
-        4px 4px 8px rgba(0, 0, 0, 0.2),
-        -4px -4px 8px rgba(255, 255, 255, 0.8);
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
+    color: #666;
+    font-size: 0.9rem;
 }
 
 #nonFumareBtn {
-    width: 100%;
-    height: 100%;
     position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+#nonFumareBtn.clicked {
+    transform: scale(0.95);
+}
+
+#nonFumareBtn.green {
+    background-color: #4CAF50;
+}
+
+#nonFumareBtn.red {
+    background-color: #f44336;
+}
+
+/* Testo circolare */
 .circular-text {
     position: absolute;
     width: 100%;
     height: 100%;
-    fill: white;
-    font-size: 10px;
-    font-weight: bold;
+    animation: rotate 20s linear infinite;
 }
 
-#nonFumareBtn svg text textPath {
-    letter-spacing: 1px;
-    font-weight: bold;
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-#curve {
-    transform: rotate(-90deg);
-    transform-origin: center;
+.circular-text text {
+    fill: #333;
+    font-size: 12px;
 }
 
+/* Contenuto del bottone */
 .button-content {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: white;
-    font-size: 18px;
+    text-align: center;
+}
+
+.button-number {
+    font-size: 48px;
     font-weight: bold;
+    color: #333;
 }
 
 #clickButton {
@@ -131,9 +133,10 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
+    border: none;
+    background: transparent;
     cursor: pointer;
-    z-index: 10;
+    border-radius: 50%;
 }
 
 .daily-progress-container {
@@ -150,30 +153,17 @@ body {
 }
 
 .daily-progress {
-    max-width: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
     height: 8px;
-    background: linear-gradient(145deg, #e6e6e6, #ffffff);
-    border-radius: 5px;
-    position: relative;
-    box-shadow: 
-        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+    margin: 1rem 0;
     overflow: hidden;
-    margin: 0 auto;
 }
 
 .progress-bar {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     height: 100%;
-    background: linear-gradient(90deg, 
-        var(--primary-color),
-        var(--success-color));
-    border-radius: 5px;
-    transition: width 0.5s ease;
-    box-shadow: 2px 0 10px rgba(74, 144, 226, 0.3);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
+    transition: width 0.3s ease;
 }
 
 .time-markers {
@@ -234,15 +224,15 @@ body {
 /* Pannello Impostazioni */
 .settings-panel {
     position: fixed;
-    right: -250px; /* Nascosto di default */
+    right: -300px;
     top: 50%;
     transform: translateY(-50%);
-    width: 250px;
-    background: white;
+    width: 300px;
+    background: var(--card-bg);
+    padding: 1.5rem;
     border-radius: 15px 0 0 15px;
-    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow);
     transition: right 0.3s ease;
-    z-index: 1000;
 }
 
 .settings-panel.open {
@@ -251,24 +241,20 @@ body {
 
 .settings-toggle {
     position: absolute;
-    left: -40px;
+    left: -48px;
     top: 50%;
     transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background: white;
+    background: var(--primary-color);
+    color: white;
     border: none;
+    padding: 0.8rem;
     border-radius: 10px 0 0 10px;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    box-shadow: var(--shadow);
 }
 
-.settings-toggle i {
-    font-size: 20px;
-    color: var(--primary-color);
+.settings-toggle:hover {
+    background: darken(var(--primary-color), 10%);
 }
 
 .settings-content {
@@ -351,7 +337,6 @@ body {
     display: inline-block;
     width: 60px;
     height: 34px;
-    margin-right: 10px;
 }
 
 .switch input {
@@ -385,7 +370,7 @@ body {
 }
 
 input:checked + .slider {
-    background-color: var(--primary-color, #4A90E2);
+    background-color: var(--primary-color);
 }
 
 input:checked + .slider:before {
@@ -400,4 +385,69 @@ input:checked + .slider:before {
 /* Nascondi il selettore della lingua */
 .language-selector {
     display: none;
+}
+
+/* Media queries per schermi più piccoli */
+@media screen and (max-width: 768px) {
+    #nonFumareBtn {
+        width: 150px;
+        height: 150px;
+    }
+
+    .button-number {
+        font-size: 36px;
+    }
+
+    .circular-text text {
+        font-size: 10px;
+    }
+
+    .progress-card {
+        padding: 1rem;
+    }
+
+    .progress-card h3 {
+        font-size: 1rem;
+    }
+
+    .progress-card .value {
+        font-size: 1.8rem;
+    }
+
+    .progress-card .label {
+        font-size: 0.8rem;
+    }
+
+    .container {
+        padding: 0.5rem;
+    }
+}
+
+/* Per schermi molto piccoli */
+@media screen and (max-width: 480px) {
+    #nonFumareBtn {
+        width: 120px;
+        height: 120px;
+    }
+
+    .button-number {
+        font-size: 28px;
+    }
+
+    .circular-text text {
+        font-size: 8px;
+    }
+
+    .progress-card {
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+    }
+
+    .progress-card .value {
+        font-size: 1.5rem;
+    }
+
+    .app-container {
+        gap: 0.5rem;
+    }
 } 
