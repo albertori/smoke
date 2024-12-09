@@ -16,3 +16,12 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db 
+
+# File di configurazione con chiavi API
+Web.config
+*.config
+appsettings.json
+.env 
+
+# File JavaScript con chiavi API
+App.js 
