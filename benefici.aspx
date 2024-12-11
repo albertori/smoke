@@ -34,6 +34,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="Styles/benefici.css" />
+    <link rel="stylesheet" href="Styles/timeTracking.css">
 </head>
 <body>
     <form id="form1" runat="server">
@@ -107,8 +108,51 @@
                 </div>
             </div>
 
+            <!-- Spostiamo questo dopo app-container e prima di daily-progress-container -->
+            <div class="container">
+                <div class="time-tracking-container">
+                    <div class="time-bar-wrapper">
+                        <div class="time-labels">
+                            <span>Miglior tempo</span>
+                            <span id="lastTimeLabel" class="time-label">00:00:00</span>
+                            <button id="resetBestTime" class="reset-button">Reset Record</button>
+                        </div>
+                        <div class="time-bar-container">
+                            <div id="lastTimeBar" class="time-bar"></div>
+                            <span id="bestTimeOverlay" class="time-overlay"></span>
+                        </div>
+                    </div>
+                    <div class="time-bar-wrapper">
+                        <div class="time-labels">
+                            <span>Tempo corrente</span>
+                            <span id="currentTimeLabel" class="time-label">00:00:00</span>
+                        </div>
+                        <div class="time-bar-container">
+                            <div id="currentTimeBar" class="time-bar"></div>
+                            <span id="remainingTimeOverlay" class="time-overlay"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Progress bar giornaliera -->
             <div class="daily-progress-container">
+                <div class="time-tracking-container">
+                    <div class="time-bar-wrapper">
+                        <div id="lastTimeBar" class="time-bar"></div>
+                        <div class="time-labels">
+                            <span>Ultimo intervallo</span>
+                            <span id="lastTimeLabel" class="time-label">00:00:00</span>
+                        </div>
+                    </div>
+                    <div class="time-bar-wrapper">
+                        <div id="currentTimeBar" class="time-bar"></div>
+                        <div class="time-labels">
+                            <span>Tempo corrente</span>
+                            <span id="currentTimeLabel" class="time-label">00:00:00</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="daily-progress">
                     <div class="progress-bar" id="dailyProgressBar"></div>
                 </div>
@@ -184,5 +228,6 @@
     <script src="Scripts/benefici.js"></script>
     <script src="Scripts/translations.js"></script>
     <script src="Scripts/switchMode.js"></script>
+    <script src="Scripts/timeTracking.js"></script>
 </body>
 </html> 

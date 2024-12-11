@@ -1,0 +1,88 @@
+.time-tracking-container {
+    position: relative;
+    margin: 20px 0;
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border-radius: 10px;
+    z-index: 1000;
+}
+
+.time-bar-wrapper {
+    margin: 5px 0;
+}
+
+.time-bar-container {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 5px;
+}
+
+.time-bar {
+    height: 100%;
+    transition: width 1s linear, background-color 0.5s linear;
+    border-radius: 10px;
+}
+
+#currentTimeBar {
+    background: var(--danger-color);
+    width: 0%;
+}
+
+#lastTimeBar {
+    background: var(--secondary-color);
+    width: 0%;
+}
+
+.time-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-color);
+    margin: 2px 10px;
+}
+
+.time-label {
+    font-family: monospace;
+}
+
+.time-overlay {
+    position: absolute;
+    top: -20px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: var(--text-color);
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+@keyframes celebrate {
+    0% { filter: brightness(1); }
+    25% { filter: brightness(1.5); }
+    50% { filter: brightness(1); }
+    75% { filter: brightness(1.5); }
+    100% { filter: brightness(1); }
+}
+
+.celebrate {
+    animation: celebrate 1s ease-in-out 3;
+    box-shadow: 0 0 20px var(--secondary-color);
+}
+
+.reset-button {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.reset-button:hover {
+    opacity: 0.9;
+} 

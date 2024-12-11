@@ -239,5 +239,49 @@ namespace NomeProgetto
                 throw;
             }
         }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static object SalvaIntervallo(string dataOraInizio, string dataOraFine, int durataSec)
+        {
+            try
+            {
+                var context = System.Web.HttpContext.Current;
+                int? userId = null;
+                
+                if (context.Session["UtenteID"] != null)
+                {
+                    userId = Convert.ToInt32(context.Session["UtenteID"]);
+                }
+
+                if (!userId.HasValue)
+                {
+                    throw new Exception("Utente non autenticato");
+                }
+
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO TempiIntervalli (UtenteID, DataOraInizio, DataOraFine, DurataSec) VALUES (?, ?, ?, ?)";
+                    
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId.Value);
+                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraInizio));
+                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraFine));
+                        cmd.Parameters.AddWithValue("?", durataSec);
+                        
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return new { success = true };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore in SalvaIntervallo: " + ex.Message);
+                return new { success = false, error = ex.Message };
+            }
+        }
     }
 } 
