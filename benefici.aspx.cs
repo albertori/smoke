@@ -10,12 +10,36 @@ namespace NomeProgetto
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Verifica se l'utente è autenticato
             if (!IsPostBack)
             {
-                // Verifica se l'utente è loggato
-                if (Session["UtenteID"] == null)
+                if (Session["Email"] != null)
                 {
-                    Response.Redirect("login.aspx");
+                    userEmail.InnerText = Session["Email"].ToString();
+                }
+                else if (Request.Cookies["UserAuth"] != null)
+                {
+                    // Se non c'è la sessione ma c'è il cookie
+                    string[] authData = Request.Cookies["UserAuth"].Value.Split('|');
+                    if (authData.Length == 2)
+                    {
+                        Session["UtenteID"] = authData[0];
+                        Session["Email"] = authData[1];
+                        userEmail.InnerText = authData[1];
+                    }
+                    else
+                    {
+                        Response.Redirect("login.aspx", false);
+                        Context.ApplicationInstance.CompleteRequest();
+                        return;
+                    }
+                }
+                else
+                {
+                    // Solo se non c'è né sessione né cookie facciamo il redirect
+                    Response.Redirect("login.aspx", false);
+                    Context.ApplicationInstance.CompleteRequest();
+                    return;
                 }
             }
         }

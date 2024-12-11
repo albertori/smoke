@@ -520,4 +520,51 @@ input:checked + .slider:before {
     .time-markers {
         font-size: 0.7rem;
     }
+
+    /* Ottimizzazione dimensioni icone */
+    .progress-card h3 i {
+        font-size: 0.9rem;  /* Riduce la dimensione delle icone nei titoli delle card */
+    }
+
+    .settings-toggle {
+        width: 40px;        /* Riduce la dimensione del bottone impostazioni */
+        height: 40px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .settings-toggle i {
+        font-size: 18px;    /* Riduce la dimensione dell'icona ingranaggio */
+    }
+
+    .fas {  /* Per tutte le icone Font Awesome */
+        margin-right: 3px;  /* Riduce lo spazio tra icona e testo */
+    }
+}
+
+/* Stili per il container dell'email utente */
+.user-email-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--card-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-email-container i {
+    color: var(--primary-color);
+}
+
+@media screen and (max-width: 480px) {
+    .user-email-container {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
 } 

@@ -38,6 +38,10 @@
 <body>
     <form id="form1" runat="server">
         <div class="container py-4">
+            <div class="user-email-container">
+                <i class="fas fa-user"></i>
+                <span id="userEmail" runat="server"></span>
+            </div>
             <div class="app-container d-flex justify-content-between align-items-center">
                 <!-- Statistiche a sinistra -->
                 <div class="stats-container">
