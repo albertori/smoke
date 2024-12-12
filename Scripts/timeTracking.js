@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         LAST_PAUSE: 'lastPauseTime',
         LAST_STATE: 'timerState'
     };
+    const MAX_INACTIVE_TIME = 10800000; // 3 ore in millisecondi
 
     // Stato iniziale con validazione
     let startTime, bestTime, accumulatedTime, timeInterval;
@@ -54,8 +55,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 accumulatedTime: accumulatedTime
             };
             localStorage.setItem(STORAGE_KEYS.LAST_STATE, JSON.stringify(state));
+            console.log('💾 Stato salvato:', state);
+            
+            // Log del record attuale
+            console.log('🏆 Record attuale:', formatTime(Math.floor(bestTime/1000)));
         } catch (error) {
-            console.error('Errore durante il salvataggio dello stato:', error);
+            console.error('❌ Errore durante il salvataggio dello stato:', error);
+            console.error('Stack:', error.stack);
         }
     }
 
@@ -69,17 +75,99 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleVisibilityChange() {
         try {
             if (document.hidden) {
+                console.log('🔄 Tab nascosto - Pausa timer');
                 clearInterval(timeInterval);
+                
                 const currentElapsed = Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER));
+                console.log('⏱️ Tempo trascorso:', currentElapsed, 'ms');
+                
                 accumulatedTime += currentElapsed;
-                localStorage.setItem(STORAGE_KEYS.LAST_PAUSE, Date.now().toString());
+                console.log('💾 Tempo accumulato totale:', accumulatedTime, 'ms');
+                
+                const pauseTime = Date.now();
+                localStorage.setItem(STORAGE_KEYS.LAST_PAUSE, pauseTime.toString());
+                console.log('📝 Salvato timestamp pausa:', pauseTime);
+                
+                // Imposta un timeout per il controllo delle 3 ore
+                setTimeout(() => checkInactiveTime(pauseTime), MAX_INACTIVE_TIME);
+                
                 saveState();
             } else {
+                console.log('🔄 Tab attivo - Ripresa timer');
+                const lastPauseTime = parseInt(localStorage.getItem(STORAGE_KEYS.LAST_PAUSE));
+                
+                if (lastPauseTime) {
+                    const inactiveTime = Date.now() - lastPauseTime;
+                    console.log('⏱️ Tempo di inattività:', formatTime(Math.floor(inactiveTime/1000)));
+                    
+                    if (inactiveTime >= MAX_INACTIVE_TIME) {
+                        console.log('⚠️ Superato limite di 3 ore di inattività');
+                        saveAndReset();
+                        return;
+                    }
+                }
+                
                 startTime = Date.now();
                 timeInterval = setInterval(updateCurrentTime, 1000);
+                console.log('▶️ Timer riavviato');
             }
         } catch (error) {
-            console.error('Errore durante il cambio di visibilità:', error);
+            console.error('❌ Errore durante il cambio di visibilità:', error);
+            console.error('Stack:', error.stack);
+        }
+    }
+
+    function checkInactiveTime(pauseTime) {
+        if (document.hidden) {
+            const inactiveTime = Date.now() - pauseTime;
+            if (inactiveTime >= MAX_INACTIVE_TIME) {
+                console.log('⚠️ Raggiunto limite di 3 ore di inattività');
+                saveAndReset();
+            }
+        }
+    }
+
+    function saveAndReset() {
+        try {
+            console.log('🔄 Inizio salvataggio e reset per inattività');
+            
+            const currentElapsed = Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER));
+            const totalElapsed = Math.floor(accumulatedTime/1000) + Math.floor(currentElapsed/1000);
+            
+            // Salva nel DB
+            fetch('benefici.aspx/SalvaIntervallo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dataOraInizio: new Date(startTime).toISOString(),
+                    dataOraFine: new Date().toISOString(),
+                    durataSec: totalElapsed
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Intervallo salvato nel DB:', data);
+                
+                // Reset completo
+                resetTimer();
+                
+                // Se era un nuovo record, salvalo prima del reset
+                if (totalElapsed * 1000 > bestTime) {
+                    bestTime = totalElapsed * 1000;
+                    localStorage.setItem(STORAGE_KEYS.BEST_TIME, bestTime.toString());
+                    console.log('🏆 Nuovo record salvato:', formatTime(Math.floor(bestTime/1000)));
+                }
+                
+                console.log('🔄 Reset per inattività completato');
+            })
+            .catch(error => {
+                console.error('❌ Errore durante il salvataggio per inattività:', error);
+            });
+        } catch (error) {
+            console.error('❌ Errore durante saveAndReset:', error);
+            console.error('Stack:', error.stack);
         }
     }
 
@@ -110,14 +198,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Se abbiamo superato il record, aggiorna anche la barra superiore
         if (totalElapsed * 1000 >= bestTime) {
+            console.log('🔄 Aggiornamento barra record');
             lastTimeBar.style.width = width + '%';
             lastTimeLabel.textContent = formatTime(totalElapsed);
-            
-            // Aggiungi effetto celebrativo solo la prima volta che superiamo il record
-            if (totalElapsed * 1000 === bestTime) {
-                currentTimeBar.classList.add('celebrate');
-                setTimeout(() => currentTimeBar.classList.remove('celebrate'), 3000);
-            }
         }
 
         // Aggiorna colori e tempo rimanente
@@ -167,11 +250,59 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetBestTime() {
-        bestTime = 0;
-        localStorage.removeItem(STORAGE_KEYS.BEST_TIME);
-        lastTimeBar.style.width = '0%';
-        lastTimeLabel.textContent = '00:00:00';
-        document.getElementById('remainingTimeOverlay').textContent = '';
+        try {
+            console.log('🔄 Inizio reset record');
+            
+            // Salva il tempo attuale nel DB prima del reset
+            const currentElapsed = Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER));
+            const totalElapsed = Math.floor(accumulatedTime/1000) + Math.floor(currentElapsed/1000);
+            
+            console.log('⏱️ Tempo finale da salvare:', formatTime(totalElapsed));
+
+            // Chiamata al server per salvare l'intervallo
+            fetch('benefici.aspx/SalvaIntervallo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dataOraInizio: new Date(startTime).toISOString(),
+                    dataOraFine: new Date().toISOString(),
+                    durataSec: totalElapsed
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Intervallo salvato nel DB:', data);
+                
+                // Reset effettivo dopo il salvataggio
+                bestTime = 0;
+                localStorage.removeItem(STORAGE_KEYS.BEST_TIME);
+                
+                // Reset delle barre
+                lastTimeBar.style.width = '0%';
+                lastTimeLabel.textContent = '00:00:00';
+                currentTimeBar.style.width = '0%';
+                currentTimeLabel.textContent = '00:00:00';
+                
+                // Reset altri valori
+                startTime = Date.now();
+                accumulatedTime = 0;
+                
+                // Pulisci overlay e salva nuovo stato
+                document.getElementById('remainingTimeOverlay').textContent = '';
+                saveState();
+                
+                console.log('🔄 Reset completato');
+            })
+            .catch(error => {
+                console.error('❌ Errore durante il salvataggio dell\'intervallo:', error);
+                alert('Errore durante il reset del record. Riprova più tardi.');
+            });
+        } catch (error) {
+            console.error('❌ Errore durante il reset del record:', error);
+            console.error('Stack:', error.stack);
+        }
     }
 
     function formatTime(seconds) {
@@ -223,4 +354,12 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Errore durante l\'inizializzazione generale:', error);
         resetState();
     }
+
+    // Event listener con log
+    document.addEventListener('visibilitychange', () => {
+        console.log('👁️ Cambio visibilità. Hidden:', document.hidden);
+        handleVisibilityChange();
+    });
+
+    console.log('🚀 Event listener visibilitychange registrato');
 }); 
