@@ -89,12 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentElapsed = Math.floor(((now - startTime) * TIME_MULTIPLIER) / 1000);
             const totalElapsed = Math.floor(accumulatedTime/1000) + currentElapsed;
             
-            if (totalElapsed >= MAX_TIME) {
-                resetTimer();
-                return;
-            }
-
             updateUI(totalElapsed);
+            
+            if (totalElapsed * 1000 > bestTime) {
+                bestTime = totalElapsed * 1000;
+                localStorage.setItem(STORAGE_KEYS.BEST_TIME, bestTime.toString());
+            }
+            
             saveState();
         } catch (error) {
             console.error('Errore durante l\'aggiornamento:', error);
@@ -106,6 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const width = Math.min((totalElapsed / MAX_TIME) * 100, 100);
         currentTimeBar.style.width = width + '%';
         currentTimeLabel.textContent = formatTime(totalElapsed);
+
+        // Se abbiamo superato il record, aggiorna anche la barra superiore
+        if (totalElapsed * 1000 >= bestTime) {
+            lastTimeBar.style.width = width + '%';
+            lastTimeLabel.textContent = formatTime(totalElapsed);
+            
+            // Aggiungi effetto celebrativo solo la prima volta che superiamo il record
+            if (totalElapsed * 1000 === bestTime) {
+                currentTimeBar.classList.add('celebrate');
+                setTimeout(() => currentTimeBar.classList.remove('celebrate'), 3000);
+            }
+        }
 
         // Aggiorna colori e tempo rimanente
         if (bestTime > 0) {
@@ -138,28 +151,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetTimer() {
-        const totalElapsed = Math.floor(accumulatedTime/1000) + 
-            Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER) / 1000);
-        
-        if (totalElapsed * 1000 > bestTime) {
-            bestTime = totalElapsed * 1000;
-            localStorage.setItem(STORAGE_KEYS.BEST_TIME, bestTime.toString());
-            
-            const width = Math.min((totalElapsed / MAX_TIME) * 100, 100);
-            lastTimeBar.style.width = width + '%';
-            lastTimeLabel.textContent = formatTime(totalElapsed);
-            
-            currentTimeBar.classList.add('celebrate');
-            setTimeout(() => currentTimeBar.classList.remove('celebrate'), 3000);
-        }
-
-        // Resetta il timer corrente
+        // Non resettiamo più quando raggiungiamo il record
         startTime = Date.now();
         accumulatedTime = 0;
         localStorage.setItem(STORAGE_KEYS.START_TIME, startTime.toString());
         localStorage.setItem(STORAGE_KEYS.ACCUMULATED_TIME, '0');
         currentTimeBar.style.width = '0%';
         currentTimeLabel.textContent = '00:00:00';
+        
+        // Reset anche della barra superiore se non c'è record
+        if (bestTime === 0) {
+            lastTimeBar.style.width = '0%';
+            lastTimeLabel.textContent = '00:00:00';
+        }
     }
 
     function resetBestTime() {
@@ -207,8 +211,14 @@ document.addEventListener('DOMContentLoaded', function() {
         timeInterval = setInterval(updateCurrentTime, 1000);
         
         // Aggiungi event listeners per i pulsanti
-        document.getElementById('clickButton').addEventListener('click', resetTimer);
-        document.getElementById('resetBestTime').addEventListener('click', resetBestTime);
+        document.getElementById('clickButton').addEventListener('click', (e) => {
+            e.preventDefault();  // Previene il comportamento di default
+            resetTimer();
+        });
+        document.getElementById('resetBestTime').addEventListener('click', (e) => {
+            e.preventDefault();  // Previene il comportamento di default
+            resetBestTime();
+        });
     } catch (error) {
         console.error('Errore durante l\'inizializzazione generale:', error);
         resetState();
