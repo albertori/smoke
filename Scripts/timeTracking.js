@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Aggiorna UI iniziale
             updateUI(Math.floor(accumulatedTime/1000));
             
-            // Aggiorna il testo del bottone
-            document.getElementById('clickButton').textContent = 'Inizia';
-
             // Non avviare il timer automaticamente
             clearInterval(timeInterval);
+            
+            // Imposta il testo corretto del bottone sempre a "Inizia" all'avvio
+            document.getElementById('resetBestTime').textContent = 'Inizia';
             
             console.log('✅ Stato inizializzato:', {
                 startTime,
@@ -210,11 +210,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateCurrentTime() {
         try {
+            // Se il timer non dovrebbe essere in esecuzione, usciamo
+            if (!timeInterval) {
+                return;
+            }
+
             const now = Date.now();
-            const currentElapsed = Math.floor(((now - startTime) * TIME_MULTIPLIER) / 1000);
+            const currentElapsed = Math.floor((now - startTime) / 1000);
             const totalElapsed = Math.floor(accumulatedTime/1000) + currentElapsed;
             
             updateUI(totalElapsed);
+            
+            // Assicuriamoci che il bottone mostri "Resetta" mentre il timer è attivo
+            const button = document.getElementById('resetBestTime');
+            if (button.textContent !== 'Resetta') {
+                button.textContent = 'Resetta';
+            }
             
             // Aggiorniamo il bestTime solo se il tempo totale è maggiore
             if (totalElapsed * 1000 > bestTime) {
@@ -299,6 +310,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function resetBestTime() {
+        const button = document.getElementById('resetBestTime');
+        
+        if (button.textContent === 'Inizia') {
+            // Avvia il timer
+            startTime = Date.now();
+            timeInterval = setInterval(updateCurrentTime, 1000);
+            button.textContent = 'Resetta';
+            return;
+        }
+
+        if (button.textContent === 'Resetta') {
+            // Ferma il timer
+            clearInterval(timeInterval);
+            timeInterval = null;  // Assicuriamoci che il timer sia completamente azzerato
+            
+            // Reset UI
+            lastTimeBar.style.width = '0%';
+            lastTimeLabel.textContent = '00:00:00';
+            currentTimeBar.style.width = '0%';
+            currentTimeLabel.textContent = '00:00:00';
+            document.getElementById('remainingTimeOverlay').textContent = '';
+            
+            // Reset dei valori
+            bestTime = 0;
+            startTime = Date.now();
+            accumulatedTime = 0;
+            
+            // Cambia il testo del bottone a "Inizia"
+            button.textContent = 'Inizia';
+            
+            // Salva lo stato resettato
+            const state = {
+                startTime: startTime,
+                bestTime: 0,
+                accumulatedTime: 0,
+                isRunning: false  // Aggiungiamo uno stato per il timer
+            };
+            localStorage.setItem(STORAGE_KEYS.LAST_STATE, JSON.stringify(state));
+            
+            console.log('🔄 Timer fermato e reset completato');
+            return;
+        }
+
+        // Se non è né "Inizia" né "Resetta", procedi con il codice esistente per il salvataggio
         try {
             console.log('🔄 Inizio analisi dati');
             
@@ -324,6 +379,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 console.log('📦 Payload che verrà inviato:', JSON.stringify(bodyData, null, 2));
 
+                // Cambia il testo del bottone prima della chiamata
+                const resetButton = document.getElementById('resetBestTime');
+                resetButton.textContent = 'Inizia';
+
                 fetch('benefici.aspx/SalvaIntervallo', {
                     method: 'POST',
                     headers: { 
@@ -338,7 +397,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(text => {
                     console.log('📥 Response text completo:', text);
                     
-                    // Estrai solo la parte JSON dalla risposta
                     const jsonMatch = text.match(/\{.*\}/);
                     if (!jsonMatch) {
                         throw new Error('Formato risposta non valido');
@@ -352,11 +410,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.log('✅ Intervallo salvato con successo');
                         eseguiReset();
                     } else {
+                        // Se c'è un errore, ripristina il testo del bottone
+                        resetButton.textContent = 'Reset Record';
                         throw new Error(data.d ? data.d.error : 'Errore sconosciuto');
                     }
                 })
                 .catch(error => {
                     console.error('❌ Errore durante il salvataggio:', error);
+                    // Se c'è un errore, ripristina il testo del bottone
+                    resetButton.textContent = 'Reset Record';
                     alert('Errore durante il salvataggio. Riprova più tardi.');
                 });
             }
@@ -387,8 +449,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentTimeLabel.textContent = '00:00:00';
         document.getElementById('remainingTimeOverlay').textContent = '';
         
-        // Aggiorna il testo del bottone
-        document.getElementById('clickButton').textContent = 'Inizia';
+        // Imposta il testo corretto del bottone
+        document.getElementById('resetBestTime').textContent = 'Inizia';
         
         // Ferma il timer
         clearInterval(timeInterval);
