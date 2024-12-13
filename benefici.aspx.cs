@@ -244,6 +244,73 @@ namespace NomeProgetto
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public static object SalvaIntervallo(string dataOraInizio, string dataOraFine, int durataSec)
         {
+            var context = System.Web.HttpContext.Current;
+            try
+            {
+                context.Response.Write("<br>🚀 Inizio SalvaIntervallo");
+                context.Response.Write("<br>Data Inizio ricevuta: '" + dataOraInizio + "'");
+                context.Response.Write("<br>Data Fine ricevuta: '" + dataOraFine + "'");
+                context.Response.Write("<br>Durata ricevuta: " + durataSec);
+                
+                int? userId = null;
+                
+                if (context.Session["UtenteID"] != null)
+                {
+                    userId = Convert.ToInt32(context.Session["UtenteID"]);
+                    context.Response.Write("<br>UserID: " + userId);
+                }
+
+                if (!userId.HasValue)
+                {
+                    throw new Exception("Utente non autenticato");
+                }
+
+                // Prova a parsare le date
+                try {
+                    DateTime dtInizio = DateTime.Parse(dataOraInizio);
+                    DateTime dtFine = DateTime.Parse(dataOraFine);
+                    
+                    context.Response.Write("<br>Data Inizio parsata: " + dtInizio);
+                    context.Response.Write("<br>Data Fine parsata: " + dtFine);
+                }
+                catch (Exception ex) {
+                    context.Response.Write("<br>❌ Errore parsing date: " + ex.Message);
+                    throw;
+                }
+
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    string query = "INSERT INTO TempiIntervalli (UtenteID, DataOraInizio, DataOraFine, DurataSec) VALUES (?, ?, ?, ?)";
+                    
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId.Value);
+                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraInizio));
+                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraFine));
+                        cmd.Parameters.AddWithValue("?", durataSec);
+                        
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return new { 
+                            success = true, 
+                            rowsAffected = rowsAffected,
+                            message = "Intervallo salvato con successo" 
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Response.Write("<br>❌ Errore generale: " + ex.Message);
+                context.Response.Write("<br>Stack trace: " + ex.StackTrace);
+                return new { success = false, error = ex.Message };
+            }
+        }
+
+        [WebMethod]
+        [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
+        public static object GetUserRecord()
+        {
             try
             {
                 var context = System.Web.HttpContext.Current;
@@ -262,24 +329,26 @@ namespace NomeProgetto
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
-                    string query = "INSERT INTO TempiIntervalli (UtenteID, DataOraInizio, DataOraFine, DurataSec) VALUES (?, ?, ?, ?)";
+                    // Prendi il record migliore dell'utente
+                    string query = @"SELECT TOP 1 DurataSec 
+                                   FROM TempiIntervalli 
+                                   WHERE UtenteID = ? 
+                                   ORDER BY DurataSec DESC";
                     
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("?", userId.Value);
-                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraInizio));
-                        cmd.Parameters.AddWithValue("?", DateTime.Parse(dataOraFine));
-                        cmd.Parameters.AddWithValue("?", durataSec);
+                        object result = cmd.ExecuteScalar();
                         
-                        cmd.ExecuteNonQuery();
+                        return new { 
+                            success = true,
+                            bestTime = result != null ? Convert.ToInt32(result) : 0
+                        };
                     }
                 }
-
-                return new { success = true };
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Errore in SalvaIntervallo: " + ex.Message);
                 return new { success = false, error = ex.Message };
             }
         }

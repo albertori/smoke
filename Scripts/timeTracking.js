@@ -7,61 +7,97 @@ document.addEventListener('DOMContentLoaded', function() {
         BEST_TIME: 'bestTime',
         ACCUMULATED_TIME: 'accumulatedTime',
         LAST_PAUSE: 'lastPauseTime',
-        LAST_STATE: 'timerState'
+        LAST_STATE: 'timerState',
+        LAST_USER: 'lastUserEmail'
     };
     const MAX_INACTIVE_TIME = 10800000; // 3 ore in millisecondi
+    const RESUME_TIME_LIMIT = MAX_INACTIVE_TIME; // Usa lo stesso limite di 3 ore
 
     // Stato iniziale con validazione
     let startTime, bestTime, accumulatedTime, timeInterval;
 
     function initializeState() {
         try {
-            // Recupera e valida i dati salvati
-            const savedState = JSON.parse(localStorage.getItem(STORAGE_KEYS.LAST_STATE) || '{}');
-            const now = Date.now();
+            // Ottieni l'email dell'utente corrente
+            const currentUserEmail = document.getElementById('userEmail').innerText;
+            console.log('👤 Utente corrente:', currentUserEmail);
 
-            startTime = validateTime(savedState.startTime, now);
-            bestTime = validateTime(savedState.bestTime, 0);
-            accumulatedTime = validateTime(savedState.accumulatedTime, 0);
+            // Verifica se è un nuovo utente confrontando con l'ultimo utente salvato
+            const lastUserEmail = localStorage.getItem(STORAGE_KEYS.LAST_USER);
+            console.log('�� Ultimo utente:', lastUserEmail);
 
-            // Verifica se c'è stato un crash o chiusura improvvisa
-            const lastPause = parseInt(localStorage.getItem(STORAGE_KEYS.LAST_PAUSE));
-            if (lastPause && !isNaN(lastPause)) {
-                const timeSinceLastPause = now - lastPause;
-                if (timeSinceLastPause < MAX_TIME * 1000) {
-                    accumulatedTime += Math.floor(timeSinceLastPause * TIME_MULTIPLIER);
-                }
+            if (currentUserEmail !== lastUserEmail) {
+                // Se è un nuovo utente, pulisci tutto lo storage
+                console.log('🆕 Nuovo utente rilevato, pulizia storage');
+                localStorage.clear();
+                localStorage.setItem(STORAGE_KEYS.LAST_USER, currentUserEmail);
+                eseguiReset();
+                return;
             }
 
-            // Salva lo stato iniziale validato
-            saveState();
+            // Verifica se c'è uno stato salvato
+            const savedState = localStorage.getItem(STORAGE_KEYS.LAST_STATE);
+            if (!savedState) {
+                console.log('💫 Nessuno stato salvato trovato, inizializzazione da zero');
+                eseguiReset();
+                return;
+            }
+
+            const state = JSON.parse(savedState);
+            const now = Date.now();
+            const lastActivity = parseInt(localStorage.getItem(STORAGE_KEYS.LAST_PAUSE)) || 0;
+            const inactiveTime = now - lastActivity;
+
+            if (inactiveTime > MAX_INACTIVE_TIME || !lastActivity) {
+                console.log('🔄 Reset per inattività o prima inizializzazione');
+                eseguiReset();
+                return;
+            }
+
+            // Se arriviamo qui, recuperiamo lo stato precedente
+            startTime = validateTime(state.startTime, now);
+            bestTime = validateTime(state.bestTime, 0);
+            accumulatedTime = validateTime(state.accumulatedTime, 0);
+
+            // Aggiorna UI iniziale
+            updateUI(Math.floor(accumulatedTime/1000));
+            
+            // Aggiorna il testo del bottone
+            document.getElementById('clickButton').textContent = 'Inizia';
+
+            // Non avviare il timer automaticamente
+            clearInterval(timeInterval);
+            
+            console.log('✅ Stato inizializzato:', {
+                startTime,
+                bestTime,
+                accumulatedTime
+            });
+                
         } catch (error) {
-            console.error('Errore durante l\'inizializzazione:', error);
-            // Reset dello stato in caso di errore
-            resetState();
+            console.error('❌ Errore durante l\'inizializzazione:', error);
+            console.error('Stack:', error.stack);
+            eseguiReset();
         }
     }
 
     function validateTime(value, defaultValue) {
         const parsed = parseInt(value);
-        return !isNaN(parsed) && parsed >= 0 ? parsed : defaultValue;
+        return (!isNaN(parsed) && parsed >= 0 && parsed < Date.now() + 86400000) ? parsed : defaultValue;
     }
 
     function saveState() {
         try {
-            const state = {
+            // Salva nel localStorage solo i dati della sessione corrente
+            const sessionState = {
                 startTime: startTime,
-                bestTime: bestTime,
-                accumulatedTime: accumulatedTime
+                accumulatedTime: accumulatedTime,
+                lastPause: Date.now()
             };
-            localStorage.setItem(STORAGE_KEYS.LAST_STATE, JSON.stringify(state));
-            console.log('💾 Stato salvato:', state);
-            
-            // Log del record attuale
-            console.log('🏆 Record attuale:', formatTime(Math.floor(bestTime/1000)));
+            localStorage.setItem(STORAGE_KEYS.LAST_STATE, JSON.stringify(sessionState));
+            console.log('💾 Stato sessione salvato:', sessionState);
         } catch (error) {
             console.error('❌ Errore durante il salvataggio dello stato:', error);
-            console.error('Stack:', error.stack);
         }
     }
 
@@ -129,42 +165,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveAndReset() {
         try {
-            console.log('🔄 Inizio salvataggio e reset per inattività');
+            console.log('🔄 Inizio analisi dati');
             
             const currentElapsed = Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER));
             const totalElapsed = Math.floor(accumulatedTime/1000) + Math.floor(currentElapsed/1000);
             
-            // Salva nel DB
-            fetch('benefici.aspx/SalvaIntervallo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    dataOraInizio: new Date(startTime).toISOString(),
-                    dataOraFine: new Date().toISOString(),
-                    durataSec: totalElapsed
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('✅ Intervallo salvato nel DB:', data);
+            // Formatta le date nel formato che Access accetta
+            const formatDateForAccess = (date) => {
+                const d = new Date(date);
+                const pad = (num) => String(num).padStart(2, '0');
                 
-                // Reset completo
-                resetTimer();
-                
-                // Se era un nuovo record, salvalo prima del reset
-                if (totalElapsed * 1000 > bestTime) {
-                    bestTime = totalElapsed * 1000;
-                    localStorage.setItem(STORAGE_KEYS.BEST_TIME, bestTime.toString());
-                    console.log('🏆 Nuovo record salvato:', formatTime(Math.floor(bestTime/1000)));
-                }
-                
-                console.log('🔄 Reset per inattività completato');
-            })
-            .catch(error => {
-                console.error('❌ Errore durante il salvataggio per inattività:', error);
-            });
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+            };
+
+            const dataInizio = formatDateForAccess(startTime);
+            const dataFine = formatDateForAccess(new Date());
+
+            // Log dettagliati dei dati
+            console.log('📅 Analisi dati:');
+            console.log('- startTime (raw):', startTime);
+            console.log('- startTime (Date object):', new Date(startTime));
+            console.log('- Data inizio formattata:', dataInizio);
+            console.log('- Data fine formattata:', dataFine);
+            console.log('- Durata:', totalElapsed);
+            console.log('- Tempo accumulato:', accumulatedTime);
+            console.log('- Tempo corrente:', currentElapsed);
+
+            const bodyData = {
+                dataOraInizio: dataInizio,
+                dataOraFine: dataFine,
+                durataSec: totalElapsed
+            };
+
+            console.log('📦 Payload che verrebbe inviato:', JSON.stringify(bodyData, null, 2));
+            
+            // Non facciamo la chiamata, solo log
+            console.log('✋ Operazione fermata qui per analisi');
+            
         } catch (error) {
-            console.error('❌ Errore durante saveAndReset:', error);
+            console.error('❌ Errore durante l\'analisi:', error);
             console.error('Stack:', error.stack);
         }
     }
@@ -241,13 +280,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Non resettiamo più quando raggiungiamo il record
         startTime = Date.now();
         accumulatedTime = 0;
-        localStorage.setItem(STORAGE_KEYS.START_TIME, startTime.toString());
-        localStorage.setItem(STORAGE_KEYS.ACCUMULATED_TIME, '0');
+        
+        // Salva solo i dati della sessione
+        saveState();
+        
+        // Reset UI
         currentTimeBar.style.width = '0%';
         currentTimeLabel.textContent = '00:00:00';
         
         // Aggiorna il testo del bottone
-        document.getElementById('clickButton').textContent = 'Reset';
+        document.getElementById('clickButton').textContent = 'Inizia';
         
         // Reset anche della barra superiore se non c'è record
         if (bestTime === 0) {
@@ -258,49 +300,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function resetBestTime() {
         try {
-            console.log('🔄 Inizio reset record');
+            console.log('🔄 Inizio analisi dati');
             
-            // Verifica se c'è un timer in corso
-            const currentElapsed = Math.floor(((Date.now() - startTime) * TIME_MULTIPLIER));
-            const totalElapsed = Math.floor(accumulatedTime/1000) + Math.floor(currentElapsed/1000);
+            const now = Date.now();
+            const currentElapsed = Math.floor(((now - startTime) / 1000)); 
+            const totalElapsed = Math.floor(accumulatedTime/1000) + currentElapsed;
             
-            // Salva nel DB solo se c'è del tempo accumulato
             if (totalElapsed > 0) {
-                // Formatta le date nel formato corretto per il database
-                const dataInizio = new Date(startTime).toLocaleString('en-US');
-                const dataFine = new Date().toLocaleString('en-US');
-                
+                const formatDateForAccess = (date) => {
+                    const d = new Date(date);
+                    const pad = (num) => String(num).padStart(2, '0');
+                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+                };
+
+                const dataInizio = formatDateForAccess(new Date());
+                const dataFine = formatDateForAccess(new Date());
+
+                const bodyData = {
+                    dataOraInizio: dataInizio,
+                    dataOraFine: dataFine,
+                    durataSec: totalElapsed
+                };
+
+                console.log('📦 Payload che verrà inviato:', JSON.stringify(bodyData, null, 2));
+
                 fetch('benefici.aspx/SalvaIntervallo', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        dataOraInizio: dataInizio,
-                        dataOraFine: dataFine,
-                        durataSec: parseInt(totalElapsed)
-                    })
+                    body: JSON.stringify(bodyData)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.d && data.d.success === false) {
-                        console.error('❌ Errore dal server:', data.d.error);
-                        alert('Errore durante il salvataggio. Riprova più tardi.');
-                        return;
+                .then(response => {
+                    console.log('📥 Response status:', response.status);
+                    return response.text();
+                })
+                .then(text => {
+                    console.log('📥 Response text completo:', text);
+                    
+                    // Estrai solo la parte JSON dalla risposta
+                    const jsonMatch = text.match(/\{.*\}/);
+                    if (!jsonMatch) {
+                        throw new Error('Formato risposta non valido');
                     }
-                    console.log('✅ Intervallo salvato nel DB:', data);
-                    eseguiReset();
+                    
+                    const jsonStr = jsonMatch[0];
+                    console.log('📥 JSON estratto:', jsonStr);
+                    
+                    const data = JSON.parse(jsonStr);
+                    if (data.d && data.d.success) {
+                        console.log('✅ Intervallo salvato con successo');
+                        eseguiReset();
+                    } else {
+                        throw new Error(data.d ? data.d.error : 'Errore sconosciuto');
+                    }
                 })
                 .catch(error => {
-                    console.error('❌ Errore durante il salvataggio dell\'intervallo:', error);
-                    alert('Errore durante il reset del record. Riprova più tardi.');
+                    console.error('❌ Errore durante il salvataggio:', error);
+                    alert('Errore durante il salvataggio. Riprova più tardi.');
                 });
-            } else {
-                // Se non c'è tempo accumulato, esegui direttamente il reset
-                eseguiReset();
             }
         } catch (error) {
-            console.error('❌ Errore durante il reset del record:', error);
+            console.error('❌ Errore durante l\'analisi:', error);
             console.error('Stack:', error.stack);
         }
     }
@@ -312,10 +373,12 @@ document.addEventListener('DOMContentLoaded', function() {
         startTime = Date.now();
         accumulatedTime = 0;
         
-        // Reset dello storage
-        localStorage.removeItem(STORAGE_KEYS.BEST_TIME);
-        localStorage.setItem(STORAGE_KEYS.START_TIME, startTime.toString());
-        localStorage.setItem(STORAGE_KEYS.ACCUMULATED_TIME, '0');
+        // Reset dello storage mantenendo solo l'email dell'utente
+        const currentUserEmail = localStorage.getItem(STORAGE_KEYS.LAST_USER);
+        localStorage.clear();
+        if (currentUserEmail) {
+            localStorage.setItem(STORAGE_KEYS.LAST_USER, currentUserEmail);
+        }
         
         // Reset UI
         lastTimeBar.style.width = '0%';
@@ -327,13 +390,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Aggiorna il testo del bottone
         document.getElementById('clickButton').textContent = 'Inizia';
         
-        // Aggiorna lo stato
-        saveState();
-        
-        // Ferma il timer invece di riavviarlo
+        // Ferma il timer
         clearInterval(timeInterval);
         
-        console.log('🔄 Reset completato');
+        // Salva lo stato resettato
+        const state = {
+            startTime: startTime,
+            bestTime: 0,
+            accumulatedTime: 0
+        };
+        localStorage.setItem(STORAGE_KEYS.LAST_STATE, JSON.stringify(state));
+        
+        console.log('🔄 Reset completo eseguito');
     }
 
     function formatTime(seconds) {
