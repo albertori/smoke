@@ -110,45 +110,45 @@
 
             <!-- Spostiamo questo dopo app-container e prima di daily-progress-container -->
             <div class="container">
-                <!-- Timer container -->
-                <div class="timer-tracking-container">
-                    <!-- Prima barra -->
-                    <div class="timer-section">
-                        <div class="timer-display">
+                <div class="time-tracking-container">
+                    <div class="time-bar-wrapper">
+                        <div class="time-labels">
+                            <span>Miglior tempo</span>
+                            <span id="lastTimeLabel" class="time-label">00:00:00</span>
+                            <button id="resetBestTime" class="reset-button">Reset Record</button>
+                        </div>
+                        <div class="time-bar-container">
+                            <div id="lastTimeBar" class="time-bar"></div>
+                            <span id="bestTimeOverlay" class="time-overlay"></span>
+                        </div>
+                    </div>
+                    <div class="time-bar-wrapper">
+                        <div class="time-labels">
+                            <span>Tempo corrente</span>
                             <span id="currentTimeLabel" class="time-label">00:00:00</span>
                         </div>
-                        <div class="timer-progress-wrapper">
-                            <div class="timer-progress-container">
-                                <div id="lastTimeBar" class="timer-progress" style="width: 0%;"></div>
-                            </div>
+                        <div class="time-bar-container">
+                            <div id="currentTimeBar" class="time-bar"></div>
+                            <span id="remainingTimeOverlay" class="time-overlay"></span>
                         </div>
                     </div>
-
-                    <!-- Seconda barra (identica) -->
-                    <div class="timer-section">
-                        <div class="timer-display">
-                            <span id="secondTimeLabel" class="time-label">00:00:00</span>
-                        </div>
-                        <div class="timer-progress-wrapper">
-                            <div class="timer-progress-container">
-                                <div id="secondTimeBar" class="timer-progress" style="width: 0%;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Controlli centralizzati -->
-                    <div class="timer-controls">
-                        <button id="resetBestTime" class="timer-button">Inizia</button>
-                    </div>
-                </div>
-
-                <!-- Manteniamo questa parte per benefici.js -->
-                <div class="daily-progress">
-                    <div class="progress-bar" id="dailyProgressBar" style="width: 0%;"></div>
                 </div>
             </div>
 
-            
+            <!-- Progress bar giornaliera -->
+            <div class="daily-progress-container">
+                <div class="daily-progress">
+                    <div class="progress-bar" id="dailyProgressBar"></div>
+                </div>
+                <div class="time-markers">
+                    <span>00:00</span>
+                    <span>06:00</span>
+                    <span>12:00</span>
+                    <span>18:00</span>
+                    <span>24:00</span>
+                </div>
+            </div>
+
             <!-- Aggiungi questo dopo il div daily-progress-container -->
             <div class="settings-panel" id="settingsPanel">
                 <button class="settings-toggle" id="settingsToggle" type="button">
@@ -213,5 +213,6 @@
     <script src="Scripts/translations.js"></script>
     <script src="Scripts/switchMode.js"></script>
     <script src="Scripts/timeTracker.js"></script>
+    <!-- <script src="Scripts/timeTracking.js"></script> -->
 </body>
 </html> 

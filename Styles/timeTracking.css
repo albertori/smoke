@@ -1,88 +1,71 @@
-.time-tracking-container {
-    position: relative;
-    margin: 20px 0;
+.timer-tracking-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.timer-display {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: normal;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.timer-progress-wrapper {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.timer-progress-container {
     width: 100%;
-    padding: 10px;
-    background: transparent;
-    border-radius: 10px;
-    z-index: 1000;
-}
-
-.time-bar-wrapper {
-    margin: 5px 0;
-}
-
-.time-bar-container {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    height: 8px;
+    height: 24px;
+    background-color: #e9ecef;
+    border-radius: 12px;
     overflow: hidden;
-    position: relative;
-    margin-top: 5px;
-}
-
-.time-bar {
-    height: 100%;
-    transition: width 1s linear, background-color 0.5s linear;
-    border-radius: 10px;
-}
-
-#currentTimeBar {
-    background: var(--danger-color);
-    width: 0%;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
 }
 
 #lastTimeBar {
-    background: var(--secondary-color);
+    display: block;
     width: 0%;
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease;
 }
 
-.time-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--text-color);
-    margin: 2px 10px;
+.timer-controls {
+    text-align: center;
 }
 
-.time-label {
-    font-family: monospace;
-}
-
-.time-overlay {
-    position: absolute;
-    top: -20px;
-    font-size: 0.75rem;
-    font-family: monospace;
-    color: var(--text-color);
-    transform: translateX(-50%);
-    white-space: nowrap;
-}
-
-@keyframes celebrate {
-    0% { filter: brightness(1); }
-    25% { filter: brightness(1.5); }
-    50% { filter: brightness(1); }
-    75% { filter: brightness(1.5); }
-    100% { filter: brightness(1); }
-}
-
-.celebrate {
-    animation: celebrate 1s ease-in-out 3;
-    box-shadow: 0 0 20px var(--secondary-color);
-}
-
-.reset-button {
-    padding: 2px 8px;
-    font-size: 0.7rem;
-    background: var(--danger-color);
+.timer-button {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 0.9em;
+    font-weight: normal;
     color: white;
+    background-color: var(--primary-color);
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-left: 10px;
+    transition: all 0.2s;
 }
 
-.reset-button:hover {
+.timer-button:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.timer-section {
+    margin-bottom: 15px;
+}
+
+.timer-section:last-of-type {
+    margin-bottom: 20px;
 } 
