@@ -25,3 +25,7 @@ appsettings.json
 
 # File JavaScript con chiavi API
 App.js 
+# Aggiungi al file .gitignore
+*.mdb
+*.ldb  # file di lock temporanei di Access
+App_Data/*.mdb

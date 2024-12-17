@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Inizializza il logger
+    Logger.init();
+    
     // Costanti
     const MAX_TIME = 10800; // 3 ore in secondi
     const TIMER_SPEED = 100; // Intervallo in millisecondi (100ms = 10x più veloce)
@@ -135,7 +138,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Click handler per il resetButton
+    // Funzione per salvare lo stato nel DB
+    function saveStateToDb(isLogout = false) {
+        const currentTime = Math.floor((Date.now() - startTime) / 100) * TIME_MULTIPLIER;
+        const recordTime = parseTime(secondTimeLabel.textContent);
+        
+        Logger.log('Saving state', {
+            currentTime,
+            recordTime,
+            startTime,
+            isLogout
+        });
+
+        fetch('benefici.aspx/SalvaStatoTimer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                currentTime,
+                recordTime,
+                startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
+                isLogout
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            Logger.log('State saved successfully', data);
+        })
+        .catch(error => {
+            Logger.error('Error saving state', error);
+        });
+    }
+
+    // Funzione per caricare lo stato iniziale
+    function loadInitialState() {
+        Logger.log('Loading initial state');
+        
+        fetch('benefici.aspx/GetStatoTimer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            Logger.log('State loaded', data);
+            
+            if (data.d && data.d.hasActiveTimer) {
+                Logger.log('Active timer found, restoring state');
+                
+                startTime = Date.now() - (data.d.currentTime * 100 / TIME_MULTIPLIER);
+                bestTime = data.d.recordTime;
+                isTimerActive = true;
+                resetButton.textContent = 'Resetta';
+                
+                updateCurrentBar(data.d.currentTime);
+                secondTimeLabel.textContent = formatTime(data.d.recordTime);
+                updateBestBar();
+                
+                startTimer();
+                Logger.log('Timer restored successfully');
+            }
+        })
+        .catch(error => {
+            Logger.error('Error loading state', error);
+        });
+    }
+
+    // Gestione chiusura pagina
+    window.addEventListener('beforeunload', function() {
+        if (isTimerActive) {
+            saveStateToDb(false);
+        }
+    });
+
+    // Modifica il click handler del resetButton
     resetButton.addEventListener('click', function(e) {
         e.preventDefault();
         
@@ -144,6 +223,8 @@ document.addEventListener('DOMContentLoaded', function() {
             this.textContent = 'Resetta';
             isTimerActive = true;
         } else {
+            // Salva il record nel DB prima di resettare
+            saveStateToDb(true);
             resetCurrentBar();
             secondTimeLabel.textContent = '00:00:00';
             updateBestBar();
@@ -202,4 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             subtree: true
         });
     }
+
+    // Carica lo stato iniziale all'avvio
+    loadInitialState();
 }); 
