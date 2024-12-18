@@ -138,36 +138,67 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzione per salvare lo stato nel DB
+    // Modifica la funzione saveStateToDb per usare XMLHttpRequest sincrono durante il logout
     function saveStateToDb(isLogout = false) {
-        const currentTime = Math.floor((Date.now() - startTime) / 100) * TIME_MULTIPLIER;
-        const recordTime = parseTime(secondTimeLabel.textContent);
+        Logger.log('Inizio saveStateToDb', { isLogout });
         
-        Logger.log('Saving state', {
+        const currentTime = Math.floor((Date.now() - (startTime || Date.now())) / 100) * TIME_MULTIPLIER;
+        const recordTime = parseTime(secondTimeLabel.textContent);
+        const startTimeStr = startTime ? new Date(startTime).toISOString() : new Date().toISOString();
+        
+        Logger.log('Dati da salvare:', {
             currentTime,
             recordTime,
-            startTime,
+            startTime: startTimeStr,
             isLogout
         });
 
+        // Verifica che i valori siano validi
+        if (isNaN(currentTime) || isNaN(recordTime)) {
+            Logger.error('Valori non validi:', { currentTime, recordTime });
+            return;
+        }
+
+        const data = JSON.stringify({
+            currentTime: currentTime,
+            recordTime: recordTime,
+            startTime: startTimeStr,
+            isLogout: isLogout
+        });
+
+        // Se è un logout, usa XMLHttpRequest sincrono
+        if (isLogout) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'benefici.aspx/SalvaStatoTimer', false); // false = sincrono
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(data);
+            
+            Logger.log('Risposta salvataggio sincrono:', xhr.responseText);
+            return;
+        }
+
+        // Altrimenti usa fetch normale
         fetch('benefici.aspx/SalvaStatoTimer', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                currentTime,
-                recordTime,
-                startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
-                isLogout
-            })
+            body: data
         })
-        .then(response => response.json())
+        .then(response => {
+            Logger.log('Response ricevuta:', response);
+            return response.json();
+        })
         .then(data => {
-            Logger.log('State saved successfully', data);
+            Logger.log('Dati salvati:', data);
+            if (data.d && data.d.success) {
+                Logger.log('Salvataggio completato con successo');
+            } else {
+                Logger.error('Errore nel salvataggio:', data.d ? data.d.error : 'Risposta non valida');
+            }
         })
         .catch(error => {
-            Logger.error('Error saving state', error);
+            Logger.error('Errore durante il salvataggio:', error);
         });
     }
 
@@ -207,10 +238,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Gestione chiusura pagina
-    window.addEventListener('beforeunload', function() {
+    // Modifica la gestione della chiusura della pagina
+    window.addEventListener('beforeunload', function(e) {
         if (isTimerActive) {
-            saveStateToDb(false);
+            Logger.log('Salvataggio automatico prima di chiudere la pagina');
+            e.preventDefault(); // Necessario per alcuni browser
+            saveStateToDb(true);
+            e.returnValue = ''; // Necessario per Chrome
         }
     });
 
@@ -218,18 +252,27 @@ document.addEventListener('DOMContentLoaded', function() {
     resetButton.addEventListener('click', function(e) {
         e.preventDefault();
         
+        Logger.log('Click su resetButton', { currentText: this.textContent });
+        
         if (this.textContent === 'Inizia') {
             startTimer();
             this.textContent = 'Resetta';
             isTimerActive = true;
+            Logger.log('Timer avviato');
         } else {
             // Salva il record nel DB prima di resettare
-            saveStateToDb(true);
-            resetCurrentBar();
-            secondTimeLabel.textContent = '00:00:00';
-            updateBestBar();
-            this.textContent = 'Inizia';
-            isTimerActive = false;
+            Logger.log('Tentativo di salvare lo stato prima del reset');
+            saveStateToDb(true); // Usa la versione sincrona
+            
+            // Aspetta un momento per assicurarsi che il salvataggio sia completato
+            setTimeout(() => {
+                resetCurrentBar();
+                secondTimeLabel.textContent = '00:00:00';
+                updateBestBar();
+                this.textContent = 'Inizia';
+                isTimerActive = false;
+                Logger.log('Timer resettato');
+            }, 100);
         }
     });
 

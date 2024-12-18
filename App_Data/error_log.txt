@@ -1,0 +1,41 @@
+18/12/2024 19:35:22 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+18/12/2024 19:35:22 - Raw Request Data: 
+18/12/2024 19:35:22 - Content Type: application/json
+18/12/2024 19:35:22 - HTTP Method: POST
+18/12/2024 19:35:22 - Parametri: currentTime=590, recordTime=590, startTime=2024-12-18T18:34:57.978Z, isLogout=True
+18/12/2024 19:35:22 - === INIZIO SALVA STATO TIMER ===
+18/12/2024 19:35:22 - CurrentTime: 590, RecordTime: 590, StartTime: 2024-12-18T18:34:57.978Z, IsLogout: True
+18/12/2024 19:35:22 - UserID trovato: 3
+18/12/2024 19:35:22 - Connessione al database aperta
+18/12/2024 19:35:22 - Esecuzione logout, salvataggio record finale...
+18/12/2024 19:35:22 - Righe inserite in TempiIntervalli: 1
+18/12/2024 19:35:22 - Record eliminati da StatoTimer: 0
+18/12/2024 19:35:22 - === FINE SALVA STATO TIMER ===
+18/12/2024 19:37:47 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+18/12/2024 19:37:47 - Raw Request Data: 
+18/12/2024 19:37:47 - Content Type: application/json
+18/12/2024 19:37:47 - HTTP Method: POST
+18/12/2024 19:37:47 - Parametri: currentTime=2770, recordTime=2770, startTime=2024-12-18T18:37:01.447Z, isLogout=True
+18/12/2024 19:37:47 - === INIZIO SALVA STATO TIMER ===
+18/12/2024 19:37:47 - CurrentTime: 2770, RecordTime: 2770, StartTime: 2024-12-18T18:37:01.447Z, IsLogout: True
+18/12/2024 19:37:47 - UserID trovato: 3
+18/12/2024 19:37:47 - Connessione al database aperta
+18/12/2024 19:37:47 - Esecuzione logout, salvataggio record finale...
+18/12/2024 19:37:47 - Righe inserite in TempiIntervalli: 1
+18/12/2024 19:37:47 - Record eliminati da StatoTimer: 0
+18/12/2024 19:37:47 - === FINE SALVA STATO TIMER ===
+18/12/2024 19:39:48 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+18/12/2024 19:39:48 - Raw Request Data: 
+18/12/2024 19:39:48 - Content Type: application/json
+18/12/2024 19:39:49 - HTTP Method: POST
+18/12/2024 19:39:49 - Parametri: currentTime=290, recordTime=690, startTime=2024-12-18T18:39:27.515Z, isLogout=True
+18/12/2024 19:39:49 - === INIZIO SALVA STATO TIMER ===
+18/12/2024 19:39:49 - CurrentTime: 290, RecordTime: 690, StartTime: 2024-12-18T18:39:27.515Z, IsLogout: True
+18/12/2024 19:39:49 - UserID trovato: 3
+18/12/2024 19:39:49 - Connessione al database aperta
+18/12/2024 19:39:49 - Esecuzione logout, salvataggio record finale...
+18/12/2024 19:39:49 - Righe inserite in TempiIntervalli: 1
+18/12/2024 19:39:49 - Record esistenti per l'utente: 0
+18/12/2024 19:39:49 - Inserimento nuovo record...
+18/12/2024 19:39:49 - Righe inserite in StatoTimer: 1
+18/12/2024 19:39:49 - === FINE SALVA STATO TIMER ===

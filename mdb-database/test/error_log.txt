@@ -1,0 +1,13 @@
+18/12/2024 19:35:22 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+18/12/2024 19:35:22 - Raw Request Data: 
+18/12/2024 19:35:22 - Content Type: application/json
+18/12/2024 19:35:22 - HTTP Method: POST
+18/12/2024 19:35:22 - Parametri: currentTime=590, recordTime=590, startTime=2024-12-18T18:34:57.978Z, isLogout=True
+18/12/2024 19:35:22 - === INIZIO SALVA STATO TIMER ===
+18/12/2024 19:35:22 - CurrentTime: 590, RecordTime: 590, StartTime: 2024-12-18T18:34:57.978Z, IsLogout: True
+18/12/2024 19:35:22 - UserID trovato: 3
+18/12/2024 19:35:22 - Connessione al database aperta
+18/12/2024 19:35:22 - Esecuzione logout, salvataggio record finale...
+18/12/2024 19:35:22 - Righe inserite in TempiIntervalli: 1
+18/12/2024 19:35:22 - Record eliminati da StatoTimer: 0
+18/12/2024 19:35:22 - === FINE SALVA STATO TIMER ===

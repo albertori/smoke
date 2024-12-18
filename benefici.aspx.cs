@@ -393,83 +393,185 @@ namespace NomeProgetto
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public static object SalvaStatoTimer(int currentTime, int recordTime, string startTime, bool isLogout)
         {
+            LogError("=== INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===");
+            LogError("Raw Request Data: " + System.Web.HttpContext.Current.Request.Form);
+            LogError("Content Type: " + System.Web.HttpContext.Current.Request.ContentType);
+            LogError("HTTP Method: " + System.Web.HttpContext.Current.Request.HttpMethod);
+            LogError(string.Format("Parametri: currentTime={0}, recordTime={1}, startTime={2}, isLogout={3}", 
+                currentTime, recordTime, startTime, isLogout));
+            
+            var context = System.Web.HttpContext.Current;
             try
             {
-                var context = System.Web.HttpContext.Current;
-                System.Diagnostics.Debug.WriteLine("=== INIZIO SALVA STATO TIMER ===");
-                System.Diagnostics.Debug.WriteLine(string.Format("CurrentTime: {0}, RecordTime: {1}, StartTime: {2}, IsLogout: {3}", 
+                LogError("=== INIZIO SALVA STATO TIMER ===");
+                LogError(string.Format("CurrentTime: {0}, RecordTime: {1}, StartTime: {2}, IsLogout: {3}", 
                     currentTime, recordTime, startTime, isLogout));
                 
                 int? userId = null;
                 if (context.Session["UtenteID"] != null)
                 {
                     userId = Convert.ToInt32(context.Session["UtenteID"]);
+                    LogError("UserID trovato: " + userId);
                 }
 
                 if (!userId.HasValue)
                 {
+                    LogError("Errore: Utente non autenticato");
                     throw new Exception("Utente non autenticato");
                 }
 
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
+                    LogError("Connessione al database aperta");
                     
                     if (!isLogout)
                     {
-                        string queryUpdate = @"UPDATE StatoTimer 
-                                             SET CurrentTime = @CurrentTime, 
-                                                 RecordTime = @RecordTime, 
-                                                 StartTime = @StartTime, 
-                                                 LastUpdate = Now() 
-                                             WHERE UtenteID = @UtenteID";
+                        LogError("Tentativo di aggiornamento/inserimento record...");
+                        // Prima verifichiamo se esiste già un record
+                        string queryCheck = "SELECT COUNT(*) FROM StatoTimer WHERE UtenteID = ?";
+                        int existingRecords = 0;
                         
-                        using (OleDbCommand cmd = new OleDbCommand(queryUpdate, conn))
+                        using (OleDbCommand cmdCheck = new OleDbCommand(queryCheck, conn))
                         {
-                            cmd.Parameters.Add("@CurrentTime", OleDbType.Integer).Value = currentTime;
-                            cmd.Parameters.Add("@RecordTime", OleDbType.Integer).Value = recordTime;
-                            cmd.Parameters.Add("@StartTime", OleDbType.Date).Value = DateTime.Now;
-                            cmd.Parameters.Add("@UtenteID", OleDbType.Integer).Value = userId.Value;
-                            
-                            int rowsAffected = cmd.ExecuteNonQuery();
-                            System.Diagnostics.Debug.WriteLine(string.Format("Righe aggiornate: {0}", rowsAffected));
+                            cmdCheck.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                            existingRecords = Convert.ToInt32(cmdCheck.ExecuteScalar());
+                            LogError("Record esistenti per l'utente: " + existingRecords);
+                        }
 
-                            if (rowsAffected == 0)
+                        if (existingRecords > 0)
+                        {
+                            LogError("Aggiornamento record esistente...");
+                            string queryUpdate = @"UPDATE StatoTimer 
+                                                 SET CurrentTime = ?, 
+                                                     RecordTime = ?, 
+                                                     StartTime = ?, 
+                                                     LastUpdate = Now() 
+                                                 WHERE UtenteID = ?";
+                            
+                            using (OleDbCommand cmd = new OleDbCommand(queryUpdate, conn))
                             {
-                                string queryInsert = @"INSERT INTO StatoTimer 
-                                                     (UtenteID, CurrentTime, RecordTime, StartTime, LastUpdate) 
-                                                     VALUES (@UtenteID, @CurrentTime, @RecordTime, @StartTime, Now())";
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = currentTime;
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = recordTime;
+                                cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Parse(startTime).ToLocalTime();
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
                                 
-                                using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
+                                int rowsAffected = cmd.ExecuteNonQuery();
+                                LogError("Righe aggiornate in StatoTimer: " + rowsAffected);
+                            }
+                        }
+                        else
+                        {
+                            LogError("Inserimento nuovo record...");
+                            string queryInsert = @"INSERT INTO StatoTimer 
+                                                 (UtenteID, CurrentTime, RecordTime, StartTime, LastUpdate) 
+                                                 VALUES (?, ?, ?, ?, Now())";
+                            
+                            using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
+                            {
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = currentTime;
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = recordTime;
+                                cmdInsert.Parameters.Add("?", OleDbType.Date).Value = DateTime.Parse(startTime).ToLocalTime();
+                                
+                                try
                                 {
-                                    cmdInsert.Parameters.Add("@UtenteID", OleDbType.Integer).Value = userId.Value;
-                                    cmdInsert.Parameters.Add("@CurrentTime", OleDbType.Integer).Value = currentTime;
-                                    cmdInsert.Parameters.Add("@RecordTime", OleDbType.Integer).Value = recordTime;
-                                    cmdInsert.Parameters.Add("@StartTime", OleDbType.Date).Value = DateTime.Now;
-                                    cmdInsert.ExecuteNonQuery();
-                                    System.Diagnostics.Debug.WriteLine("Nuovo record inserito");
+                                    int rowsAffectedInsert = cmdInsert.ExecuteNonQuery();
+                                    LogError("Righe inserite in StatoTimer: " + rowsAffectedInsert);
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogError("Errore durante l'inserimento: " + ex.Message);
+                                    LogError("Query: " + queryInsert);
+                                    LogError("Parametri: UtenteID=" + userId.Value + 
+                                            ", CurrentTime=" + currentTime + 
+                                            ", RecordTime=" + recordTime + 
+                                            ", StartTime=" + DateTime.Parse(startTime).ToLocalTime());
+                                    throw;
                                 }
                             }
                         }
                     }
                     else
                     {
-                        string queryDelete = "DELETE FROM StatoTimer WHERE UtenteID = @UtenteID";
-                        using (OleDbCommand cmd = new OleDbCommand(queryDelete, conn))
+                        LogError("Esecuzione logout, salvataggio record finale...");
+                        // Prima salviamo i dati in TempiIntervalli
+                        string queryTempiIntervalli = @"INSERT INTO TempiIntervalli 
+                                                      (UtenteID, DataOraInizio, DataOraFine, DurataSec) 
+                                                      VALUES (?, ?, ?, ?)";
+                        
+                        using (OleDbCommand cmdTempi = new OleDbCommand(queryTempiIntervalli, conn))
                         {
-                            cmd.Parameters.Add("@UtenteID", OleDbType.Integer).Value = userId.Value;
-                            cmd.ExecuteNonQuery();
-                            System.Diagnostics.Debug.WriteLine("Record eliminato per logout");
+                            cmdTempi.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                            cmdTempi.Parameters.Add("?", OleDbType.Date).Value = DateTime.Parse(startTime).ToLocalTime();
+                            cmdTempi.Parameters.Add("?", OleDbType.Date).Value = DateTime.Now;
+                            cmdTempi.Parameters.Add("?", OleDbType.Integer).Value = currentTime;
+                            
+                            int rowsAffectedTempi = cmdTempi.ExecuteNonQuery();
+                            LogError("Righe inserite in TempiIntervalli: " + rowsAffectedTempi);
+                        }
+
+                        // Prima di eliminare, inseriamo o aggiorniamo in StatoTimer
+                        string queryCheck = "SELECT COUNT(*) FROM StatoTimer WHERE UtenteID = ?";
+                        int existingRecords = 0;
+                        
+                        using (OleDbCommand cmdCheck = new OleDbCommand(queryCheck, conn))
+                        {
+                            cmdCheck.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                            existingRecords = Convert.ToInt32(cmdCheck.ExecuteScalar());
+                            LogError("Record esistenti per l'utente: " + existingRecords);
+                        }
+
+                        if (existingRecords > 0)
+                        {
+                            LogError("Aggiornamento record esistente...");
+                            string queryUpdate = @"UPDATE StatoTimer 
+                                                 SET CurrentTime = ?, 
+                                                     RecordTime = ?, 
+                                                     StartTime = ?, 
+                                                     LastUpdate = Now() 
+                                                 WHERE UtenteID = ?";
+                            
+                            using (OleDbCommand cmd = new OleDbCommand(queryUpdate, conn))
+                            {
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = currentTime;
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = recordTime;
+                                cmd.Parameters.Add("?", OleDbType.Date).Value = DateTime.Parse(startTime).ToLocalTime();
+                                cmd.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                                
+                                int rowsAffected = cmd.ExecuteNonQuery();
+                                LogError("Righe aggiornate in StatoTimer: " + rowsAffected);
+                            }
+                        }
+                        else
+                        {
+                            LogError("Inserimento nuovo record...");
+                            string queryInsert = @"INSERT INTO StatoTimer 
+                                                 (UtenteID, CurrentTime, RecordTime, StartTime, LastUpdate) 
+                                                 VALUES (?, ?, ?, ?, Now())";
+                            
+                            using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
+                            {
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = userId.Value;
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = currentTime;
+                                cmdInsert.Parameters.Add("?", OleDbType.Integer).Value = recordTime;
+                                cmdInsert.Parameters.Add("?", OleDbType.Date).Value = DateTime.Parse(startTime).ToLocalTime();
+                                
+                                int rowsAffectedInsert = cmdInsert.ExecuteNonQuery();
+                                LogError("Righe inserite in StatoTimer: " + rowsAffectedInsert);
+                            }
                         }
                     }
 
+                    LogError("=== FINE SALVA STATO TIMER ===");
                     return new { success = true };
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("ERRORE: {0}", ex.Message));
-                System.Diagnostics.Debug.WriteLine(string.Format("Stack trace: {0}", ex.StackTrace));
+                LogError("=== ERRORE IN SALVA STATO TIMER ===");
+                LogError("Messaggio: " + ex.Message);
+                LogError("Stack trace: " + ex.StackTrace);
                 return new { success = false, error = ex.Message };
             }
         }
@@ -533,6 +635,20 @@ namespace NomeProgetto
             catch (Exception ex)
             {
                 return new { success = false, error = ex.Message };
+            }
+        }
+
+        private static void LogError(string message)
+        {
+            try 
+            {
+                string logPath = System.Web.HttpContext.Current.Server.MapPath("~/App_Data/error_log.txt");
+                string logMessage = DateTime.Now.ToString() + " - " + message + Environment.NewLine;
+                System.IO.File.AppendAllText(logPath, logMessage);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore durante il logging: " + ex.Message);
             }
         }
     }

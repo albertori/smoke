@@ -86,19 +86,33 @@ namespace NomeProgetto
                         using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
                         {
                             cmdInsert.Parameters.AddWithValue("?", email);
-                            int rowsAffected = cmdInsert.ExecuteNonQuery();
-                            System.Diagnostics.Debug.WriteLine("Righe inserite: " + rowsAffected);
+                            
+                            System.Diagnostics.Debug.WriteLine("Esecuzione query insert con email: " + email);
+                            
+                            try 
+                            {
+                                int rowsAffected = cmdInsert.ExecuteNonQuery();
+                                System.Diagnostics.Debug.WriteLine("Righe inserite: " + rowsAffected);
 
-                            if (rowsAffected > 0)
-                            {
-                                cmdInsert.CommandText = "SELECT @@IDENTITY";
-                                newUserId = Convert.ToInt32(cmdInsert.ExecuteScalar());
-                                System.Diagnostics.Debug.WriteLine("Nuovo utente creato con ID: " + newUserId);
-                                LoginSuccesso(newUserId, email);
+                                if (rowsAffected > 0)
+                                {
+                                    cmdInsert.CommandText = "SELECT @@IDENTITY";
+                                    newUserId = Convert.ToInt32(cmdInsert.ExecuteScalar());
+                                    System.Diagnostics.Debug.WriteLine("Nuovo utente creato con ID: " + newUserId);
+                                    LoginSuccesso(newUserId, email);
+                                }
+                                else
+                                {
+                                    throw new Exception("Errore nell'inserimento del nuovo utente");
+                                }
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                throw new Exception("Errore nell'inserimento del nuovo utente");
+                                string errorMessage = "Errore durante l'inserimento: " + ex.Message + 
+                                                     "\nStack Trace: " + ex.StackTrace;
+                                System.Diagnostics.Debug.WriteLine(errorMessage);
+                                LogError(errorMessage);
+                                throw;
                             }
                         }
                     }
@@ -141,15 +155,24 @@ namespace NomeProgetto
                 Response.Cookies.Add(authCookie);
                 System.Diagnostics.Debug.WriteLine("Cookie impostato");
 
-                Response.Redirect("benefici.aspx");
+                Response.Redirect("benefici.aspx", false);
+                Context.ApplicationInstance.CompleteRequest();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Errore in LoginSuccesso: " + ex.Message);
                 System.Diagnostics.Debug.WriteLine("Stack trace: " + ex.StackTrace);
+                LogError("Errore in LoginSuccesso: " + ex.Message + "\nStack trace: " + ex.StackTrace);
                 lblErrore.Text = "Errore durante l'accesso: " + ex.Message;
                 lblErrore.Visible = true;
             }
+        }
+
+        private void LogError(string message)
+        {
+            string logPath = Server.MapPath("~/App_Data/error_log.txt");
+            string logMessage = DateTime.Now.ToString() + " - " + message + Environment.NewLine;
+            System.IO.File.AppendAllText(logPath, logMessage);
         }
     }
 } 
