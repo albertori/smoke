@@ -85,23 +85,23 @@ body {
     justify-content: center;
     align-items: center;
     background: transparent !important;
+    border: none;
+    outline: none;
+    box-shadow: none;
 }
 
 #nonFumareBtn.clicked {
-    transform: translateY(2px);
-    box-shadow: 
-        4px 4px 10px rgba(0, 0, 0, 0.2),
-        -4px -4px 10px rgba(255, 255, 255, 0.7),
-        inset 2px 2px 4px rgba(0, 0, 0, 0.1),
-        inset -2px -2px 4px rgba(255, 255, 255, 0.5);
+    transform: none;
+    box-shadow: none;
+    border: none;
+    outline: none;
 }
 
-#nonFumareBtn.green {
-    background: transparent;
-}
-
-#nonFumareBtn.red {
-    background: transparent;
+#nonFumareBtn.green, #nonFumareBtn.red {
+    background: transparent !important;
+    border: none;
+    outline: none;
+    box-shadow: none;
 }
 
 #nonFumareBtn.red .button-number {

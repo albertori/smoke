@@ -1,14 +1,52 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
+    async function chiamataServer(url, method = 'POST', body = {}) {
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (!data || !data.d) {
+                throw new Error('Dati non validi dal server');
+            }
+
+            return data.d;
+        } catch (error) {
+            console.error('Errore nella chiamata al server:', error);
+            throw error;
+        }
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
     if (!verificaElementi()) {
         console.error('Impossibile inizializzare: elementi HTML mancanti');
         return;
     }
-    // Carica i dati iniziali
     caricaDatiIniziali();
 
-    // Funzione per aggiornare i dati nell'UI
     function aggiornaDati(data) {
         document.getElementById('sigaretteLabel').textContent = data.sigarette;
         document.getElementById('sigaretteButtonLabel').textContent = data.sigarette;
@@ -17,49 +55,32 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tempoLabel').textContent = data.tempo;
     }
 
-    // Costanti per i calcoli
     const COSTO_SIGARETTA = 0.30; // € per sigaretta
     const CATRAME_SIGARETTA = 10; // mg per sigaretta
     const TEMPO_SIGARETTA = 5; // minuti per sigaretta
 
-    // Gestione click bottone
-    document.getElementById('clickButton').addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Click registrato');
-        
-        // Effetto click visuale
-        document.getElementById('nonFumareBtn').classList.add('clicked');
-        setTimeout(() => document.getElementById('nonFumareBtn').classList.remove('clicked'), 200);
+    document.getElementById('clickButton').addEventListener('click', 
+        debounce(async function(e) {
+            e.preventDefault();
+            console.log('Click registrato');
+            
+            document.getElementById('nonFumareBtn').classList.add('clicked');
+            setTimeout(() => document.getElementById('nonFumareBtn').classList.remove('clicked'), 200);
 
-        // Verifica se siamo online
-        if (navigator.onLine) {
-            // Online: chiamata al server
-            fetch('benefici.aspx/IncrementaContatore', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({}),
-                credentials: 'include'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.d) {
-                    salvaDatiLocali(data.d);
-                    aggiornaDati(data.d);
+            try {
+                if (navigator.onLine) {
+                    const data = await chiamataServer('benefici.aspx/IncrementaContatore');
+                    salvaDatiLocali(data);
+                    aggiornaDati(data);
+                } else {
+                    incrementaLocale();
                 }
-            })
-            .catch(error => {
-                console.log('Errore nella chiamata al server, uso dati locali');
+            } catch (error) {
+                console.error('Errore durante l\'elaborazione del click:', error);
                 incrementaLocale();
-            });
-        } else {
-            // Offline: incremento locale
-            console.log('Modalità offline: incremento locale');
-            incrementaLocale();
-        }
-    });
+            }
+        }, 500)
+    );
 
     function updateDailyProgress() {
         const now = new Date();
@@ -67,21 +88,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
         
-        // Calcola la percentuale del giorno trascorsa
         const totalSeconds = hours * 3600 + minutes * 60 + seconds;
         const percentageOfDay = (totalSeconds / (24 * 3600)) * 100;
         
-        // Aggiorna la larghezza della barra
         const progressBar = document.getElementById('dailyProgressBar');
         progressBar.style.width = percentageOfDay + '%';
     }
 
-    // Aggiorna ogni secondo
     setInterval(updateDailyProgress, 1000);
-    // Esegui subito la prima volta
     updateDailyProgress();
 
-    // Gestione pannello impostazioni
     const settingsPanel = document.getElementById('settingsPanel');
     const settingsToggle = document.getElementById('settingsToggle');
     const primaryColorPicker = document.getElementById('primaryColorPicker');
@@ -89,20 +105,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const textColorPicker = document.getElementById('textColorPicker');
     const resetButton = document.getElementById('resetColors');
 
-    // Colori default
     const defaultColors = {
         primary: '#696969',    // Grigio più scuro (DimGray)
         background: '#DCDCDC', // Grigio chiaro leggermente più scuro (Gainsboro)
         text: '#2C3E50'       // Mantenuto lo stesso colore del testo
     };
 
-    // Toggle pannello
     settingsToggle.addEventListener('click', (e) => {
         e.preventDefault();
         settingsPanel.classList.toggle('open');
     });
 
-    // Carica colori salvati
     function loadSavedColors() {
         const savedColors = JSON.parse(localStorage.getItem('themeColors')) || defaultColors;
         primaryColorPicker.value = savedColors.primary;
@@ -111,24 +124,20 @@ document.addEventListener('DOMContentLoaded', function() {
         applyColors(savedColors);
     }
 
-    // Applica colori
     function applyColors(colors) {
         document.documentElement.style.setProperty('--primary-color', colors.primary);
         document.documentElement.style.setProperty('--background-gradient-1', colors.background);
         document.documentElement.style.setProperty('--background-gradient-2', adjustColor(colors.background, -20));
         document.documentElement.style.setProperty('--text-color', colors.text);
         
-        // Salva i colori
         localStorage.setItem('themeColors', JSON.stringify(colors));
     }
 
-    // Funzione per schiarire/scurire un colore
     function adjustColor(color, amount) {
         return '#' + color.replace(/^#/, '').replace(/../g, color => 
             ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
     }
 
-    // Event listeners per i color picker
     primaryColorPicker.addEventListener('change', () => {
         const colors = {
             primary: primaryColorPicker.value,
@@ -156,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
         applyColors(colors);
     });
 
-    // Reset colori
     resetButton.addEventListener('click', () => {
         applyColors(defaultColors);
         primaryColorPicker.value = defaultColors.primary;
@@ -164,10 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
         textColorPicker.value = defaultColors.text;
     });
 
-    // Carica i colori salvati all'avvio
     loadSavedColors();
 
-    // SOSTITUISCI la sezione dello switch con questa versione corretta
     const smokeSwitch = document.getElementById('smokeSwitch');
     const textPath = document.querySelector('textPath');
     const nonFumareBtn = document.getElementById('nonFumareBtn');
@@ -188,7 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Carica la modalità salvata
         const savedMode = localStorage.getItem('mode');
         console.log('Modalità salvata:', savedMode);
         if (savedMode === 'smoked') {
@@ -204,13 +209,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Funzione per salvare i dati nel localStorage
     function salvaDatiLocali(dati) {
         localStorage.setItem('datiProgressi', JSON.stringify(dati));
         console.log('Dati salvati localmente:', dati);
     }
 
-    // Funzione per recuperare i dati dal localStorage
     function recuperaDatiLocali() {
         const dati = localStorage.getItem('datiProgressi');
         return dati ? JSON.parse(dati) : {
@@ -221,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Modifica la funzione che gestisce GetDatiIniziali
     function caricaDatiIniziali() {
         fetch('benefici.aspx/GetDatiIniziali', {
             method: 'POST',
@@ -233,9 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data && data.d) {
-                // Salva i dati nel localStorage
                 salvaDatiLocali(data.d);
-                // Aggiorna l'UI
                 aggiornaDati(data.d);
             }
         })
@@ -248,27 +248,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Funzione per incrementare i dati localmente
     function incrementaLocale() {
         const datiAttuali = recuperaDatiLocali();
         
-        // Incrementa i valori
         datiAttuali.sigarette++;
         datiAttuali.risparmio += 0.30;
         datiAttuali.catrame += 10;
         datiAttuali.tempo += 5;
         
-        // Salva i nuovi dati
         salvaDatiLocali(datiAttuali);
         
-        // Salva l'azione per la sincronizzazione futura
         salvaAzioneOffline('incremento');
         
-        // Aggiorna l'UI
         aggiornaDati(datiAttuali);
     }
 
-    // Funzione per verificare gli elementi necessari
     function verificaElementi() {
         const elementiRichiesti = {
             'sigaretteLabel': document.getElementById('sigaretteLabel'),
@@ -304,7 +298,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return tuttoPresente;
     }
 
-    // Aggiungi listener per i cambiamenti dello stato della connessione
     window.addEventListener('online', function() {
         console.log('Tornato online - Avvio sincronizzazione');
         sincronizzaDati();
@@ -314,7 +307,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Andato offline');
     });
 
-    // Aggiungi questa funzione per salvare le azioni offline
     function salvaAzioneOffline(azione) {
         const azioniOffline = JSON.parse(localStorage.getItem('azioniOffline') || '[]');
         azioniOffline.push({
@@ -324,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('azioniOffline', JSON.stringify(azioniOffline));
     }
 
-    // Funzione per sincronizzare i dati con il server
     function sincronizzaDati() {
         const azioniOffline = JSON.parse(localStorage.getItem('azioniOffline') || '[]');
         
@@ -335,10 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Sincronizzazione dati:', azioniOffline.length, 'azioni da processare');
 
-        // Ordina le azioni per timestamp
         azioniOffline.sort((a, b) => a.timestamp - b.timestamp);
 
-        // Processa le azioni in sequenza
         const processaAzioni = async () => {
             for (const azione of azioniOffline) {
                 try {
@@ -369,11 +358,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         processaAzioni().then(success => {
             if (success) {
-                // Pulisci le azioni offline solo se tutto è andato a buon fine
                 localStorage.removeItem('azioniOffline');
                 console.log('Sincronizzazione completata con successo');
                 
-                // Aggiorna i dati attuali
                 fetch('benefici.aspx/GetDatiIniziali', {
                     method: 'POST',
                     headers: {
