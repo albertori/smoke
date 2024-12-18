@@ -91,9 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Colori default
     const defaultColors = {
-        primary: '#4A90E2',
-        background: '#D1E3F9',
-        text: '#2C3E50'
+        primary: '#696969',    // Grigio più scuro (DimGray)
+        background: '#DCDCDC', // Grigio chiaro leggermente più scuro (Gainsboro)
+        text: '#2C3E50'       // Mantenuto lo stesso colore del testo
     };
 
     // Toggle pannello

@@ -88,12 +88,12 @@
                             </defs>
                             <text>
                                 <textPath href="#curve" startOffset="50%" text-anchor="middle">
-                                    Non ho fumato
+                                    Non Ho Fumato
                                 </textPath>
                             </text>
                         </svg>
                         <div class="button-content">
-                            <span class="button-number" id="sigaretteButtonLabel">0</span>
+                            <span class="button-number green" id="sigaretteButtonLabel">203</span>
                         </div>
                         <button id="clickButton" type="button"></button>
                     </div>
