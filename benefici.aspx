@@ -62,18 +62,16 @@
                     <div class="progress-card">
                         <h3 id="sigaretteTitle">
                             <i class="fas fa-smoking-ban"></i>
-                            Sigarette non fumate
                         </h3>
-                        <div class="value" id="sigaretteLabel">0</div>
+                        <div class="value" id="sigaretteLabel">242</div>
                         <div class="label" id="sigaretteLabel">Totale</div>
                     </div>
                     
                     <div class="progress-card">
                         <h3 id="risparmioTitle">
                             <i class="fas fa-euro-sign"></i>
-                            Risparmio
                         </h3>
-                        <div class="value" id="risparmioValue">0.00</div>
+                        <div class="value" id="risparmioValue">72.60</div>
                         <div class="label" id="risparmioLabel">Euro risparmiati</div>
                     </div>
                 </div>
@@ -104,18 +102,16 @@
                     <div class="progress-card">
                         <h3>
                             <i class="fas fa-lungs"></i>
-                            Catrame evitato
                         </h3>
-                        <div class="value" id="catrameLabel">0</div>
+                        <div class="value" id="catrameLabel">2420</div>
                         <div class="label">mg non inalati</div>
                     </div>
 
                     <div class="progress-card">
                         <h3>
                             <i class="fas fa-clock"></i>
-                            Tempo recuperato
                         </h3>
-                        <div class="value" id="tempoLabel">0</div>
+                        <div class="value" id="tempoLabel">1210</div>
                         <div class="label">minuti guadagnati</div>
                     </div>
                 </div>
