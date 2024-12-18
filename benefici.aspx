@@ -33,15 +33,28 @@
     <title>Benefici - Stop Smoking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="Styles/benefici.css" />
-    <link rel="stylesheet" href="Styles/timeTracking.css">
+    <link rel="stylesheet" href="Styles/benefici.css?v=1.1" />
+    <link rel="stylesheet" href="Styles/timeTracking.css?v=1.1" />
 </head>
 <body>
     <form id="form1" runat="server">
         <div class="container py-4">
-            <div class="user-email-container">
-                <i class="fas fa-user"></i>
-                <span id="userEmail" runat="server"></span>
+            <div class="top-menu">
+                <div class="menu-items">
+                    <div class="menu-item">
+                        <i class="fas fa-user"></i>
+                        <span id="userEmail" runat="server"></span>
+                    </div>
+                    <a href="statistiche.aspx" class="menu-item">
+                        <i class="fas fa-chart-bar"></i> Statistiche
+                    </a>
+                    <a href="#" class="menu-item" id="settingsToggle">
+                        <i class="fas fa-cog"></i> Impostazioni
+                    </a>
+                    <a href="logout.aspx" class="menu-item">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
             <div class="app-container d-flex justify-content-between align-items-center">
                 <!-- Statistiche a sinistra -->
@@ -197,13 +210,6 @@
                         Ripristina Colori
                     </button>
                 </div>
-            </div>
-
-            <!-- Aggiungi questo dove preferisci nella pagina, magari in alto a destra -->
-            <div class="logout-container" style="position: absolute; top: 10px; right: 10px;">
-                <a href="logout.aspx" class="btn btn-outline-danger btn-sm">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
             </div>
         </div>
     </form>

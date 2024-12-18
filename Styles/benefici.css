@@ -3,11 +3,11 @@
    ============================================ */
 
 :root {
-    --primary-color: #4A90E2;
+    --primary-color: #808080;
     --secondary-color: #2ECC71;
     --danger-color: #E74C3C;
-    --background-gradient-1: #D1E3F9;
-    --background-gradient-2: #B6D0F6;
+    --background-gradient-1: #E8E8E8;
+    --background-gradient-2: #D3D3D3;
     --card-bg: rgba(255, 255, 255, 0.95);
     --text-color: #2C3E50;
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -566,5 +566,69 @@ input:checked + .slider:before {
     .user-email-container {
         font-size: 0.8rem;
         padding: 6px 12px;
+    }
+}
+
+/* Aggiungere questi stili al file benefici.css esistente */
+
+.top-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-items {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-email-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 20px;
+}
+
+.menu-item {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.menu-item span {
+    max-width: 150px;  /* o il valore che preferisci */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Per dispositivi mobili */
+@media (max-width: 768px) {
+    .menu-item span {
+        max-width: 100px;  /* ancora più corto su mobile */
+    }
+    
+    .menu-items {
+        gap: 10px;  /* riduce lo spazio tra gli elementi del menu */
+    }
+    
+    .menu-item {
+        padding: 5px;  /* riduce il padding */
     }
 } 
