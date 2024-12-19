@@ -1,0 +1,349 @@
+/* Stili generali del container */
+.stats-container {
+    padding: 1rem;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Cards statistiche */
+.stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stats-card h2, .stats-card h3 {
+    color: #333;
+    margin-bottom: 1.2rem;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+/* Grid per statistiche principali */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    text-align: center;
+}
+
+/* Elementi statistiche */
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.8rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+/* Container grafico */
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Lista statistiche dettagliate */
+.stats-list {
+    padding: 0.5rem;
+}
+
+.stats-list .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    font-size: 1rem;
+}
+
+.stats-list .stat-row:last-child {
+    border-bottom: none;
+}
+
+/* Media Query per mobile */
+@media (max-width: 576px) {
+    .stats-container {
+        padding: 0.5rem;
+        width: 100%;
+    }
+
+    .stats-card {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    .stats-grid {
+        gap: 0.5rem;
+    }
+
+    .stat-item {
+        padding: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+        word-break: break-word;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        word-wrap: break-word;
+    }
+
+    .stats-list .stat-row {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .stats-list .stat-row span {
+        word-break: break-word;
+    }
+
+    .chart-container {
+        height: 180px;
+    }
+
+    h2, h3 {
+        font-size: 1.2rem !important;
+    }
+}
+
+/* Media Query per tablet */
+@media (min-width: 577px) and (max-width: 768px) {
+    .stats-container {
+        padding: 0.8rem;
+        width: 100%;
+    }
+}
+
+/* Media Query per desktop */
+@media (min-width: 769px) {
+    .stats-container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        word-break: break-word;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        word-wrap: break-word;
+    }
+
+    .stats-list .stat-row {
+        padding: 1rem;
+        font-size: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .stats-list .stat-row span {
+        word-break: break-word;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+} 
+
+/* Aggiungi questi stili al tuo file CSS esistente */
+
+.temporal-grid {
+    margin-top: 1rem;
+}
+
+.stat-sublabel {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+.comparison {
+    font-weight: bold;
+    border-top: 2px solid #eee;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.positive-change {
+    color: #4CAF50;
+}
+
+.negative-change {
+    color: #f44336;
+}
+
+/* Card di riepilogo */
+.stat-summary-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stat-summary-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.icon-wrapper i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.content h3 {
+    font-weight: 600;
+}
+
+/* Card dettagli */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem;
+}
+
+.card-title {
+    color: #495057;
+    font-weight: 600;
+}
+
+.detail-item, .comparison-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.detail-item label, .comparison-item label {
+    font-size: 0.875rem;
+    margin-bottom: 5px;
+}
+
+.detail-item h4, .comparison-item h3 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Colori e stili specifici */
+.positive-change {
+    color: #198754;
+}
+
+.negative-change {
+    color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stat-summary-card {
+        margin-bottom: 1rem;
+    }
+} 
+
+/* Aumentiamo il padding e i font size per mobile */
+.stat-summary-card {
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.icon-wrapper {
+    width: 56px;
+    height: 56px;
+    margin-right: 1rem;
+}
+
+.icon-wrapper i {
+    font-size: 1.75rem;
+}
+
+.content h6 {
+    font-size: 1rem;
+}
+
+.content h3 {
+    font-size: 2rem;
+}
+
+.detail-item, .comparison-item {
+    padding: 1.25rem;
+}
+
+.detail-item label, .comparison-item label {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.detail-item h4 {
+    font-size: 1.5rem;
+}
+
+.comparison-item h3 {
+    font-size: 1.75rem;
+}
+
+/* Aggiungiamo più spazio tra le card su mobile */
+@media (max-width: 576px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+
+    .col-12 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .stat-summary-card {
+        margin-bottom: 1rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+} 
