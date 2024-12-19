@@ -1,8 +1,9 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="statistiche.aspx.cs" Inherits="NomeProgetto.statistiche" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="statistiche.aspx.cs" Inherits="NomeProgetto.statistiche" ContentType="text/html;charset=utf-8" %>
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Statistiche</title>
@@ -14,12 +15,31 @@
     <form id="form1" runat="server">
         <div class="container py-5">
             <div class="row mb-4">
-                <div class="col-12">
-                    <h2 class="text-primary mb-0">
+                <div class="col-12 mb-3">
+                    <h2 class="text-primary mb-2">
                         <i class="bi bi-bar-chart-line me-2"></i>
-                        Dashboard Statistiche
+                        <asp:Label ID="lblEmail" runat="server" /> - "Non Ho Fumato"
                     </h2>
-                    <p class="text-muted">Monitora il tuo progresso nel percorso di cessazione</p>
+                </div>
+                
+                <div class="col-12 mb-4">
+                    <asp:Button ID="btnTornaBenefici" runat="server" 
+                               CssClass="btn btn-outline-primary me-2" 
+                               Text="Indietro" 
+                               OnClick="btnTornaBenefici_Click" />
+                    <asp:Button ID="btnAzzeraDati" runat="server" 
+                               CssClass="btn btn-outline-danger" 
+                               Text="Azzera Dati" 
+                               OnClientClick="return confirmDelete();"
+                               OnClick="btnAzzeraDati_Click" />
+                </div>
+
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Come funziona:</strong> Ogni volta che resisti a una voglia di fumare, registri quanto tempo sei riuscito a resistere. 
+                        Queste statistiche ti mostrano i tuoi progressi e ti aiutano a identificare i momenti più critici della giornata.
+                    </div>
                 </div>
             </div>
 
@@ -34,7 +54,7 @@
                             <h6 class="text-muted mb-1">
                                 Voglie Gestite
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Numero totale di momenti di desiderio che hai gestito con successo"></i>
+                                   title="Il numero totale di volte in cui hai resistito alla voglia di fumare e hai registrato il tempo di resistenza"></i>
                             </h6>
                             <h3 class="mb-0" id="totaleTentativi" runat="server">0</h3>
                         </div>
@@ -47,9 +67,9 @@
                         </div>
                         <div class="content">
                             <h6 class="text-muted mb-1">
-                                Tempo Totale
+                                Tempo Totale di Resistenza
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Tempo totale accumulato nella gestione delle voglie"></i>
+                                   title="Il tempo totale accumulato in cui sei riuscito a resistere alle voglie di fumare"></i>
                             </h6>
                             <h3 class="mb-0" id="tempoTotale" runat="server">00:00:00</h3>
                         </div>
@@ -62,9 +82,9 @@
                         </div>
                         <div class="content">
                             <h6 class="text-muted mb-1">
-                                Tempo Medio
+                                Durata Media Resistenza
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Durata media di ogni momento di desiderio"></i>
+                                   title="In media, quanto tempo riesci a resistere quando hai voglia di fumare"></i>
                             </h6>
                             <h3 class="mb-0" id="tempoMedio" runat="server">00:00:00</h3>
                         </div>
@@ -77,9 +97,9 @@
                         </div>
                         <div class="content">
                             <h6 class="text-muted mb-1">
-                                Variazione Settimanale
+                                Progresso Settimanale
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Variazione percentuale rispetto alla settimana precedente"></i>
+                                   title="Come sta andando questa settimana rispetto alla scorsa: un valore positivo indica che stai gestendo più voglie"></i>
                             </h6>
                             <h3 class="mb-0" id="variazioneSettimanale" runat="server">0%</h3>
                         </div>
@@ -95,9 +115,9 @@
                         <div class="card-header bg-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-clock-history me-2"></i>
-                                Dettagli Tempi
+                                I Tuoi Tempi di Resistenza
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Analisi dettagliata dei tempi minimi e massimi di gestione"></i>
+                                   title="Il tempo più breve e più lungo in cui sei riuscito a resistere a una voglia di fumare"></i>
                             </h5>
                         </div>
                         <div class="card-body">
@@ -125,9 +145,9 @@
                         <div class="card-header bg-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-calendar-check me-2"></i>
-                                Analisi Temporale
+                                Quando è Più Difficile
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Identificazione dei momenti più critici della giornata e della settimana"></i>
+                                   title="Ti mostra in quale ora del giorno e in quale giorno della settimana hai più spesso voglia di fumare, così puoi essere più preparato in questi momenti"></i>
                             </h5>
                         </div>
                         <div class="card-body">
@@ -155,9 +175,9 @@
                         <div class="card-header bg-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-bar-chart me-2"></i>
-                                Confronto Settimanale
+                                Il Tuo Progresso
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Confronto tra il numero di voglie gestite questa settimana e la settimana scorsa"></i>
+                                   title="Confronta quante voglie hai gestito questa settimana rispetto alla scorsa, per vedere come stai migliorando nel tempo"></i>
                             </h5>
                         </div>
                         <div class="card-body">
@@ -189,6 +209,10 @@
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
             });
+
+            function confirmDelete() {
+                return confirm("Sei sicuro di voler eliminare tutti i tuoi dati statistici? Questa azione non può essere annullata.");
+            }
         </script>
     </form>
 </body>

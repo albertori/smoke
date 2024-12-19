@@ -1,9 +1,11 @@
-using System;
+﻿using System;
+using System.Web;
 using System.Web.Services;
 using System.Web.Script.Services;
 using System.Configuration;
 using System.Data.OleDb;
 using System.Collections.Generic;
+using System.Web.UI;
 
 namespace NomeProgetto
 {
@@ -13,6 +15,33 @@ namespace NomeProgetto
         {
             if (!IsPostBack)
             {
+                string email = "";
+                
+                // Debug sessione
+                if (Session["UtenteEmail"] != null)
+                {
+                    email = Session["UtenteEmail"].ToString();
+                }
+                else if (Session["Email"] != null)
+                {
+                    email = Session["Email"].ToString();
+                }
+
+                // Debug cookie
+                if (Request.Cookies["UserAuth"] != null)
+                {
+                    string cookieValue = Request.Cookies["UserAuth"].Value;
+                    System.Diagnostics.Debug.WriteLine("Cookie value: " + cookieValue);
+                    
+                    string[] authData = cookieValue.Split('|');
+                    if (authData.Length >= 2)
+                    {
+                        email = HttpUtility.UrlDecode(authData[1]);
+                    }
+                }
+
+                lblEmail.Text = string.IsNullOrEmpty(email) ? "Utente" : email;
+                
                 CaricaStatisticheBase();
                 CaricaStatisticheAvanzate();
             }
@@ -209,6 +238,44 @@ namespace NomeProgetto
                 }
             }
             throw new Exception("Utente non autenticato");
+        }
+
+        protected void btnTornaBenefici_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("benefici.aspx");
+        }
+
+        protected void btnAzzeraDati_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int userId = GetUserId();
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    string query = "DELETE FROM TempiIntervalli WHERE UtenteID = ?";
+                    
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Ricarichiamo le statistiche per mostrare i valori azzerati
+                CaricaStatisticheBase();
+                CaricaStatisticheAvanzate();
+
+                // Mostriamo un messaggio di conferma usando ClientScript invece di ScriptManager
+                ClientScript.RegisterStartupScript(this.GetType(), "alertMessage", 
+                    "alert('I tuoi dati sono stati eliminati con successo.');", true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore nell'eliminazione dei dati: " + ex.Message);
+                ClientScript.RegisterStartupScript(this.GetType(), "alertMessage", 
+                    "alert('Si è verificato un errore durante l\\'eliminazione dei dati.');", true);
+            }
         }
     }
 } 
