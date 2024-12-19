@@ -1,6 +1,33 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
+    if (!verificaElementi()) {
+        console.error('Impossibile inizializzare: elementi HTML mancanti');
+        return;
+    }
+
+    // Inizializzazione della modalità
+    const smokeSwitch = document.getElementById('smokeSwitch');
+    const textPath = document.querySelector('textPath');
+    const nonFumareBtn = document.getElementById('nonFumareBtn');
+
+    // Leggi la modalità salvata o usa il default
+    const modalitaSalvata = localStorage.getItem('mode');
+    if (modalitaSalvata === 'smoked') {
+        smokeSwitch.checked = true;
+        textPath.textContent = 'Ho Fumato';
+        nonFumareBtn.classList.remove('green');
+        nonFumareBtn.classList.add('red');
+    } else {
+        smokeSwitch.checked = false;
+        textPath.textContent = 'Non Ho Fumato';
+        nonFumareBtn.classList.remove('red');
+        nonFumareBtn.classList.add('green');
+    }
+
+    // Carica i dati iniziali con la modalità corretta
+    caricaDatiIniziali();
+
     async function chiamataServer(url, method = 'POST', body = {}) {
         try {
             const response = await fetch(url, {
@@ -29,6 +56,91 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function caricaDatiIniziali() {
+        const modalitaFumato = document.getElementById('smokeSwitch').checked;
+        console.log('Caricamento dati per modalità:', modalitaFumato ? 'Ho Fumato' : 'Non Ho Fumato');
+        
+        fetch('benefici.aspx/GetDatiIniziali', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ modalitaFumato: modalitaFumato })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.d) {
+                console.log('Dati ricevuti:', data.d);
+                salvaDatiLocali(data.d);
+                aggiornaDati(data.d);
+            }
+        })
+        .catch(error => {
+            console.error('Errore nel caricamento dati:', error);
+            const datiLocali = recuperaDatiLocali();
+            if (datiLocali) {
+                aggiornaDati(datiLocali);
+            }
+        });
+    }
+
+    // Event listener per lo switch
+    smokeSwitch.addEventListener('change', function() {
+        const modalitaFumato = this.checked;
+        console.log('Cambio modalità:', modalitaFumato ? 'Ho Fumato' : 'Non Ho Fumato');
+        
+        if (modalitaFumato) {
+            textPath.textContent = 'Ho Fumato';
+            nonFumareBtn.classList.remove('green');
+            nonFumareBtn.classList.add('red');
+            localStorage.setItem('mode', 'smoked');
+        } else {
+            textPath.textContent = 'Non Ho Fumato';
+            nonFumareBtn.classList.remove('red');
+            nonFumareBtn.classList.add('green');
+            localStorage.setItem('mode', 'notSmoked');
+        }
+
+        // Ricarica i dati con la nuova modalità
+        caricaDatiIniziali();
+
+        // Aggiorna il link delle statistiche
+        aggiornaLinkStatistiche();
+    });
+
+    // Click handler per il bottone
+    document.getElementById('clickButton').addEventListener('click', 
+        debounce(async function(e) {
+            e.preventDefault();
+            console.log('Click registrato');
+            
+            const modalitaFumato = document.getElementById('smokeSwitch').checked;
+            console.log('Incremento contatore per modalità:', modalitaFumato ? 'Ho Fumato' : 'Non Ho Fumato');
+            
+            try {
+                if (navigator.onLine) {
+                    const data = await chiamataServer('benefici.aspx/IncrementaContatore', 
+                        'POST', { modalitaFumato: modalitaFumato });
+                    salvaDatiLocali(data);
+                    aggiornaDati(data);
+                } else {
+                    incrementaLocale();
+                }
+            } catch (error) {
+                console.error('Errore durante l\'elaborazione del click:', error);
+                incrementaLocale();
+            }
+        }, 500)
+    );
+
+    function aggiornaDati(data) {
+        document.getElementById('sigaretteLabel').textContent = data.sigarette;
+        document.getElementById('sigaretteButtonLabel').textContent = data.sigarette;
+        document.getElementById('risparmioValue').textContent = data.risparmio.toFixed(2);
+        document.getElementById('catrameLabel').textContent = data.catrame;
+        document.getElementById('tempoLabel').textContent = data.tempo;
+    }
+
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -41,46 +153,9 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    if (!verificaElementi()) {
-        console.error('Impossibile inizializzare: elementi HTML mancanti');
-        return;
-    }
-    caricaDatiIniziali();
-
-    function aggiornaDati(data) {
-        document.getElementById('sigaretteLabel').textContent = data.sigarette;
-        document.getElementById('sigaretteButtonLabel').textContent = data.sigarette;
-        document.getElementById('risparmioValue').textContent = data.risparmio.toFixed(2);
-        document.getElementById('catrameLabel').textContent = data.catrame;
-        document.getElementById('tempoLabel').textContent = data.tempo;
-    }
-
     const COSTO_SIGARETTA = 0.30; // € per sigaretta
     const CATRAME_SIGARETTA = 10; // mg per sigaretta
     const TEMPO_SIGARETTA = 5; // minuti per sigaretta
-
-    document.getElementById('clickButton').addEventListener('click', 
-        debounce(async function(e) {
-            e.preventDefault();
-            console.log('Click registrato');
-            
-            document.getElementById('nonFumareBtn').classList.add('clicked');
-            setTimeout(() => document.getElementById('nonFumareBtn').classList.remove('clicked'), 200);
-
-            try {
-                if (navigator.onLine) {
-                    const data = await chiamataServer('benefici.aspx/IncrementaContatore');
-                    salvaDatiLocali(data);
-                    aggiornaDati(data);
-                } else {
-                    incrementaLocale();
-                }
-            } catch (error) {
-                console.error('Errore durante l\'elaborazione del click:', error);
-                incrementaLocale();
-            }
-        }, 500)
-    );
 
     function updateDailyProgress() {
         const now = new Date();
@@ -174,41 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     loadSavedColors();
 
-    const smokeSwitch = document.getElementById('smokeSwitch');
-    const textPath = document.querySelector('textPath');
-    const nonFumareBtn = document.getElementById('nonFumareBtn');
-
-    if (smokeSwitch && textPath && nonFumareBtn) {
-        smokeSwitch.addEventListener('change', function() {
-            console.log('Cambio modalità:', this.checked);
-            if (this.checked) {
-                textPath.textContent = 'Ho Fumato';
-                nonFumareBtn.classList.remove('green');
-                nonFumareBtn.classList.add('red');
-                localStorage.setItem('mode', 'smoked');
-            } else {
-                textPath.textContent = 'Non Ho Fumato';
-                nonFumareBtn.classList.remove('red');
-                nonFumareBtn.classList.add('green');
-                localStorage.setItem('mode', 'notSmoked');
-            }
-        });
-
-        const savedMode = localStorage.getItem('mode');
-        console.log('Modalità salvata:', savedMode);
-        if (savedMode === 'smoked') {
-            smokeSwitch.checked = true;
-            textPath.textContent = 'Ho Fumato';
-            nonFumareBtn.classList.remove('green');
-            nonFumareBtn.classList.add('red');
-        } else {
-            smokeSwitch.checked = false;
-            textPath.textContent = 'Non Ho Fumato';
-            nonFumareBtn.classList.remove('red');
-            nonFumareBtn.classList.add('green');
-        }
-    }
-
     function salvaDatiLocali(dati) {
         localStorage.setItem('datiProgressi', JSON.stringify(dati));
         console.log('Dati salvati localmente:', dati);
@@ -222,30 +262,6 @@ document.addEventListener('DOMContentLoaded', function() {
             catrame: 0,
             tempo: 0
         };
-    }
-
-    function caricaDatiIniziali() {
-        fetch('benefici.aspx/GetDatiIniziali', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.d) {
-                salvaDatiLocali(data.d);
-                aggiornaDati(data.d);
-            }
-        })
-        .catch(error => {
-            console.log('Errore nel caricamento dati, uso dati locali');
-            const datiLocali = recuperaDatiLocali();
-            if (datiLocali) {
-                aggiornaDati(datiLocali);
-            }
-        });
     }
 
     function incrementaLocale() {
@@ -378,4 +394,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Gestione del link statistiche
+    const statisticheLink = document.getElementById('statisticheLink');
+    
+    function aggiornaLinkStatistiche() {
+        const modalitaFumato = document.getElementById('smokeSwitch').checked;
+        statisticheLink.href = modalitaFumato ? 'nonStatistiche.aspx' : 'statistiche.aspx';
+    }
+
+    // Aggiorna il link al caricamento iniziale
+    aggiornaLinkStatistiche();
 }); 

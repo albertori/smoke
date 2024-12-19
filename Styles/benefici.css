@@ -27,6 +27,8 @@ body {
     padding: 10px;
     max-width: 100%;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 .stats-container {
@@ -34,6 +36,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    position: relative;
+    z-index: 1;
 }
 
 .progress-card {
@@ -91,6 +95,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 #nonFumareBtn {
@@ -104,6 +110,7 @@ body {
     border: none;
     outline: none;
     box-shadow: none;
+    z-index: 1;
 }
 
 #nonFumareBtn.clicked {
@@ -194,7 +201,11 @@ body {
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     z-index: 1;
 }
 
@@ -330,15 +341,16 @@ body {
 /* Pannello Impostazioni */
 .settings-panel {
     position: fixed;
+    top: 0;
     right: -300px;
-    top: 50%;
-    transform: translateY(-50%);
     width: 300px;
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 15px 0 0 15px;
-    box-shadow: var(--shadow);
+    height: 100%;
+    background: var(--background-gradient-1);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     transition: right 0.3s ease;
+    padding: 20px;
+    z-index: 100000;
+    pointer-events: all;
 }
 
 .settings-panel.open {
@@ -347,16 +359,15 @@ body {
 
 .settings-toggle {
     position: absolute;
-    left: -48px;
-    top: 50%;
-    transform: translateY(-50%);
+    left: -40px;
+    top: 20px;
+    z-index: 100001;
     background: var(--primary-color);
-    color: white;
     border: none;
-    padding: 0.8rem;
-    border-radius: 10px 0 0 10px;
+    color: white;
+    padding: 10px;
     cursor: pointer;
-    box-shadow: var(--shadow);
+    pointer-events: all;
 }
 
 .settings-toggle:hover {
@@ -364,7 +375,10 @@ body {
 }
 
 .settings-content {
-    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    z-index: 100000;
 }
 
 .settings-content h3 {
@@ -782,4 +796,34 @@ input:checked + .slider:before {
     #tempoLabel {
         font-size: 1.3rem;
     }
+}
+
+/* Overlay per il pannello quando è aperto */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99999;
+    display: none;
+    pointer-events: all;
+}
+
+.settings-panel.open ~ .settings-overlay {
+    display: block;
+}
+
+/* Assicuriamoci che tutti gli elementi nel pannello siano cliccabili */
+.settings-panel * {
+    pointer-events: all;
+}
+
+/* Reset per gli altri elementi */
+.stats-container,
+.daily-progress,
+.top-menu {
+    position: relative;
+    z-index: 1;
 } 

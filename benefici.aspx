@@ -45,7 +45,7 @@
                         <i class="fas fa-user"></i>
                         <span id="userEmail" runat="server"></span>
                     </div>
-                    <a href="statistiche.aspx" class="menu-item">
+                    <a href="#" class="menu-item" id="statisticheLink">
                         <i class="fas fa-chart-bar"></i> Statistiche
                     </a>
                     <a href="#" class="menu-item" id="settingsToggle">
@@ -207,6 +207,9 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Aggiungi questo subito dopo il div settings-panel -->
+            <div class="settings-overlay"></div>
         </div>
     </form>
 

@@ -46,11 +46,10 @@ namespace NomeProgetto
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static object GetDatiIniziali()
+        public static object GetDatiIniziali(bool modalitaFumato)
         {
             try
             {
-                // Ottieni l'ID utente dalla sessione
                 var context = System.Web.HttpContext.Current;
                 int? userId = null;
                 
@@ -68,19 +67,15 @@ namespace NomeProgetto
                     int catrame = 0;
                     int tempo = 0;
                     
-                    string query = "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi";
-                    if (userId.HasValue)
-                    {
-                        query += " WHERE UtenteID = ?";
-                    }
-                    query += " ORDER BY ID DESC";
+                    string query = @"SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo 
+                                   FROM Progressi 
+                                   WHERE UtenteID = ? AND Modalita = ? 
+                                   ORDER BY ID DESC";
 
                     using (OleDbCommand cmdRead = new OleDbCommand(query, conn))
                     {
-                        if (userId.HasValue)
-                        {
-                            cmdRead.Parameters.AddWithValue("?", userId.Value);
-                        }
+                        cmdRead.Parameters.AddWithValue("?", userId);
+                        cmdRead.Parameters.AddWithValue("?", modalitaFumato);
 
                         using (OleDbDataReader reader = cmdRead.ExecuteReader())
                         {
@@ -99,25 +94,24 @@ namespace NomeProgetto
                         risparmio = risparmio,
                         catrame = catrame,
                         tempo = tempo,
-                        userId = userId
+                        userId = userId,
+                        modalita = modalitaFumato
                     };
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Errore in GetDatiIniziali: " + ex.Message);
-                System.Diagnostics.Debug.WriteLine("Stack trace: " + ex.StackTrace);
                 throw new Exception("Errore nel recupero dei dati");
             }
         }
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static object IncrementaContatore()
+        public static object IncrementaContatore(bool modalitaFumato)
         {
             try
             {
-                // Ottieni l'ID utente dalla sessione
                 var context = System.Web.HttpContext.Current;
                 int? userId = null;
                 
@@ -135,20 +129,16 @@ namespace NomeProgetto
                     int catrame = 0;
                     int tempo = 0;
                     
-                    // Leggi i valori attuali
-                    string queryRead = "SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo FROM Progressi";
-                    if (userId.HasValue)
-                    {
-                        queryRead += " WHERE UtenteID = ?";
-                    }
-                    queryRead += " ORDER BY ID DESC";
+                    // Leggi i valori attuali per la modalità specificata
+                    string queryRead = @"SELECT TOP 1 Sigarette, Risparmio, Catrame, Tempo 
+                                       FROM Progressi 
+                                       WHERE UtenteID = ? AND Modalita = ? 
+                                       ORDER BY ID DESC";
 
                     using (OleDbCommand cmdRead = new OleDbCommand(queryRead, conn))
                     {
-                        if (userId.HasValue)
-                        {
-                            cmdRead.Parameters.AddWithValue("?", userId.Value);
-                        }
+                        cmdRead.Parameters.AddWithValue("?", userId);
+                        cmdRead.Parameters.AddWithValue("?", modalitaFumato);
 
                         using (OleDbDataReader reader = cmdRead.ExecuteReader())
                         {
@@ -168,18 +158,10 @@ namespace NomeProgetto
                     catrame += 10;
                     tempo += 5;
 
-                    // Inserisci nuova riga
-                    string queryInsert = "INSERT INTO Progressi (DataOra, Sigarette, Risparmio, Catrame, Tempo";
-                    if (userId.HasValue)
-                    {
-                        queryInsert += ", UtenteID";
-                    }
-                    queryInsert += ") VALUES (Now(), ?, ?, ?, ?";
-                    if (userId.HasValue)
-                    {
-                        queryInsert += ", ?";
-                    }
-                    queryInsert += ")";
+                    // Inserisci nuova riga con la modalità
+                    string queryInsert = @"INSERT INTO Progressi 
+                                         (DataOra, Sigarette, Risparmio, Catrame, Tempo, UtenteID, Modalita) 
+                                         VALUES (Now(), ?, ?, ?, ?, ?, ?)";
 
                     using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
                     {
@@ -187,10 +169,8 @@ namespace NomeProgetto
                         cmdInsert.Parameters.AddWithValue("?", risparmio);
                         cmdInsert.Parameters.AddWithValue("?", catrame);
                         cmdInsert.Parameters.AddWithValue("?", tempo);
-                        if (userId.HasValue)
-                        {
-                            cmdInsert.Parameters.AddWithValue("?", userId.Value);
-                        }
+                        cmdInsert.Parameters.AddWithValue("?", userId);
+                        cmdInsert.Parameters.AddWithValue("?", modalitaFumato);
                         cmdInsert.ExecuteNonQuery();
                     }
 
@@ -199,14 +179,14 @@ namespace NomeProgetto
                         risparmio = risparmio,
                         catrame = catrame,
                         tempo = tempo,
-                        userId = userId
+                        userId = userId,
+                        modalita = modalitaFumato
                     };
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Errore in IncrementaContatore: " + ex.Message);
-                System.Diagnostics.Debug.WriteLine("Stack trace: " + ex.StackTrace);
                 throw new Exception("Errore nell'incremento del contatore");
             }
         }

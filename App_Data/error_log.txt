@@ -39,3 +39,78 @@
 18/12/2024 19:39:49 - Inserimento nuovo record...
 18/12/2024 19:39:49 - Righe inserite in StatoTimer: 1
 18/12/2024 19:39:49 - === FINE SALVA STATO TIMER ===
+18/12/2024 19:47:44 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+18/12/2024 19:47:44 - Raw Request Data: 
+18/12/2024 19:47:44 - Content Type: application/json
+18/12/2024 19:47:44 - HTTP Method: POST
+18/12/2024 19:47:44 - Parametri: currentTime=190, recordTime=380, startTime=2024-12-18T18:47:24.501Z, isLogout=True
+18/12/2024 19:47:44 - === INIZIO SALVA STATO TIMER ===
+18/12/2024 19:47:44 - CurrentTime: 190, RecordTime: 380, StartTime: 2024-12-18T18:47:24.501Z, IsLogout: True
+18/12/2024 19:47:44 - UserID trovato: 2
+18/12/2024 19:47:45 - Connessione al database aperta
+18/12/2024 19:47:45 - Esecuzione logout, salvataggio record finale...
+18/12/2024 19:47:45 - Righe inserite in TempiIntervalli: 1
+18/12/2024 19:47:45 - Record esistenti per l'utente: 0
+18/12/2024 19:47:45 - Inserimento nuovo record...
+18/12/2024 19:47:45 - Righe inserite in StatoTimer: 1
+18/12/2024 19:47:45 - === FINE SALVA STATO TIMER ===
+19/12/2024 01:14:44 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+19/12/2024 01:14:44 - Raw Request Data: 
+19/12/2024 01:14:44 - Content Type: application/json
+19/12/2024 01:14:44 - HTTP Method: POST
+19/12/2024 01:14:44 - Parametri: currentTime=450, recordTime=660, startTime=2024-12-19T00:14:39.685Z, isLogout=True
+19/12/2024 01:14:44 - === INIZIO SALVA STATO TIMER ===
+19/12/2024 01:14:44 - CurrentTime: 450, RecordTime: 660, StartTime: 2024-12-19T00:14:39.685Z, IsLogout: True
+19/12/2024 01:14:44 - UserID trovato: 14
+19/12/2024 01:14:44 - Connessione al database aperta
+19/12/2024 01:14:44 - Esecuzione logout, salvataggio record finale...
+19/12/2024 01:14:44 - Righe inserite in TempiIntervalli: 1
+19/12/2024 01:14:44 - Record esistenti per l'utente: 0
+19/12/2024 01:14:44 - Inserimento nuovo record...
+19/12/2024 01:14:44 - Righe inserite in StatoTimer: 1
+19/12/2024 01:14:44 - === FINE SALVA STATO TIMER ===
+19/12/2024 09:31:55 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+19/12/2024 09:31:55 - Raw Request Data: 
+19/12/2024 09:31:55 - Content Type: application/json
+19/12/2024 09:31:55 - HTTP Method: POST
+19/12/2024 09:31:55 - Parametri: currentTime=310, recordTime=380, startTime=2024-12-19T08:31:52.772Z, isLogout=True
+19/12/2024 09:31:55 - === INIZIO SALVA STATO TIMER ===
+19/12/2024 09:31:55 - CurrentTime: 310, RecordTime: 380, StartTime: 2024-12-19T08:31:52.772Z, IsLogout: True
+19/12/2024 09:31:55 - UserID trovato: 2
+19/12/2024 09:31:55 - Connessione al database aperta
+19/12/2024 09:31:55 - Esecuzione logout, salvataggio record finale...
+19/12/2024 09:31:55 - Righe inserite in TempiIntervalli: 1
+19/12/2024 09:31:55 - Record esistenti per l'utente: 1
+19/12/2024 09:31:55 - Aggiornamento record esistente...
+19/12/2024 09:31:55 - Righe aggiornate in StatoTimer: 1
+19/12/2024 09:31:55 - === FINE SALVA STATO TIMER ===
+19/12/2024 09:33:19 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+19/12/2024 09:33:19 - Raw Request Data: 
+19/12/2024 09:33:19 - Content Type: application/json
+19/12/2024 09:33:19 - HTTP Method: POST
+19/12/2024 09:33:19 - Parametri: currentTime=670, recordTime=1120, startTime=2024-12-19T08:33:13.071Z, isLogout=True
+19/12/2024 09:33:19 - === INIZIO SALVA STATO TIMER ===
+19/12/2024 09:33:19 - CurrentTime: 670, RecordTime: 1120, StartTime: 2024-12-19T08:33:13.071Z, IsLogout: True
+19/12/2024 09:33:19 - UserID trovato: 2
+19/12/2024 09:33:19 - Connessione al database aperta
+19/12/2024 09:33:19 - Esecuzione logout, salvataggio record finale...
+19/12/2024 09:33:19 - Righe inserite in TempiIntervalli: 1
+19/12/2024 09:33:19 - Record esistenti per l'utente: 1
+19/12/2024 09:33:19 - Aggiornamento record esistente...
+19/12/2024 09:33:19 - Righe aggiornate in StatoTimer: 1
+19/12/2024 09:33:19 - === FINE SALVA STATO TIMER ===
+19/12/2024 09:47:57 - === INIZIO SALVA STATO TIMER (DETTAGLI RICHIESTA) ===
+19/12/2024 09:47:57 - Raw Request Data: 
+19/12/2024 09:47:57 - Content Type: application/json
+19/12/2024 09:47:57 - HTTP Method: POST
+19/12/2024 09:47:57 - Parametri: currentTime=290, recordTime=1120, startTime=2024-12-19T08:47:33.618Z, isLogout=True
+19/12/2024 09:47:57 - === INIZIO SALVA STATO TIMER ===
+19/12/2024 09:47:57 - CurrentTime: 290, RecordTime: 1120, StartTime: 2024-12-19T08:47:33.618Z, IsLogout: True
+19/12/2024 09:47:57 - UserID trovato: 2
+19/12/2024 09:47:57 - Connessione al database aperta
+19/12/2024 09:47:57 - Esecuzione logout, salvataggio record finale...
+19/12/2024 09:47:57 - Righe inserite in TempiIntervalli: 1
+19/12/2024 09:47:57 - Record esistenti per l'utente: 1
+19/12/2024 09:47:57 - Aggiornamento record esistente...
+19/12/2024 09:47:57 - Righe aggiornate in StatoTimer: 1
+19/12/2024 09:47:57 - === FINE SALVA STATO TIMER ===

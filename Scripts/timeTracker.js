@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Costanti
     const MAX_TIME = 10800; // 3 ore in secondi
-    const TIMER_SPEED = 100; // Intervallo in millisecondi (100ms = 10x più veloce)
-    const TIME_MULTIPLIER = 10; // Moltiplicatore per compensare la velocità
+    const TIMER_SPEED = 1000; // Intervallo normale di 1 secondo
     
     // Variabili di stato
     let startTime = null;
@@ -126,10 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
         startTime = Date.now();
         if (!timerInterval) {
             timerInterval = setInterval(() => {
-                const elapsed = Math.floor((Date.now() - startTime) / 100) * TIME_MULTIPLIER;
+                // Calcolo preciso dei secondi trascorsi
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 updateCurrentBar(elapsed);
                 
-                // Se il tempo corrente è maggiore del record
                 if (elapsed > parseTime(secondTimeLabel.textContent)) {
                     secondTimeLabel.textContent = formatTime(elapsed);
                     updateBestBar();
@@ -173,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
         Logger.log('Inizio saveStateToDb', { isLogout });
         
         const currentTime = isTimerActive ? 
-            Math.floor((Date.now() - (startTime || Date.now())) / 100) * TIME_MULTIPLIER : 
+            Math.floor((Date.now() - (startTime || Date.now())) / 1000) :
             0;
         
         const recordTime = parseTime(secondTimeLabel.textContent);
@@ -200,12 +199,9 @@ document.addEventListener('DOMContentLoaded', function() {
             xhr.open('POST', 'benefici.aspx/SalvaStatoTimer', false);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(data);
-            
-            Logger.log('Risposta salvataggio sincrono:', xhr.responseText);
             return;
         }
 
-        // Altrimenti usa fetch normale
         fetch('benefici.aspx/SalvaStatoTimer', {
             method: 'POST',
             headers: {
@@ -213,18 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: data
         })
-        .then(response => {
-            Logger.log('Response ricevuta:', response);
-            return response.json();
-        })
-        .then(data => {
-            Logger.log('Dati salvati:', data);
-            if (data.d && data.d.success) {
-                Logger.log('Salvataggio completato con successo');
-            } else {
-                Logger.error('Errore nel salvataggio:', data.d ? data.d.error : 'Risposta non valida');
-            }
-        })
+        .then(response => response.json())
         .catch(error => {
             Logger.error('Errore durante il salvataggio:', error);
         });
@@ -260,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 Logger.log('Active timer found, restoring state');
                 
-                startTime = Date.now() - (data.d.currentTime * 100 / TIME_MULTIPLIER);
+                startTime = Date.now() - (data.d.currentTime * 1000);
                 bestTime = data.d.recordTime;
                 isTimerActive = true;
                 resetButton.textContent = 'Resetta';
@@ -323,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Click handler per il clickButton
     clickButton.addEventListener('click', function() {
         if (isTimerActive) {
-            const currentTime = Math.floor((Date.now() - startTime) / 100) * TIME_MULTIPLIER;
+            const currentTime = Math.floor((Date.now() - startTime) / 1000);
             if (currentTime > parseTime(secondTimeLabel.textContent)) {
                 secondTimeLabel.textContent = formatTime(currentTime);
                 updateBestBar();
