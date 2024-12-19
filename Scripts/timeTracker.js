@@ -138,38 +138,66 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Modifica la funzione saveStateToDb per usare XMLHttpRequest sincrono durante il logout
+    // Aggiungiamo una funzione per fermare il timer
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        isTimerActive = false;
+        resetButton.textContent = 'Inizia';
+        resetCurrentBar();
+    }
+
+    // Modifichiamo l'event listener per il logout
+    document.addEventListener('visibilitychange', function() {
+        // Non facciamo nulla se la pagina viene solo nascosta
+        if (document.visibilityState === 'hidden') {
+            return;
+        }
+    });
+
+    // Aggiungiamo un listener specifico per il logout
+    document.querySelectorAll('a[href*="logout"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (isTimerActive) {
+                // Fermiamo il timer e salviamo lo stato
+                stopTimer();
+                saveStateToDb(true);
+            }
+        });
+    });
+
+    // Modifichiamo la funzione saveStateToDb
     function saveStateToDb(isLogout = false) {
         Logger.log('Inizio saveStateToDb', { isLogout });
         
-        const currentTime = Math.floor((Date.now() - (startTime || Date.now())) / 100) * TIME_MULTIPLIER;
+        const currentTime = isTimerActive ? 
+            Math.floor((Date.now() - (startTime || Date.now())) / 100) * TIME_MULTIPLIER : 
+            0;
+        
         const recordTime = parseTime(secondTimeLabel.textContent);
-        const startTimeStr = startTime ? new Date(startTime).toISOString() : new Date().toISOString();
+        const startTimeStr = startTime ? new Date(startTime).toISOString() : null;
         
         Logger.log('Dati da salvare:', {
             currentTime,
             recordTime,
             startTime: startTimeStr,
-            isLogout
+            isLogout,
+            isTimerActive
         });
-
-        // Verifica che i valori siano validi
-        if (isNaN(currentTime) || isNaN(recordTime)) {
-            Logger.error('Valori non validi:', { currentTime, recordTime });
-            return;
-        }
 
         const data = JSON.stringify({
             currentTime: currentTime,
             recordTime: recordTime,
             startTime: startTimeStr,
-            isLogout: isLogout
+            isLogout: isLogout,
+            isTimerActive: isTimerActive
         });
 
-        // Se è un logout, usa XMLHttpRequest sincrono
         if (isLogout) {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'benefici.aspx/SalvaStatoTimer', false); // false = sincrono
+            xhr.open('POST', 'benefici.aspx/SalvaStatoTimer', false);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(data);
             
@@ -217,7 +245,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             Logger.log('State loaded', data);
             
-            if (data.d && data.d.hasActiveTimer) {
+            if (data.d && data.d.hasActiveTimer && data.d.currentTime > 0) {
+                // Verifichiamo che il timer sia effettivamente attivo e che ci sia un tempo corrente
+                const lastStartTime = new Date(data.d.startTime);
+                const now = new Date();
+                const timeDiff = now - lastStartTime;
+                
+                // Se sono passate più di 3 ore, non facciamo ripartire il timer
+                if (timeDiff > (3 * 60 * 60 * 1000)) {
+                    Logger.log('Timer troppo vecchio, non viene riavviato');
+                    resetCurrentBar();
+                    return;
+                }
+                
                 Logger.log('Active timer found, restoring state');
                 
                 startTime = Date.now() - (data.d.currentTime * 100 / TIME_MULTIPLIER);
@@ -231,10 +271,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 startTimer();
                 Logger.log('Timer restored successfully');
+            } else {
+                Logger.log('No active timer found or invalid time');
+                resetCurrentBar();
             }
         })
         .catch(error => {
             Logger.error('Error loading state', error);
+            resetCurrentBar();
         });
     }
 

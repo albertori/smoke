@@ -128,49 +128,87 @@ namespace NomeProgetto
                 {
                     conn.Open();
 
-                    // Ora critica
+                    // Verifica dati esistenti
+                    string queryConteggio = "SELECT COUNT(*) FROM TempiIntervalli WHERE UtenteID = ?";
+                    using (OleDbCommand cmd = new OleDbCommand(queryConteggio, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId);
+                        int conteggio = Convert.ToInt32(cmd.ExecuteScalar());
+                        
+                        if (conteggio == 0)
+                        {
+                            oraCritica.InnerText = "-";
+                            giornoCritico.InnerText = "-";
+                            tentativiSettimanaCorrente.InnerText = "0";
+                            tentativiSettimanaScorsa.InnerText = "0";
+                            variazioneSettimanale.InnerText = "0%";
+                            return;
+                        }
+                    }
+
+                    // Ora critica - usando Format per estrarre l'ora
                     string queryOraCritica = @"
-                        SELECT TOP 1 CInt(Format(DataOraInizio,'hh')) as Ora, COUNT(*) as Conteggio
+                        SELECT TOP 1 
+                            CInt(Format(DataOraInizio,'h')) as Ora,
+                            COUNT(*) as Conteggio
                         FROM TempiIntervalli 
-                        WHERE UtenteID = ?
-                        GROUP BY CInt(Format(DataOraInizio,'hh'))
-                        ORDER BY COUNT(*) DESC";
+                        WHERE UtenteID = ? 
+                            AND DataOraInizio IS NOT NULL
+                        GROUP BY CInt(Format(DataOraInizio,'h'))
+                        HAVING COUNT(*) > 0
+                        ORDER BY COUNT(*) DESC, CInt(Format(DataOraInizio,'h')) ASC";
 
                     using (OleDbCommand cmd = new OleDbCommand(queryOraCritica, conn))
                     {
                         cmd.Parameters.AddWithValue("?", userId);
                         using (OleDbDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (reader.Read() && !reader.IsDBNull(0))
                             {
                                 int ora = Convert.ToInt32(reader["Ora"]);
+                                int conteggio = Convert.ToInt32(reader["Conteggio"]);
                                 string periodo = ora >= 12 ? "PM" : "AM";
                                 int oraFormattata = ora > 12 ? ora - 12 : ora;
                                 if (ora == 0) oraFormattata = 12;
                                 if (ora == 12) periodo = "PM";
-                                oraCritica.InnerText = string.Format("{0:00}:00 {1}", oraFormattata, periodo);
+                                oraCritica.InnerText = string.Format("{0:00}:00 {1} ({2} tentativi)", 
+                                    oraFormattata, periodo, conteggio);
+                            }
+                            else
+                            {
+                                oraCritica.InnerText = "-";
                             }
                         }
                     }
 
                     // Giorno critico
                     string queryGiornoCritico = @"
-                        SELECT TOP 1 Weekday(DataOraInizio) as Giorno, COUNT(*) as Conteggio
+                        SELECT TOP 1 
+                            CInt(Format(DataOraInizio,'w')) as Giorno,
+                            COUNT(*) as Conteggio
                         FROM TempiIntervalli 
-                        WHERE UtenteID = ?
-                        GROUP BY Weekday(DataOraInizio)
-                        ORDER BY COUNT(*) DESC";
+                        WHERE UtenteID = ? 
+                            AND DataOraInizio IS NOT NULL
+                        GROUP BY CInt(Format(DataOraInizio,'w'))
+                        HAVING COUNT(*) > 0
+                        ORDER BY COUNT(*) DESC, CInt(Format(DataOraInizio,'w')) ASC";
 
                     using (OleDbCommand cmd = new OleDbCommand(queryGiornoCritico, conn))
                     {
                         cmd.Parameters.AddWithValue("?", userId);
                         using (OleDbDataReader reader = cmd.ExecuteReader())
                         {
-                            if (reader.Read())
+                            if (reader.Read() && !reader.IsDBNull(0))
                             {
-                                int giorno = Convert.ToInt32(reader["Giorno"]);
+                                int giorno = Convert.ToInt32(reader["Giorno"]) - 1; // Format('w') restituisce 1-7
+                                int conteggio = Convert.ToInt32(reader["Conteggio"]);
                                 string[] giorni = { "Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab" };
-                                giornoCritico.InnerText = giorni[giorno];
+                                giornoCritico.InnerText = string.Format("{0} ({1} tentativi)", 
+                                    giorni[giorno], conteggio);
+                            }
+                            else
+                            {
+                                giornoCritico.InnerText = "-";
                             }
                         }
                     }
@@ -220,6 +258,11 @@ namespace NomeProgetto
             {
                 System.Diagnostics.Debug.WriteLine("Errore in CaricaStatisticheAvanzate: " + ex.Message);
                 System.Diagnostics.Debug.WriteLine("Stack Trace: " + ex.StackTrace);
+                
+                // Aggiungiamo più dettagli nel log per il debug
+                System.Diagnostics.Debug.WriteLine("Query Ora Critica risultato vuoto o errore");
+                oraCritica.InnerText = "-";
+                giornoCritico.InnerText = "-";
             }
         }
 
@@ -253,6 +296,8 @@ namespace NomeProgetto
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
+                    
+                    // Eliminiamo tutti i record dalla tabella TempiIntervalli
                     string query = "DELETE FROM TempiIntervalli WHERE UtenteID = ?";
                     
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
@@ -260,21 +305,30 @@ namespace NomeProgetto
                         cmd.Parameters.AddWithValue("?", userId);
                         cmd.ExecuteNonQuery();
                     }
+
+                    // Azzeriamo tutti i controlli
+                    totaleTentativi.InnerText = "0";
+                    tempoTotale.InnerText = "00:00:00";
+                    tempoMedio.InnerText = "00:00:00";
+                    tempoMinimo.InnerText = "00:00:00";
+                    tempoMassimo.InnerText = "00:00:00";
+                    oraCritica.InnerText = "-";
+                    giornoCritico.InnerText = "-";
+                    tentativiSettimanaCorrente.InnerText = "0";
+                    tentativiSettimanaScorsa.InnerText = "0";
+                    variazioneSettimanale.InnerText = "0%";
+                    variazioneSettimanale.Attributes["class"] = "positive-change";
                 }
 
-                // Ricarichiamo le statistiche per mostrare i valori azzerati
-                CaricaStatisticheBase();
-                CaricaStatisticheAvanzate();
-
-                // Mostriamo un messaggio di conferma usando ClientScript invece di ScriptManager
+                // Opzionale: mostriamo un messaggio di conferma
                 ClientScript.RegisterStartupScript(this.GetType(), "alertMessage", 
-                    "alert('I tuoi dati sono stati eliminati con successo.');", true);
+                    "alert('Tutte le statistiche sono state azzerate con successo.');", true);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Errore nell'eliminazione dei dati: " + ex.Message);
                 ClientScript.RegisterStartupScript(this.GetType(), "alertMessage", 
-                    "alert('Si è verificato un errore durante l\\'eliminazione dei dati.');", true);
+                    "alert('Si è verificato un errore durante l\\'azzeramento delle statistiche.');", true);
             }
         }
     }
