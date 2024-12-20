@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Statistiche</title>
+    <title>Statistiche Sigarette Non Fumate</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
     <link href="styles/statistiche.css" rel="stylesheet" />
@@ -18,7 +18,7 @@
                 <div class="col-12 mb-3">
                     <h2 class="text-primary mb-2">
                         <i class="bi bi-bar-chart-line me-2"></i>
-                        <asp:Label ID="lblEmail" runat="server" /> - "Non Ho Fumato"
+                        <asp:Label ID="lblEmail" runat="server" Text="" /> - "Non Ho Fumato"
                     </h2>
                 </div>
                 
@@ -37,7 +37,7 @@
                 <div class="col-12">
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle-fill me-2"></i>
-                        <strong>Come funziona:</strong> Ogni volta che resisti a una voglia di fumare, registri quanto tempo sei riuscito a resistere. 
+                        <strong>Come funziona:</strong> Ogni volta che resisti alla tentazione di fumare, registri l'evento. 
                         Queste statistiche ti mostrano i tuoi progressi e ti aiutano a identificare i momenti più critici della giornata.
                     </div>
                 </div>
@@ -52,11 +52,11 @@
                         </div>
                         <div class="content">
                             <h6 class="text-muted mb-1">
-                                Voglie Gestite
+                                Sigarette Non Fumate
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Il numero totale di volte in cui hai resistito alla voglia di fumare e hai registrato il tempo di resistenza"></i>
+                                   title="Il numero totale di volte che hai resistito alla tentazione"></i>
                             </h6>
-                            <h3 class="mb-0" id="totaleTentativi" runat="server">0</h3>
+                            <h3 class="mb-0" id="totaleSigarette" runat="server">0</h3>
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                             <h6 class="text-muted mb-1">
                                 Tempo Totale di Resistenza
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Il tempo totale accumulato in cui sei riuscito a resistere alle voglie di fumare"></i>
+                                   title="Il tempo totale in cui hai resistito alla tentazione"></i>
                             </h6>
                             <h3 class="mb-0" id="tempoTotale" runat="server">00:00:00</h3>
                         </div>
@@ -84,7 +84,7 @@
                             <h6 class="text-muted mb-1">
                                 Durata Media Resistenza
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="In media, quanto tempo riesci a resistere quando hai voglia di fumare"></i>
+                                   title="In media, quanto tempo resisti alla tentazione"></i>
                             </h6>
                             <h3 class="mb-0" id="tempoMedio" runat="server">00:00:00</h3>
                         </div>
@@ -97,9 +97,9 @@
                         </div>
                         <div class="content">
                             <h6 class="text-muted mb-1">
-                                Progresso Settimanale
+                                Variazione Settimanale
                                 <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Come sta andando questa settimana rispetto alla scorsa: un valore positivo indica che stai gestendo più voglie"></i>
+                                   title="Come sta andando questa settimana rispetto alla scorsa"></i>
                             </h6>
                             <h3 class="mb-0" id="variazioneSettimanale" runat="server">0%</h3>
                         </div>
@@ -115,9 +115,7 @@
                         <div class="card-header bg-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-clock-history me-2"></i>
-                                I Tuoi Tempi di Resistenza
-                                <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Il tempo più breve e più lungo in cui sei riuscito a resistere a una voglia di fumare"></i>
+                                Tempi di Resistenza
                             </h5>
                         </div>
                         <div class="card-body">
@@ -145,9 +143,7 @@
                         <div class="card-header bg-white">
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-calendar-check me-2"></i>
-                                Quando è Più Difficile
-                                <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Ti mostra in quale ora del giorno e in quale giorno della settimana hai più spesso voglia di fumare, così puoi essere più preparato in questi momenti"></i>
+                                Quando Resisti di Più
                             </h5>
                         </div>
                         <div class="card-body">
@@ -176,8 +172,6 @@
                             <h5 class="card-title mb-0">
                                 <i class="bi bi-bar-chart me-2"></i>
                                 Il Tuo Progresso
-                                <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                   title="Confronta quante voglie hai gestito questa settimana rispetto alla scorsa, per vedere come stai migliorando nel tempo"></i>
                             </h5>
                         </div>
                         <div class="card-body">
@@ -214,6 +208,7 @@
                 return confirm("Sei sicuro di voler eliminare tutti i tuoi dati statistici? Questa azione non può essere annullata.");
             }
         </script>
+        <script src="Scripts/statistiche.js"></script>
     </form>
 </body>
 </html>
