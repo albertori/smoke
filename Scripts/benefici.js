@@ -1,3 +1,13 @@
+// Aggiungi questa funzione all'inizio, prima di document.addEventListener
+function aggiornaLinkStatistiche() {
+    const modalitaFumato = document.getElementById('smokeSwitch').checked;
+    const statisticheLink = document.getElementById('statisticheLink');
+    if (statisticheLink) {
+        const url = modalitaFumato ? 'nonStatistiche.aspx' : 'statistiche.aspx';
+        statisticheLink.setAttribute('data-url', url);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
@@ -106,6 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Aggiorna il link delle statistiche
         aggiornaLinkStatistiche();
+        settingsPanel.classList.remove('open');
     });
 
     // Click handler per il bottone
@@ -214,30 +225,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     primaryColorPicker.addEventListener('change', () => {
-        const colors = {
+        applyColors({
             primary: primaryColorPicker.value,
             background: bgColorPicker.value,
             text: textColorPicker.value
-        };
-        applyColors(colors);
+        });
+        settingsPanel.classList.remove('open');
     });
 
     bgColorPicker.addEventListener('change', () => {
-        const colors = {
+        applyColors({
             primary: primaryColorPicker.value,
             background: bgColorPicker.value,
             text: textColorPicker.value
-        };
-        applyColors(colors);
+        });
+        settingsPanel.classList.remove('open');
     });
 
     textColorPicker.addEventListener('change', () => {
-        const colors = {
+        applyColors({
             primary: primaryColorPicker.value,
             background: bgColorPicker.value,
             text: textColorPicker.value
-        };
-        applyColors(colors);
+        });
+        settingsPanel.classList.remove('open');
     });
 
     resetButton.addEventListener('click', () => {
@@ -245,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         primaryColorPicker.value = defaultColors.primary;
         bgColorPicker.value = defaultColors.background;
         textColorPicker.value = defaultColors.text;
+        settingsPanel.classList.remove('open');
     });
 
     loadSavedColors();
