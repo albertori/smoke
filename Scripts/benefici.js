@@ -398,10 +398,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestione del link statistiche
     const statisticheLink = document.getElementById('statisticheLink');
     
-    function aggiornaLinkStatistiche() {
+    // Funzione di navigazione
+    function navigaStatistiche(e) {
+        // Previeni comportamenti di default
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        console.log('Navigazione statistiche iniziata'); // Debug
+        
+        // Salva lo stato attuale
         const modalitaFumato = document.getElementById('smokeSwitch').checked;
-        statisticheLink.href = modalitaFumato ? 'nonStatistiche.aspx' : 'statistiche.aspx';
+        const url = modalitaFumato ? 'nonStatistiche.aspx' : 'statistiche.aspx';
+        
+        console.log('Redirect a:', url); // Debug
+        
+        // Redirect diretto
+        window.location.href = url;
     }
+    
+    // Gestione eventi desktop
+    statisticheLink.addEventListener('click', navigaStatistiche);
+    
+    // Gestione eventi mobile
+    statisticheLink.addEventListener('touchstart', function(e) {
+        e.preventDefault(); // Previeni lo scroll
+    });
+    
+    statisticheLink.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        navigaStatistiche(e);
+    });
+    
+    // Rimuovi href per evitare comportamenti indesiderati
+    statisticheLink.removeAttribute('href');
+    statisticheLink.style.cursor = 'pointer';
 
     // Aggiorna il link al caricamento iniziale
     aggiornaLinkStatistiche();

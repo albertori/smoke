@@ -45,9 +45,9 @@
                         <i class="fas fa-user"></i>
                         <span id="userEmail" runat="server"></span>
                     </div>
-                    <a href="#" class="menu-item" id="statisticheLink">
+                    <span class="menu-item" id="statisticheLink" role="button" style="cursor: pointer;">
                         <i class="fas fa-chart-bar"></i> Statistiche
-                    </a>
+                    </span>
                     <a href="#" class="menu-item" id="settingsToggle">
                         <i class="fas fa-cog"></i> Impostazioni
                     </a>

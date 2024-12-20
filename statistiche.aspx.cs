@@ -55,62 +55,247 @@ namespace NomeProgetto
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
-                    string query = @"SELECT COUNT(*) as TotaleTentativi, 
-                                      SUM(DurataSec) as DurataTotale,
-                                      AVG(DurataSec) as DurataMedia,
-                                      MIN(DurataSec) as DurataMinima,
-                                      MAX(DurataSec) as DurataMassima
-                               FROM TempiIntervalli 
-                               WHERE UtenteID = ?";
+                    
+                    // Query per il totale tentativi dalla tabella Progressi
+                    string queryTotaleTentativi = @"SELECT COUNT(*) as TotaleTentativi 
+                                                  FROM Progressi 
+                                                  WHERE UtenteID = ? AND Modalita = 0";
 
-                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    // Query completa per tutti i tempi
+                    string queryTempi = @"SELECT 
+                                          SUM(DurataSec) as TempoTotale,
+                                          AVG(DurataSec) as TempoMedio,
+                                          MIN(DurataSec) as TempoMinimo,
+                                          MAX(DurataSec) as TempoMassimo
+                                        FROM TempiIntervalli 
+                                        WHERE UtenteID = ?";
+
+                    // Query per il progresso settimanale
+                    string queryProgresso = @"
+                        SELECT 
+                            (SELECT COUNT(*) 
+                             FROM Progressi 
+                             WHERE UtenteID = ? 
+                                AND Modalita = 0
+                                AND DataOra >= DateAdd('d', -7, Now())
+                            ) as SettimanaCorrente,
+                            (SELECT COUNT(*) 
+                             FROM Progressi 
+                             WHERE UtenteID = ? 
+                                AND Modalita = 0
+                                AND DataOra >= DateAdd('d', -14, Now()) 
+                                AND DataOra < DateAdd('d', -7, Now())
+                            ) as SettimanaScorsa";
+
+                    // Query per l'ora critica
+                    string queryOraCritica = @"
+                        SELECT TOP 1 
+                            DatePart('h', DataOra) as Ora,
+                            COUNT(*) as Conteggio
+                        FROM Progressi 
+                        WHERE UtenteID = ? 
+                            AND Modalita = 0
+                        GROUP BY DatePart('h', DataOra)
+                        HAVING COUNT(*) > 0
+                        ORDER BY COUNT(*) DESC";
+
+                    // Query per il giorno critico
+                    string queryGiornoCritico = @"
+                        SELECT TOP 1 
+                            DatePart('w', DataOra) as Giorno,
+                            COUNT(*) as Conteggio
+                        FROM Progressi 
+                        WHERE UtenteID = ? 
+                            AND Modalita = 0
+                        GROUP BY DatePart('w', DataOra)
+                        HAVING COUNT(*) > 0
+                        ORDER BY COUNT(*) DESC";
+
+                    // Ottieni totale tentativi
+                    using (OleDbCommand cmdTentativi = new OleDbCommand(queryTotaleTentativi, conn))
                     {
-                        cmd.Parameters.AddWithValue("?", userId);
-                        using (OleDbDataReader reader = cmd.ExecuteReader())
+                        cmdTentativi.Parameters.AddWithValue("?", userId);
+                        object result = cmdTentativi.ExecuteScalar();
+                        totaleTentativi.InnerText = (result != DBNull.Value) ? result.ToString() : "0";
+                    }
+
+                    // Ottieni tutti i tempi
+                    using (OleDbCommand cmdTempi = new OleDbCommand(queryTempi, conn))
+                    {
+                        cmdTempi.Parameters.AddWithValue("?", userId);
+                        using (OleDbDataReader reader = cmdTempi.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                totaleTentativi.InnerText = reader["TotaleTentativi"].ToString();
-                                
-                                int durataSecondi = Convert.ToInt32(reader["DurataTotale"]);
-                                TimeSpan durataTotale = TimeSpan.FromSeconds(durataSecondi);
-                                tempoTotale.InnerText = string.Format("{0:D2}:{1:D2}:{2:D2}", 
-                                    (int)durataTotale.TotalHours, 
-                                    durataTotale.Minutes, 
-                                    durataTotale.Seconds);
-
-                                if (reader["DurataMedia"] != DBNull.Value)
+                                // Tempo totale
+                                if (!reader.IsDBNull(reader.GetOrdinal("TempoTotale")))
                                 {
-                                    int durataMediaSecondi = Convert.ToInt32(reader["DurataMedia"]);
-                                    TimeSpan durataMedia = TimeSpan.FromSeconds(durataMediaSecondi);
+                                    int secondiTotali = Convert.ToInt32(reader["TempoTotale"]);
+                                    TimeSpan durataTotale = TimeSpan.FromSeconds(secondiTotali);
+                                    tempoTotale.InnerText = string.Format("{0:D2}:{1:D2}:{2:D2}",
+                                        (int)durataTotale.TotalHours,
+                                        durataTotale.Minutes,
+                                        durataTotale.Seconds);
+                                }
+                                else
+                                {
+                                    tempoTotale.InnerText = "00:00:00";
+                                }
+
+                                // Tempo medio
+                                if (!reader.IsDBNull(reader.GetOrdinal("TempoMedio")))
+                                {
+                                    int secondiMedi = Convert.ToInt32(reader["TempoMedio"]);
+                                    TimeSpan durataMedia = TimeSpan.FromSeconds(secondiMedi);
                                     tempoMedio.InnerText = string.Format("{0:D2}:{1:D2}:{2:D2}",
                                         (int)durataMedia.TotalHours,
                                         durataMedia.Minutes,
                                         durataMedia.Seconds);
                                 }
-
-                                if (reader["DurataMinima"] != DBNull.Value)
+                                else
                                 {
-                                    int durataMinSecondi = Convert.ToInt32(reader["DurataMinima"]);
-                                    TimeSpan durataMin = TimeSpan.FromSeconds(durataMinSecondi);
+                                    tempoMedio.InnerText = "00:00:00";
+                                }
+
+                                // Tempo minimo
+                                if (!reader.IsDBNull(reader.GetOrdinal("TempoMinimo")))
+                                {
+                                    int secondiMinimi = Convert.ToInt32(reader["TempoMinimo"]);
+                                    TimeSpan durataMinima = TimeSpan.FromSeconds(secondiMinimi);
                                     tempoMinimo.InnerText = string.Format("{0:D2}:{1:D2}:{2:D2}",
-                                        (int)durataMin.TotalHours,
-                                        durataMin.Minutes,
-                                        durataMin.Seconds);
+                                        (int)durataMinima.TotalHours,
+                                        durataMinima.Minutes,
+                                        durataMinima.Seconds);
+                                }
+                                else
+                                {
+                                    tempoMinimo.InnerText = "00:00:00";
                                 }
 
-                                if (reader["DurataMassima"] != DBNull.Value)
+                                // Tempo massimo
+                                if (!reader.IsDBNull(reader.GetOrdinal("TempoMassimo")))
                                 {
-                                    int durataMaxSecondi = Convert.ToInt32(reader["DurataMassima"]);
-                                    TimeSpan durataMax = TimeSpan.FromSeconds(durataMaxSecondi);
+                                    int secondiMassimi = Convert.ToInt32(reader["TempoMassimo"]);
+                                    TimeSpan durataMassima = TimeSpan.FromSeconds(secondiMassimi);
                                     tempoMassimo.InnerText = string.Format("{0:D2}:{1:D2}:{2:D2}",
-                                        (int)durataMax.TotalHours,
-                                        durataMax.Minutes,
-                                        durataMax.Seconds);
+                                        (int)durataMassima.TotalHours,
+                                        durataMassima.Minutes,
+                                        durataMassima.Seconds);
                                 }
+                                else
+                                {
+                                    tempoMassimo.InnerText = "00:00:00";
+                                }
+                            }
+                            else
+                            {
+                                // Se non ci sono dati, inizializza tutti i tempi a zero
+                                tempoTotale.InnerText = "00:00:00";
+                                tempoMedio.InnerText = "00:00:00";
+                                tempoMinimo.InnerText = "00:00:00";
+                                tempoMassimo.InnerText = "00:00:00";
                             }
                         }
                     }
+
+                    // Ottieni ora critica
+                    using (OleDbCommand cmdOra = new OleDbCommand(queryOraCritica, conn))
+                    {
+                        cmdOra.Parameters.AddWithValue("?", userId);
+                        using (OleDbDataReader reader = cmdOra.ExecuteReader())
+                        {
+                            if (reader.Read() && !reader.IsDBNull(0))
+                            {
+                                int ora = Convert.ToInt32(reader["Ora"]);
+                                int conteggio = Convert.ToInt32(reader["Conteggio"]);
+                                string periodo = ora >= 12 ? "PM" : "AM";
+                                int oraFormattata = ora > 12 ? ora - 12 : ora;
+                                if (ora == 0) oraFormattata = 12; // Mezzanotte
+                                if (ora == 12) periodo = "PM"; // Mezzogiorno
+                                oraCritica.InnerText = string.Format("{0:00}:00 {1} ({2} tentativi)", 
+                                    oraFormattata, periodo, conteggio);
+                            }
+                            else
+                            {
+                                oraCritica.InnerText = "-";
+                            }
+                        }
+                    }
+
+                    // Ottieni giorno critico
+                    using (OleDbCommand cmdGiorno = new OleDbCommand(queryGiornoCritico, conn))
+                    {
+                        cmdGiorno.Parameters.AddWithValue("?", userId);
+                        using (OleDbDataReader reader = cmdGiorno.ExecuteReader())
+                        {
+                            if (reader.Read() && !reader.IsDBNull(0))
+                            {
+                                int giorno = Convert.ToInt32(reader["Giorno"]); // 1=Domenica, 7=Sabato
+                                int conteggio = Convert.ToInt32(reader["Conteggio"]);
+                                string[] giorni = { "Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab" };
+                                giornoCritico.InnerText = string.Format("{0} ({1} tentativi)", 
+                                    giorni[giorno - 1], conteggio);
+                            }
+                            else
+                            {
+                                giornoCritico.InnerText = "-";
+                            }
+                        }
+                    }
+
+                    // Ottieni il progresso settimanale
+                    using (OleDbCommand cmdProgresso = new OleDbCommand(queryProgresso, conn))
+                    {
+                        cmdProgresso.Parameters.AddWithValue("?", userId);
+                        cmdProgresso.Parameters.AddWithValue("?", userId);
+                        
+                        using (OleDbDataReader reader = cmdProgresso.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int settimanaCorrente = Convert.ToInt32(reader["SettimanaCorrente"]);
+                                int settimanaScorsa = Convert.ToInt32(reader["SettimanaScorsa"]);
+
+                                // Aggiorna i contatori delle settimane
+                                tentativiSettimanaCorrente.InnerText = settimanaCorrente.ToString();
+                                tentativiSettimanaScorsa.InnerText = settimanaScorsa.ToString();
+
+                                // Calcola e formatta la variazione percentuale
+                                if (settimanaScorsa > 0)
+                                {
+                                    double variazione = ((double)(settimanaCorrente - settimanaScorsa) / settimanaScorsa) * 100;
+                                    string segno = variazione >= 0 ? "+" : "";
+                                    variazioneSettimanale.InnerText = string.Format("{0}{1:0.0}%", segno, variazione);
+                                    
+                                    // Per le voglie di fumare, una diminuzione è positiva
+                                    variazioneSettimanale.Attributes["class"] = 
+                                        variazione <= 0 ? "positive-change" : "negative-change";
+                                }
+                                else if (settimanaCorrente > 0)
+                                {
+                                    // Se la settimana scorsa era 0 ma questa settimana abbiamo dati
+                                    variazioneSettimanale.InnerText = "Nuovi dati";
+                                    variazioneSettimanale.Attributes["class"] = "neutral-change";
+                                }
+                                else
+                                {
+                                    // Se non ci sono dati in entrambe le settimane
+                                    variazioneSettimanale.InnerText = "Nessun dato";
+                                    variazioneSettimanale.Attributes["class"] = "neutral-change";
+                                }
+                            }
+                            else
+                            {
+                                // In caso di errore nella lettura
+                                tentativiSettimanaCorrente.InnerText = "0";
+                                tentativiSettimanaScorsa.InnerText = "0";
+                                variazioneSettimanale.InnerText = "Nessun dato";
+                                variazioneSettimanale.Attributes["class"] = "neutral-change";
+                            }
+                        }
+                    }
+
+                    // ... resto del codice per altre statistiche ...
                 }
             }
             catch (Exception ex)
