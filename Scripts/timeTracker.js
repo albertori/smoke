@@ -167,52 +167,27 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Modifichiamo la funzione saveStateToDb
-    function saveStateToDb(isLogout = false) {
-        Logger.log('Inizio saveStateToDb', { isLogout });
-        
-        const currentTime = isTimerActive ? 
-            Math.floor((Date.now() - (startTime || Date.now())) / 1000) :
-            0;
-        
-        const recordTime = parseTime(secondTimeLabel.textContent);
-        const startTimeStr = startTime ? new Date(startTime).toISOString() : null;
-        
-        Logger.log('Dati da salvare:', {
-            currentTime,
-            recordTime,
-            startTime: startTimeStr,
-            isLogout,
-            isTimerActive
-        });
-
-        const data = JSON.stringify({
-            currentTime: currentTime,
-            recordTime: recordTime,
-            startTime: startTimeStr,
-            isLogout: isLogout,
-            isTimerActive: isTimerActive
-        });
-
-        if (isLogout) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'benefici.aspx/SalvaStatoTimer', false);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(data);
-            return;
+    // Modifica la funzione saveStateToDb per renderla asincrona
+    async function saveStateToDb(state) {
+        try {
+            const response = await fetch('benefici.aspx/SalvaStatoTimer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ stato: state })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Errore nel salvataggio dello stato:', error);
+            // Salva lo stato localmente come fallback
+            localStorage.setItem('timerState', JSON.stringify(state));
         }
-
-        fetch('benefici.aspx/SalvaStatoTimer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: data
-        })
-        .then(response => response.json())
-        .catch(error => {
-            Logger.error('Errore durante il salvataggio:', error);
-        });
     }
 
     // Funzione per caricare lo stato iniziale
