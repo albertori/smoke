@@ -155,6 +155,10 @@ namespace NomeProgetto
                 Response.Cookies.Add(authCookie);
                 System.Diagnostics.Debug.WriteLine("Cookie impostato");
 
+                HttpCookie userCookie = new HttpCookie("UserId", utenteId.ToString());
+                userCookie.Expires = DateTime.Now.AddDays(30);
+                Response.Cookies.Add(userCookie);
+
                 Response.Redirect("benefici.aspx", false);
                 Context.ApplicationInstance.CompleteRequest();
             }

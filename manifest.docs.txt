@@ -1,0 +1,60 @@
+MANIFEST.JSON - DOCUMENTAZIONE
+
+FUNZIONALITÀ ATTUALI:
+- Nome app e descrizione
+- Icone in vari formati
+- Screenshot per lo store
+- Scorciatoie rapide
+- Impostazioni di visualizzazione
+
+FUNZIONALITÀ FUTURE POSSIBILI:
+
+1. NOTIFICHE E BADGE:
+{
+    "notifications": {
+        "badge": true
+    }
+}
+
+2. APP CORRELATE:
+{
+    "related_applications": [],
+    "iarc_rating_id": ""
+}
+
+3. ESTENSIONI DOMINIO:
+{
+    "scope_extensions": [
+        {"origin": "*.nosmokingarea.it"}
+    ]
+}
+
+4. CONDIVISIONE:
+{
+    "share_target": {
+        "action": "/share-target/",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
+}
+
+5. PROTOCOLLI PERSONALIZZATI:
+{
+    "protocol_handlers": [
+        {
+            "protocol": "web+nsa",
+            "url": "/protocol?type=%s"
+        }
+    ]
+}
+
+6. GESTIONE AVVIO:
+{
+    "launch_handler": {
+        "client_mode": ["navigate-existing", "auto"]
+    }
+} 

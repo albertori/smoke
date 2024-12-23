@@ -211,6 +211,8 @@
             <!-- Aggiungi questo subito dopo il div settings-panel -->
             <div class="settings-overlay"></div>
         </div>
+        <!-- Aggiungi questo campo nascosto nella form -->
+        <asp:HiddenField ID="hdnUserId" runat="server" />
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

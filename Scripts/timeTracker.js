@@ -2,6 +2,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inizializza il logger
     Logger.init();
     
+    // Definizione StorageManager - DEVE ESSERE QUI ALL'INIZIO
+    const StorageManager = {
+        KEYS: {
+            TIMER_STATE: 'timerState',
+            BEST_TIMES: 'bestTimes',
+            SETTINGS: 'settings'
+        },
+        load(key) {
+            return localStorage.getItem(key);
+        },
+        save(key, value) {
+            localStorage.setItem(key, value);
+        },
+        remove(key) {
+            localStorage.removeItem(key);
+        }
+    };
+    
     // Costanti
     const MAX_TIME = 10800; // 3 ore in secondi
     const TIMER_SPEED = 1000; // Intervallo normale di 1 secondo
@@ -122,10 +140,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function startTimer() {
-        startTime = Date.now();
+        Logger.log('Avvio timer');
         if (!timerInterval) {
+            if (!startTime) {
+                startTime = Date.now();
+            }
+            
             timerInterval = setInterval(() => {
-                // Calcolo preciso dei secondi trascorsi
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 updateCurrentBar(elapsed);
                 
@@ -133,7 +154,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     secondTimeLabel.textContent = formatTime(elapsed);
                     updateBestBar();
                 }
+                
+                // Salva lo stato periodicamente
+                saveStateToDb(false);
             }, TIMER_SPEED);
+            
+            isTimerActive = true;
+            resetButton.textContent = 'Resetta';
+            Logger.log('Timer avviato con startTime:', startTime);
         }
     }
 
@@ -160,87 +188,119 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('a[href*="logout"]').forEach(link => {
         link.addEventListener('click', function(e) {
             if (isTimerActive) {
-                // Fermiamo il timer e salviamo lo stato
-                stopTimer();
-                saveStateToDb(true);
+                // Salva lo stato finale e pulisci
+                saveStateToDb(true).then(() => {
+                    // Pulisci il localStorage dopo il salvataggio
+                    localStorage.removeItem('timerState');
+                    Logger.log('LocalStorage pulito durante il logout');
+                });
+            } else {
+                // Pulisci comunque il localStorage
+                localStorage.removeItem('timerState');
+                Logger.log('LocalStorage pulito durante il logout');
             }
         });
     });
 
-    // Modifica la funzione saveStateToDb per renderla asincrona
-    async function saveStateToDb(state) {
+    // Funzione centralizzata per le chiamate al server
+    async function serverCall(endpoint, data) {
         try {
-            const response = await fetch('benefici.aspx/SalvaStatoTimer', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
                 },
-                body: JSON.stringify({ stato: state })
+                credentials: 'same-origin',
+                redirect: 'follow',
+                body: JSON.stringify(data)
             });
-            
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             return await response.json();
         } catch (error) {
-            console.error('Errore nel salvataggio dello stato:', error);
-            // Salva lo stato localmente come fallback
-            localStorage.setItem('timerState', JSON.stringify(state));
+            Logger.error('Errore nella chiamata al server:', error);
+            return null;
         }
     }
 
-    // Funzione per caricare lo stato iniziale
-    function loadInitialState() {
-        Logger.log('Loading initial state');
+    // Uso della funzione
+    async function saveStateToDb(isLogout = false) {
+        if (!isTimerActive && !isLogout) return;
         
-        fetch('benefici.aspx/GetStatoTimer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({})
-        })
-        .then(response => response.json())
-        .then(data => {
-            Logger.log('State loaded', data);
-            
-            if (data.d && data.d.hasActiveTimer && data.d.currentTime > 0) {
-                // Verifichiamo che il timer sia effettivamente attivo e che ci sia un tempo corrente
-                const lastStartTime = new Date(data.d.startTime);
-                const now = new Date();
-                const timeDiff = now - lastStartTime;
+        const currentElapsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+        const modalitaFumato = document.getElementById('smokeSwitch').checked;
+        
+        const result = await serverCall('benefici.aspx/SalvaStatoTimer', {
+            currentTime: currentElapsed,
+            recordTime: parseTime(secondTimeLabel.textContent),
+            startTime: startTime ? new Date(startTime).toISOString() : null,
+            isLogout: isLogout,
+            modalita: modalitaFumato
+        });
+
+        if (result) {
+            Logger.log('Stato salvato con successo:', result);
+        }
+        return result;
+    }
+
+    // Modifica la funzione loadInitialState
+    function loadInitialState() {
+        Logger.log('Caricamento stato iniziale');
+        
+        // Carica lo stato dal localStorage
+        const savedState = StorageManager.load(StorageManager.KEYS.TIMER_STATE);
+        
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                const now = Date.now();
+                const savedStartTime = new Date(state.startTime).getTime();
+                const timeDiff = now - savedStartTime;
                 
-                // Se sono passate più di 3 ore, non facciamo ripartire il timer
-                if (timeDiff > (3 * 60 * 60 * 1000)) {
-                    Logger.log('Timer troppo vecchio, non viene riavviato');
-                    resetCurrentBar();
+                if (timeDiff <= 3 * 60 * 60 * 1000) {
+                    startTime = savedStartTime;
+                    bestTime = state.recordTime;
+                    updateUI(state);
+                    startTimer();
                     return;
                 }
-                
-                Logger.log('Active timer found, restoring state');
-                
-                startTime = Date.now() - (data.d.currentTime * 1000);
-                bestTime = data.d.recordTime;
-                isTimerActive = true;
-                resetButton.textContent = 'Resetta';
-                
-                updateCurrentBar(data.d.currentTime);
-                secondTimeLabel.textContent = formatTime(data.d.recordTime);
-                updateBestBar();
-                
-                startTimer();
-                Logger.log('Timer restored successfully');
-            } else {
-                Logger.log('No active timer found or invalid time');
-                resetCurrentBar();
+            } catch (error) {
+                Logger.error('Errore nel parsing dello stato locale:', error);
             }
-        })
-        .catch(error => {
-            Logger.error('Error loading state', error);
-            resetCurrentBar();
-        });
+        }
+        
+        // Se non ci sono dati validi nel localStorage, carica dal server
+        loadFromServer();
     }
+
+    // Modifica l'event listener per beforeunload
+    window.addEventListener('beforeunload', function(e) {
+        if (isTimerActive) {
+            Logger.log('Salvataggio automatico prima di chiudere la pagina');
+            saveStateToDb(false);
+        }
+    });
+
+    // Aggiungi un event listener per visibilitychange
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            if (isTimerActive) {
+                saveStateToDb(false);
+            }
+        } else {
+            // Quando la pagina torna visibile, verifica se il timer deve continuare
+            const savedState = localStorage.getItem('timerState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (state.isActive) {
+                    startTime = new Date(state.startTime).getTime();
+                    updateCurrentBar(Math.floor((Date.now() - startTime) / 1000));
+                }
+            }
+        }
+    });
 
     // Modifica la gestione della chiusura della pagina
     window.addEventListener('beforeunload', function(e) {
@@ -280,16 +340,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Click handler per il clickButton
+    // Modifica il click handler per il clickButton
     clickButton.addEventListener('click', function() {
         if (isTimerActive) {
+            // Salva il record attuale se necessario
             const currentTime = Math.floor((Date.now() - startTime) / 1000);
             if (currentTime > parseTime(secondTimeLabel.textContent)) {
                 secondTimeLabel.textContent = formatTime(currentTime);
                 updateBestBar();
+                // Salva il nuovo record
+                saveStateToDb(false);
             }
+
+            // Resetta il timer corrente e riparti da zero
             resetCurrentBar();
+            startTime = Date.now(); // Reset del tempo di inizio
             startTimer();
+            
+            Logger.log('Timer resettato e riavviato dopo click');
         }
     });
 
@@ -333,4 +401,73 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Carica lo stato iniziale all'avvio
     loadInitialState();
+
+    // Aggiungi l'event listener per il cambio di modalità
+    document.getElementById('smokeSwitch').addEventListener('change', function() {
+        // Se il timer è attivo, chiedi conferma
+        if (isTimerActive) {
+            if (confirm('Cambiando modalità il timer verrà resettato. Vuoi continuare?')) {
+                // Resetta il timer
+                resetTimer();
+                // Pulisci il localStorage
+                localStorage.removeItem('timerState');
+                Logger.log('LocalStorage pulito per cambio modalità');
+            } else {
+                // Se l'utente annulla, ripristina lo switch alla posizione precedente
+                this.checked = !this.checked;
+            }
+        } else {
+            // Se il timer non è attivo, pulisci comunque il localStorage
+            localStorage.removeItem('timerState');
+            Logger.log('LocalStorage pulito per cambio modalità');
+        }
+    });
+
+    // Aggiungi questa funzione prima di loadInitialState
+    async function loadFromServer() {
+        try {
+            const response = await fetch('benefici.aspx/GetStatoTimer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache'
+                },
+                credentials: 'same-origin',
+                redirect: 'follow'
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            Logger.log('Risposta dal server:', data);
+            
+            if (data.d && data.d.hasActiveTimer && data.d.currentTime > 0) {
+                const serverStartTime = new Date(data.d.startTime).getTime();
+                const now = Date.now();
+                const timeDiff = now - serverStartTime;
+                
+                if (timeDiff <= (3 * 60 * 60 * 1000)) {
+                    Logger.log('Ripristino timer dal server');
+                    startTime = serverStartTime;
+                    bestTime = data.d.recordTime;
+                    
+                    // Aggiorna display e barre
+                    const currentElapsed = Math.floor(timeDiff / 1000);
+                    updateCurrentBar(currentElapsed);
+                    secondTimeLabel.textContent = formatTime(data.d.recordTime);
+                    updateBestBar();
+                    
+                    // Riavvia il timer
+                    startTimer();
+                    return;
+                }
+            }
+            
+            Logger.log('Nessun timer attivo valido trovato');
+            resetCurrentBar();
+        } catch (error) {
+            Logger.error('Errore nel caricamento dello stato dal server:', error);
+            resetCurrentBar();
+        }
+    }
 }); 
