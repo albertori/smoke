@@ -8,6 +8,9 @@ function aggiornaLinkStatistiche() {
     }
 }
 
+// Aggiungi queste costanti all'inizio del file
+const SYNC_QUEUE_KEY = 'syncQueue';
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
@@ -51,6 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                Logger.error('Risposta server non ok:', response.status, errorText);
+                
+                if (response.status === 500 && errorText.includes("Utente non autenticato")) {
+                    window.location.href = 'login.aspx';
+                    return;
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -61,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             return data.d;
         } catch (error) {
-            console.error('Errore nella chiamata al server:', error);
+            Logger.error('Errore nella chiamata al server:', error);
             throw error;
         }
     }
@@ -130,15 +140,29 @@ document.addEventListener('DOMContentLoaded', function() {
             
             try {
                 if (navigator.onLine) {
+                    // Online - prova a salvare direttamente
                     const data = await chiamataServer('benefici.aspx/IncrementaContatore', 
                         'POST', { modalitaFumato: modalitaFumato });
-                    salvaDatiLocali(data);
-                    aggiornaDati(data);
+                        
+                    if (data) {
+                        salvaDatiLocali(data);
+                        aggiornaDati(data);
+                        Logger.log('Dati salvati online:', data);
+                    }
                 } else {
+                    // Offline - salva localmente e aggiungi alla coda
+                    Logger.log('Modalità offline - salvataggio locale');
                     incrementaLocale();
+                    
+                    // Aggiungi esplicitamente alla coda di sync
+                    aggiungiAllaCodaSync({
+                        tipo: 'incremento',
+                        modalitaFumato: modalitaFumato,
+                        timestamp: Date.now()
+                    });
                 }
             } catch (error) {
-                console.error('Errore durante l\'elaborazione del click:', error);
+                Logger.error('Errore durante l\'elaborazione del click:', error);
                 incrementaLocale();
             }
         }, 500)
@@ -286,7 +310,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         salvaDatiLocali(datiAttuali);
         
-        salvaAzioneOffline('incremento');
+        // Aggiungi alla coda di sincronizzazione
+        aggiungiAllaCodaSync({
+            tipo: 'incremento',
+            modalitaFumato: document.getElementById('smokeSwitch').checked,
+            timestamp: Date.now()
+        });
         
         aggiornaDati(datiAttuali);
     }
@@ -326,9 +355,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return tuttoPresente;
     }
 
-    window.addEventListener('online', function() {
-        console.log('Tornato online - Avvio sincronizzazione');
-        sincronizzaDati();
+    window.addEventListener('online', async function() {
+        Logger.log('Connessione ripristinata');
+        
+        // Verifica prima la sessione
+        const sessioneValida = await verificaSessione();
+        if (!sessioneValida) {
+            Logger.error('Sessione non valida, reindirizzamento al login...');
+            window.location.href = 'login.aspx';
+            return;
+        }
+        
+        // Se la sessione è valida, procedi con la sincronizzazione
+        await sincronizzaCoda();
     });
 
     window.addEventListener('offline', function() {
@@ -449,4 +488,124 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Aggiorna il link al caricamento iniziale
     aggiornaLinkStatistiche();
+
+    // Aggiungi queste nuove funzioni
+    function aggiungiAllaCodaSync(azione) {
+        if (!azione || typeof azione.modalitaFumato !== 'boolean') {
+            Logger.error('Dati azione non validi:', azione);
+            return;
+        }
+
+        const coda = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+        coda.push({
+            tipo: 'incremento',
+            modalitaFumato: azione.modalitaFumato,
+            timestamp: Date.now()
+        });
+        localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(coda));
+        Logger.log('Azione aggiunta alla coda di sync:', azione);
+    }
+
+    async function sincronizzaCoda() {
+        try {
+            const coda = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+            if (coda.length === 0) {
+                Logger.log('Nessuna azione da sincronizzare');
+                return;
+            }
+
+            // Prima verifichiamo se siamo autenticati
+            const checkAuth = await fetch('benefici.aspx/GetDatiIniziali', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ modalitaFumato: false }),
+                credentials: 'include'
+            });
+
+            if (!checkAuth.ok) {
+                Logger.error('Sessione non valida, reindirizzamento al login...');
+                window.location.href = 'login.aspx';
+                return;
+            }
+
+            Logger.log('Inizio sincronizzazione coda:', coda);
+            for (const azione of coda) {
+                try {
+                    Logger.log('Invio azione al server:', azione);
+                    const response = await fetch('benefici.aspx/IncrementaContatore', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            modalitaFumato: azione.modalitaFumato 
+                        }),
+                        credentials: 'include'
+                    });
+
+                    const responseText = await response.text();
+                    Logger.log('Risposta server:', responseText);
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${responseText}`);
+                    }
+
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data && data.d) {
+                            Logger.log('Azione sincronizzata con successo:', data.d);
+                            salvaDatiLocali(data.d);
+                            aggiornaDati(data.d);
+                        } else {
+                            throw new Error('Formato risposta non valido');
+                        }
+                    } catch (jsonError) {
+                        throw new Error(`Errore parsing JSON: ${jsonError.message}`);
+                    }
+                } catch (actionError) {
+                    Logger.error('Errore durante la sincronizzazione azione:', actionError);
+                    // Non rimuoviamo l'azione dalla coda se c'è un errore
+                    return;
+                }
+            }
+
+            // Solo se tutte le azioni sono state sincronizzate con successo
+            localStorage.removeItem(SYNC_QUEUE_KEY);
+            Logger.log('Sincronizzazione completata con successo');
+
+        } catch (error) {
+            Logger.error('Errore generale nella sincronizzazione:', error);
+            // Mantieni la coda in caso di errore
+        }
+    }
+
+    // Aggiungi questa funzione per verificare lo stato della sessione
+    async function verificaSessione() {
+        try {
+            const response = await fetch('benefici.aspx/GetDatiIniziali', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ modalitaFumato: false }),
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                Logger.error('Sessione non valida');
+                return false;
+            }
+
+            const data = await response.json();
+            return data && data.d;
+        } catch (error) {
+            Logger.error('Errore verifica sessione:', error);
+            return false;
+        }
+    }
 }); 
