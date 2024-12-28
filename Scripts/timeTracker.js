@@ -261,9 +261,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (timeDiff <= 3 * 60 * 60 * 1000) {
                     startTime = savedStartTime;
-                    bestTime = state.recordTime;
-                    updateUI(state);
+                    isTimerActive = true;
+                    
+                    // Aggiorna il display e le barre
+                    const currentElapsed = Math.floor(timeDiff / 1000);
+                    updateCurrentBar(currentElapsed);
+                    
+                    // Imposta il testo del pulsante
+                    resetButton.textContent = 'Resetta';
+                    
+                    // Avvia il timer
                     startTimer();
+                    
+                    // Carica il record precedente se presente
+                    if (state.bestTime) {
+                        secondTimeLabel.textContent = formatTime(state.bestTime);
+                        updateBestBar();
+                    }
+                    
                     return;
                 }
             } catch (error) {
@@ -275,30 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
         loadFromServer();
     }
 
-    // Modifica l'event listener per beforeunload
-    window.addEventListener('beforeunload', function(e) {
+    // Modifica la funzione che salva lo stato
+    function saveTimerState() {
         if (isTimerActive) {
-            Logger.log('Salvataggio automatico prima di chiudere la pagina');
-            saveStateToDb(false);
+            const state = {
+                startTime: startTime,
+                isActive: isTimerActive,
+                lastUpdate: new Date().toISOString(),
+                bestTime: parseTime(secondTimeLabel.textContent)
+            };
+            StorageManager.save(StorageManager.KEYS.TIMER_STATE, JSON.stringify(state));
+            Logger.log('Stato timer salvato:', state);
         }
-    });
+    }
 
-    // Aggiungi un event listener per visibilitychange
+    // Modifica l'event listener per visibilitychange
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'hidden') {
             if (isTimerActive) {
+                saveTimerState();
                 saveStateToDb(false);
             }
         } else {
             // Quando la pagina torna visibile, verifica se il timer deve continuare
-            const savedState = localStorage.getItem('timerState');
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                if (state.isActive) {
-                    startTime = new Date(state.startTime).getTime();
-                    updateCurrentBar(Math.floor((Date.now() - startTime) / 1000));
-                }
-            }
+            loadInitialState();
         }
     });
 
@@ -319,22 +334,42 @@ document.addEventListener('DOMContentLoaded', function() {
         Logger.log('Click su resetButton', { currentText: this.textContent });
         
         if (this.textContent === 'Inizia') {
+            // Rimuovi il timer esistente se presente
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            // Imposta il nuovo tempo di inizio
+            startTime = Date.now();
+            
+            // Avvia il timer
             startTimer();
-            this.textContent = 'Resetta';
-            isTimerActive = true;
+            
+            // Salva lo stato iniziale
+            const state = {
+                startTime: startTime,
+                isActive: true,
+                lastUpdate: new Date().toISOString()
+            };
+            StorageManager.save(StorageManager.KEYS.TIMER_STATE, JSON.stringify(state));
+            
             Logger.log('Timer avviato');
         } else {
             // Salva il record nel DB prima di resettare
             Logger.log('Tentativo di salvare lo stato prima del reset');
-            saveStateToDb(true); // Usa la versione sincrona
+            saveStateToDb(true);
             
-            // Aspetta un momento per assicurarsi che il salvataggio sia completato
             setTimeout(() => {
                 resetCurrentBar();
                 secondTimeLabel.textContent = '00:00:00';
                 updateBestBar();
                 this.textContent = 'Inizia';
                 isTimerActive = false;
+                
+                // Rimuovi lo stato dal localStorage
+                StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
+                
                 Logger.log('Timer resettato');
             }, 100);
         }
