@@ -39,23 +39,42 @@
 <body>
     <form id="form1" runat="server">
         <div class="container py-4">
-            <div class="top-menu">
-                <div class="menu-items">
-                    <div class="menu-item">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white rounded mb-4 shadow-sm">
+                <div class="container-fluid">
+                    <!-- User info sempre visibile -->
+                    <span class="navbar-text">
                         <i class="fas fa-user"></i>
                         <span id="userEmail" runat="server"></span>
-                    </div>
-                    <span class="menu-item" id="statisticheLink" role="button" style="cursor: pointer;">
-                        <i class="fas fa-chart-bar"></i> Statistiche
                     </span>
-                    <a href="#" class="menu-item" id="settingsToggle">
-                        <i class="fas fa-cog"></i> Impostazioni
-                    </a>
-                    <a href="logout.aspx" class="menu-item">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
+
+                    <!-- Hamburger button -->
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <!-- Menu items -->
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <span class="nav-link" id="statisticheLink" role="button">
+                                    <i class="fas fa-chart-bar"></i> Statistiche
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id="settingsToggle">
+                                    <i class="fas fa-cog"></i> Impostazioni
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="logout.aspx">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            </nav>
+            <div class="menu-overlay" id="menuOverlay"></div>
             <div class="app-container d-flex justify-content-between align-items-center">
                 <!-- Statistiche a sinistra -->
                 <div class="stats-container">
@@ -221,6 +240,5 @@
     <script src="Scripts/translations.js"></script>
     <script src="Scripts/switchMode.js"></script>
         <script src="Scripts/timeTracker.js"></script>
-    
 </body>
 </html> 

@@ -43,10 +43,50 @@ namespace NomeProgetto
                 }
 
                 // Imposta l'ID utente per le notifiche
-                if (Session["UtenteID"] != null)  // assumo che la tua session key sia "UtenteID"
+                if (Session["UtenteID"] != null)
                 {
                     hdnUserId.Value = Session["UtenteID"].ToString();
+                    
+                    // Aggiungiamo qui il controllo per StatoTimer
+                    CheckUserTimerRecord(Convert.ToInt32(Session["UtenteID"]));
                 }
+            }
+        }
+
+        // Nuovo metodo per gestire StatoTimer
+        private void CheckUserTimerRecord(int userId)
+        {
+            try
+            {
+                string connString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+                using (OleDbConnection conn = new OleDbConnection(connString))
+                {
+                    conn.Open();
+                    string query = "SELECT COUNT(*) FROM StatoTimer WHERE UtenteID = ?";
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId);
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        if (count == 0)
+                        {
+                            // Se non esiste un record, ne creiamo uno nuovo
+                            string insertQuery = @"INSERT INTO StatoTimer 
+                                         (UtenteID, CurrentTime, RecordTime, StartTime, LastUpdate, Modalita) 
+                                         VALUES (?, 0, 0, Now(), Now(), False)";
+                            
+                            using (OleDbCommand insertCmd = new OleDbCommand(insertQuery, conn))
+                            {
+                                insertCmd.Parameters.AddWithValue("?", userId);
+                                insertCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError("Errore in CheckUserTimerRecord: " + ex.Message);
             }
         }
 
