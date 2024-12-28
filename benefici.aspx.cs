@@ -3,6 +3,7 @@ using System.Web.Services;
 using System.Web.Script.Services;
 using System.Configuration;
 using System.Data.OleDb;
+using System.Web.UI;
 
 namespace NomeProgetto
 {
@@ -16,6 +17,8 @@ namespace NomeProgetto
                 if (Session["Email"] != null)
                 {
                     userEmail.InnerText = Session["Email"].ToString();
+                    // Aggiungiamo il caricamento del record
+                    LoadUserRecord();
                 }
                 else if (Request.Cookies["UserAuth"] != null)
                 {
@@ -26,6 +29,8 @@ namespace NomeProgetto
                         Session["UtenteID"] = authData[0];
                         Session["Email"] = authData[1];
                         userEmail.InnerText = authData[1];
+                        // Aggiungiamo il caricamento del record
+                        LoadUserRecord();
                     }
                     else
                     {
@@ -628,6 +633,59 @@ namespace NomeProgetto
             {
                 System.Diagnostics.Debug.WriteLine("Errore durante il logging: " + ex.Message);
             }
+        }
+
+        // Aggiungiamo il metodo per caricare il record
+        private void LoadUserRecord()
+        {
+            try
+            {
+                if (Session["UtenteID"] == null) return;
+                
+                int userId = Convert.ToInt32(Session["UtenteID"]);
+                using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+                {
+                    conn.Open();
+                    string query = @"SELECT TOP 1 RecordTime 
+                                   FROM StatoTimer 
+                                   WHERE UtenteID = ? 
+                                   ORDER BY RecordTime DESC";
+                    
+                    using (OleDbCommand cmd = new OleDbCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("?", userId);
+                        object result = cmd.ExecuteScalar();
+                        
+                        if (result != null && result != DBNull.Value)
+                        {
+                            int recordTime = Convert.ToInt32(result);
+                            Session["UserRecord"] = recordTime;
+                            
+                            // Impostiamo il valore iniziale nel client
+                            string formattedTime = FormatTime(recordTime);
+                            string script = "if(typeof updateUserRecord === 'function') { " +
+                                          "    updateUserRecord(" + recordTime + ", '" + formattedTime + "');" +
+                                          "} else { " +
+                                          "    console.error('updateUserRecord non trovata');" +
+                                          "}";
+                            ClientScript.RegisterStartupScript(this.GetType(), "SetInitialRecord", script, true);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError("Errore nel caricamento del record utente: " + ex.Message);
+            }
+        }
+
+        // Aggiungiamo un metodo helper per formattare il tempo
+        private string FormatTime(int seconds)
+        {
+            int h = seconds / 3600;
+            int m = (seconds % 3600) / 60;
+            int s = seconds % 60;
+            return string.Format("{0:D2}:{1:D2}:{2:D2}", h, m, s);
         }
     }
 } 

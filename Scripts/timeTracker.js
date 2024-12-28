@@ -249,45 +249,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadInitialState() {
         Logger.log('Caricamento stato iniziale');
         
-        // Carica lo stato dal localStorage
-        const savedState = StorageManager.load(StorageManager.KEYS.TIMER_STATE);
-        
-        if (savedState) {
-            try {
-                const state = JSON.parse(savedState);
-                const now = Date.now();
-                const savedStartTime = new Date(state.startTime).getTime();
-                const timeDiff = now - savedStartTime;
-                
-                if (timeDiff <= 3 * 60 * 60 * 1000) {
-                    startTime = savedStartTime;
-                    isTimerActive = true;
+        // Carica sempre prima il record dal server
+        loadUserRecord().then(() => {
+            const savedState = StorageManager.load(StorageManager.KEYS.TIMER_STATE);
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    const now = Date.now();
+                    const savedStartTime = new Date(state.startTime).getTime();
+                    const timeDiff = now - savedStartTime;
                     
-                    // Aggiorna il display e le barre
-                    const currentElapsed = Math.floor(timeDiff / 1000);
-                    updateCurrentBar(currentElapsed);
-                    
-                    // Imposta il testo del pulsante
-                    resetButton.textContent = 'Resetta';
-                    
-                    // Avvia il timer
-                    startTimer();
-                    
-                    // Carica il record precedente se presente
-                    if (state.bestTime) {
-                        secondTimeLabel.textContent = formatTime(state.bestTime);
-                        updateBestBar();
+                    if (timeDiff <= 3 * 60 * 60 * 1000) {
+                        startTime = savedStartTime;
+                        isTimerActive = true;
+                        const currentElapsed = Math.floor(timeDiff / 1000);
+                        updateCurrentBar(currentElapsed);
+                        resetButton.textContent = 'Resetta';
+                        startTimer();
                     }
-                    
-                    return;
+                } catch (error) {
+                    Logger.error('Errore nel parsing dello stato locale:', error);
                 }
-            } catch (error) {
-                Logger.error('Errore nel parsing dello stato locale:', error);
             }
-        }
-        
-        // Se non ci sono dati validi nel localStorage, carica dal server
-        loadFromServer();
+        });
     }
 
     // Modifica la funzione che salva lo stato
@@ -312,8 +296,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 saveStateToDb(false);
             }
         } else {
-            // Quando la pagina torna visibile, verifica se il timer deve continuare
-            loadInitialState();
+            // Quando la pagina torna visibile, ricarica sempre il record
+            loadUserRecord().then(() => {
+                // Solo se c'è un timer attivo, ricarica lo stato del timer
+                if (isTimerActive) {
+                    const currentElapsed = Math.floor((Date.now() - startTime) / 1000);
+                    updateCurrentBar(currentElapsed);
+                }
+            });
         }
     });
 
@@ -326,6 +316,15 @@ document.addEventListener('DOMContentLoaded', function() {
             e.returnValue = ''; // Necessario per Chrome
         }
     });
+
+    // Aggiungi questa funzione per salvare il record corrente
+    function saveCurrentRecord() {
+        const currentRecord = parseTime(secondTimeLabel.textContent);
+        if (currentRecord > 0) {
+            StorageManager.save(StorageManager.KEYS.BEST_TIMES, currentRecord);
+            Logger.log('Record salvato nel localStorage:', currentRecord);
+        }
+    }
 
     // Modifica il click handler del resetButton
     resetButton.addEventListener('click', function(e) {
@@ -356,22 +355,32 @@ document.addEventListener('DOMContentLoaded', function() {
             
             Logger.log('Timer avviato');
         } else {
-            // Salva il record nel DB prima di resettare
-            Logger.log('Tentativo di salvare lo stato prima del reset');
-            saveStateToDb(true);
+            // Salva il record nel DB prima di resettare se necessario
+            const currentTime = Math.floor((Date.now() - startTime) / 1000);
+            const currentRecord = parseTime(secondTimeLabel.textContent);
             
-            setTimeout(() => {
-                resetCurrentBar();
-                secondTimeLabel.textContent = '00:00:00';
+            if (currentTime > currentRecord) {
+                // Se abbiamo battuto il record, lo salviamo prima di resettare
+                secondTimeLabel.textContent = formatTime(currentTime);
                 updateBestBar();
-                this.textContent = 'Inizia';
-                isTimerActive = false;
-                
-                // Rimuovi lo stato dal localStorage
-                StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
-                
-                Logger.log('Timer resettato');
-            }, 100);
+                saveStateToDb(true);
+                // Salva anche nel localStorage
+                saveCurrentRecord();
+            } else {
+                // Se non abbiamo battuto il record, assicuriamoci che il record corrente sia salvato
+                saveCurrentRecord();
+            }
+            
+            // Reset solo del timer corrente
+            resetCurrentBar();
+            this.textContent = 'Inizia';
+            isTimerActive = false;
+            startTime = null;
+            
+            // Rimuovi solo lo stato del timer corrente
+            StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
+            
+            Logger.log('Timer resettato, record mantenuto');
         }
     });
 
@@ -503,6 +512,60 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             Logger.error('Errore nel caricamento dello stato dal server:', error);
             resetCurrentBar();
+        }
+    }
+
+    // Modifica loadUserRecord per essere più persistente
+    async function loadUserRecord() {
+        try {
+            const response = await serverCall('benefici.aspx/GetUserRecord', {});
+            if (response && response.d && response.d.success) {
+                const serverRecord = response.d.bestTime;
+                const savedRecord = parseInt(StorageManager.load(StorageManager.KEYS.BEST_TIMES)) || 0;
+                
+                // Usa il record più alto tra server e localStorage
+                const bestRecord = Math.max(serverRecord, savedRecord);
+                
+                // Salva sempre il record più alto
+                StorageManager.save(StorageManager.KEYS.BEST_TIMES, bestRecord);
+                
+                // Aggiorna l'UI
+                secondTimeLabel.textContent = formatTime(bestRecord);
+                updateBestBar();
+                Logger.log('Record aggiornato:', bestRecord);
+            } else {
+                // Usa il record dal localStorage
+                const savedRecord = StorageManager.load(StorageManager.KEYS.BEST_TIMES);
+                if (savedRecord) {
+                    const recordTime = parseInt(savedRecord);
+                    secondTimeLabel.textContent = formatTime(recordTime);
+                    updateBestBar();
+                    Logger.log('Record caricato dal localStorage:', recordTime);
+                }
+            }
+        } catch (error) {
+            Logger.error('Errore nel caricamento del record:', error);
+            // Usa il record dal localStorage in caso di errore
+            const savedRecord = StorageManager.load(StorageManager.KEYS.BEST_TIMES);
+            if (savedRecord) {
+                const recordTime = parseInt(savedRecord);
+                secondTimeLabel.textContent = formatTime(recordTime);
+                updateBestBar();
+                Logger.log('Record recuperato dal localStorage dopo errore:', recordTime);
+            }
+        }
+    }
+
+    // Aggiungi questa funzione per aggiornare il record
+    function updateUserRecord(recordSeconds, formattedTime) {
+        Logger.log('Aggiornamento record utente:', { seconds: recordSeconds, formatted: formattedTime });
+        
+        // Aggiorna solo se il nuovo record è maggiore di quello corrente
+        const currentRecord = parseTime(secondTimeLabel.textContent);
+        if (recordSeconds > currentRecord || secondTimeLabel.textContent === '00:00:00') {
+            secondTimeLabel.textContent = formattedTime;
+            updateBestBar();
+            Logger.log('Record aggiornato');
         }
     }
 }); 
