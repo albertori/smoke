@@ -149,10 +149,19 @@
                             <div class="timer-progress-container">
                                 <div id="lastTimeBar" class="timer-progress" style="width: 0%;"></div>
                             </div>
+                            <div class="time-markers">
+                                <span>0h</span>
+                                <span>30m</span>
+                                <span>1h</span>
+                                <span>1h30m</span>
+                                <span>2h</span>
+                                <span>2h30m</span>
+                                <span>3h</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Seconda barra (identica) -->
+                    <!-- Seconda barra -->
                     <div class="timer-section">
                         <div class="timer-display">
                             <span id="secondTimeLabel" class="time-label">00:00:00</span>
@@ -160,6 +169,15 @@
                         <div class="timer-progress-wrapper">
                             <div class="timer-progress-container">
                                 <div id="secondTimeBar" class="timer-progress" style="width: 0%;"></div>
+                            </div>
+                            <div class="time-markers">
+                                <span>0h</span>
+                                <span>30m</span>
+                                <span>1h</span>
+                                <span>1h30m</span>
+                                <span>2h</span>
+                                <span>2h30m</span>
+                                <span>3h</span>
                             </div>
                         </div>
                     </div>
