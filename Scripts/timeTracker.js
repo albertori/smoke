@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function parseTime(timeString) {
         const [hours, minutes, seconds] = timeString.split(':').map(Number);
-        return hours * 3600 + minutes * 60 + seconds;
+        return (hours * 3600) + (minutes * 60) + seconds;
     }
     
     function pad(num) {
@@ -357,37 +357,69 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             Logger.log('Tentativo di reset e salvataggio record');
             
-            // Salva il record nel DB prima di resettare
-            const currentTime = Math.floor((Date.now() - startTime) / 1000);
-            const currentRecord = parseTime(secondTimeLabel.textContent);
+            // Debug approfondito della conversione del tempo
+            const timeString = secondTimeLabel.textContent;
+            Logger.log('Analisi timeString:', {
+                timeString,
+                type: typeof timeString,
+                length: timeString.length
+            });
             
-            Logger.log('Tempi:', { 
-                currentTime: currentTime,
-                currentRecord: currentRecord,
-                formatted: formatTime(currentTime)
+            // Conversione esplicita
+            const timeParts = timeString.split(':');
+            Logger.log('Time parts:', timeParts);
+            
+            const hours = parseInt(timeParts[0], 10);
+            const minutes = parseInt(timeParts[1], 10);
+            const seconds = parseInt(timeParts[2], 10);
+            
+            Logger.log('Componenti tempo:', {
+                hours,
+                minutes,
+                seconds,
+                hoursType: typeof hours,
+                minutesType: typeof minutes,
+                secondsType: typeof seconds
+            });
+            
+            const recordTime = (hours * 3600) + (minutes * 60) + seconds;
+            Logger.log('Calcolo recordTime:', {
+                hoursSeconds: hours * 3600,
+                minutesSeconds: minutes * 60,
+                seconds,
+                total: recordTime
+            });
+            
+            // Calcolo current time
+            const now = Date.now();
+            const elapsed = now - startTime;
+            const currentTime = Math.floor(elapsed / 1000);
+            
+            Logger.log('Debug finale:', {
+                recordTime,
+                currentTime,
+                recordFormatted: formatTime(recordTime),
+                currentFormatted: formatTime(currentTime)
             });
 
-            // Chiamata al server PRIMA di qualsiasi reset
+            // Chiamata al server con entrambi i tempi
+            const dataToSend = { 
+                recordTime: recordTime,
+                currentTime: currentTime
+            };
+
+            Logger.log('Dati da inviare al server:', dataToSend);
+
             fetch('benefici.aspx/UpdateUserRecord', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
-                body: JSON.stringify({ recordTime: currentTime })
+                body: JSON.stringify(dataToSend)
             })
-            .then(response => {
-                Logger.log('Risposta server ricevuta:', response);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 Logger.log('Record salvato nel DB:', data);
-                
-                // Ora possiamo procedere con il reset
-                if (currentTime > currentRecord) {
-                    secondTimeLabel.textContent = formatTime(currentTime);
-                    updateBestBar();
-                    saveCurrentRecord();
-                }
                 
                 // Reset del timer corrente
                 resetCurrentBar();
@@ -400,15 +432,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 Logger.error('Errore nel salvataggio del record:', error);
-                // Procedi comunque con il reset in caso di errore
                 resetCurrentBar();
                 this.textContent = 'Inizia';
                 isTimerActive = false;
                 startTime = null;
                 StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
             });
-            
-            Logger.log('Timer resettato, record mantenuto');
         }
     });
 

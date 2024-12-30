@@ -624,10 +624,11 @@ namespace NomeProgetto
 
         [WebMethod]
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
-        public static object UpdateUserRecord(int recordTime)
+        public static object UpdateUserRecord(int recordTime, int currentTime)
         {
-            WriteToLog("=== INIZIO UpdateUserRecord ===");
-            WriteToLog("Record Time ricevuto: " + recordTime);
+            LogError("=== INIZIO UpdateUserRecord ===");
+            LogError("Record Time ricevuto: " + recordTime);
+            LogError("Current Time ricevuto: " + currentTime);
             
             try
             {
@@ -637,87 +638,58 @@ namespace NomeProgetto
                 if (context.Session["UtenteID"] != null)
                 {
                     userId = Convert.ToInt32(context.Session["UtenteID"]);
-                    WriteToLog("UserID trovato: " + userId);
+                    LogError("UserID trovato: " + userId);
                 }
 
                 if (!userId.HasValue)
                 {
-                    WriteToLog("ERRORE: Utente non autenticato");
+                    LogError("ERRORE: Utente non autenticato");
                     throw new Exception("Utente non autenticato");
                 }
 
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
-                    WriteToLog("Connessione DB aperta");
+                    LogError("Connessione DB aperta");
                     
-                    // Prima leggiamo il record esistente
-                    string queryRead = @"SELECT RecordTime 
-                                       FROM StatoTimer 
-                                       WHERE UtenteID = ?";
+                    string queryUpdate = @"UPDATE StatoTimer 
+                                         SET RecordTime = ?, CurrentTime = ?
+                                         WHERE UtenteID = ?";
                     
-                    int currentRecord = 0;
-                    using (OleDbCommand cmdRead = new OleDbCommand(queryRead, conn))
+                    using (OleDbCommand cmdUpdate = new OleDbCommand(queryUpdate, conn))
                     {
-                        cmdRead.Parameters.AddWithValue("?", userId.Value);
-                        var result = cmdRead.ExecuteScalar();
-                        if (result != null && result != DBNull.Value)
-                        {
-                            currentRecord = Convert.ToInt32(result);
-                            WriteToLog("Record attuale nel DB: " + currentRecord);
-                        }
-                        else
-                        {
-                            WriteToLog("Nessun record trovato nel DB");
-                        }
-                    }
+                        cmdUpdate.Parameters.AddWithValue("?", recordTime);
+                        cmdUpdate.Parameters.AddWithValue("?", currentTime);
+                        cmdUpdate.Parameters.AddWithValue("?", userId.Value);
+                        int rowsAffected = cmdUpdate.ExecuteNonQuery();
+                        LogError("Righe aggiornate: " + rowsAffected);
 
-                    // Aggiorniamo solo se il nuovo record è maggiore
-                    if (recordTime > currentRecord)
-                    {
-                        WriteToLog("Nuovo record (" + recordTime + ") è maggiore del vecchio (" + currentRecord + "). Aggiorno...");
-                        string queryUpdate = @"UPDATE StatoTimer 
-                                             SET RecordTime = ? 
-                                             WHERE UtenteID = ?";
-                        
-                        using (OleDbCommand cmdUpdate = new OleDbCommand(queryUpdate, conn))
+                        if (rowsAffected == 0)
                         {
-                            cmdUpdate.Parameters.AddWithValue("?", recordTime);
-                            cmdUpdate.Parameters.AddWithValue("?", userId.Value);
-                            int rowsAffected = cmdUpdate.ExecuteNonQuery();
-                            WriteToLog("Righe aggiornate: " + rowsAffected);
-
-                            // Se nessuna riga è stata aggiornata, proviamo a inserire
-                            if (rowsAffected == 0)
+                            LogError("Nessuna riga aggiornata, provo a inserire...");
+                            string queryInsert = @"INSERT INTO StatoTimer 
+                                                (UtenteID, RecordTime, CurrentTime, StartTime, LastUpdate) 
+                                                VALUES (?, ?, ?, Now(), Now())";
+                            
+                            using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
                             {
-                                WriteToLog("Nessuna riga aggiornata, provo a inserire...");
-                                string queryInsert = @"INSERT INTO StatoTimer 
-                                                    (UtenteID, RecordTime, CurrentTime, StartTime, LastUpdate) 
-                                                    VALUES (?, ?, 0, Now(), Now())";
-                                
-                                using (OleDbCommand cmdInsert = new OleDbCommand(queryInsert, conn))
-                                {
-                                    cmdInsert.Parameters.AddWithValue("?", userId.Value);
-                                    cmdInsert.Parameters.AddWithValue("?", recordTime);
-                                    int insertedRows = cmdInsert.ExecuteNonQuery();
-                                    WriteToLog("Righe inserite: " + insertedRows);
-                                }
+                                cmdInsert.Parameters.AddWithValue("?", userId.Value);
+                                cmdInsert.Parameters.AddWithValue("?", recordTime);
+                                cmdInsert.Parameters.AddWithValue("?", currentTime);
+                                int insertedRows = cmdInsert.ExecuteNonQuery();
+                                LogError("Righe inserite: " + insertedRows);
                             }
                         }
                     }
-                    else
-                    {
-                        WriteToLog("Nuovo record (" + recordTime + ") non è maggiore del vecchio (" + currentRecord + "). Nessun aggiornamento necessario.");
-                    }
                     
-                    WriteToLog("=== FINE UpdateUserRecord ===");
-                    return new { success = true, bestTime = Math.Max(recordTime, currentRecord) };
+                    LogError("=== FINE UpdateUserRecord ===");
+                    return new { success = true, bestTime = recordTime };
                 }
             }
             catch (Exception ex)
             {
-                WriteToLog("ERRORE in UpdateUserRecord: " + ex.Message);
-                WriteToLog("Stack trace: " + ex.StackTrace);
+                LogError("ERRORE in UpdateUserRecord: " + ex.Message);
+                LogError("Stack trace: " + ex.StackTrace);
                 return new { success = false, error = ex.Message };
             }
         }
