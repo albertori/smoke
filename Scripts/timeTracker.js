@@ -355,30 +355,58 @@ document.addEventListener('DOMContentLoaded', function() {
             
             Logger.log('Timer avviato');
         } else {
-            // Salva il record nel DB prima di resettare se necessario
+            Logger.log('Tentativo di reset e salvataggio record');
+            
+            // Salva il record nel DB prima di resettare
             const currentTime = Math.floor((Date.now() - startTime) / 1000);
             const currentRecord = parseTime(secondTimeLabel.textContent);
             
-            if (currentTime > currentRecord) {
-                // Se abbiamo battuto il record, lo salviamo prima di resettare
-                secondTimeLabel.textContent = formatTime(currentTime);
-                updateBestBar();
-                saveStateToDb(true);
-                // Salva anche nel localStorage
-                saveCurrentRecord();
-            } else {
-                // Se non abbiamo battuto il record, assicuriamoci che il record corrente sia salvato
-                saveCurrentRecord();
-            }
-            
-            // Reset solo del timer corrente
-            resetCurrentBar();
-            this.textContent = 'Inizia';
-            isTimerActive = false;
-            startTime = null;
-            
-            // Rimuovi solo lo stato del timer corrente
-            StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
+            Logger.log('Tempi:', { 
+                currentTime: currentTime,
+                currentRecord: currentRecord,
+                formatted: formatTime(currentTime)
+            });
+
+            // Chiamata al server PRIMA di qualsiasi reset
+            fetch('benefici.aspx/UpdateUserRecord', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: JSON.stringify({ recordTime: currentTime })
+            })
+            .then(response => {
+                Logger.log('Risposta server ricevuta:', response);
+                return response.json();
+            })
+            .then(data => {
+                Logger.log('Record salvato nel DB:', data);
+                
+                // Ora possiamo procedere con il reset
+                if (currentTime > currentRecord) {
+                    secondTimeLabel.textContent = formatTime(currentTime);
+                    updateBestBar();
+                    saveCurrentRecord();
+                }
+                
+                // Reset del timer corrente
+                resetCurrentBar();
+                this.textContent = 'Inizia';
+                isTimerActive = false;
+                startTime = null;
+                StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
+                
+                Logger.log('Timer resettato completamente');
+            })
+            .catch(error => {
+                Logger.error('Errore nel salvataggio del record:', error);
+                // Procedi comunque con il reset in caso di errore
+                resetCurrentBar();
+                this.textContent = 'Inizia';
+                isTimerActive = false;
+                startTime = null;
+                StorageManager.remove(StorageManager.KEYS.TIMER_STATE);
+            });
             
             Logger.log('Timer resettato, record mantenuto');
         }
@@ -567,5 +595,56 @@ document.addEventListener('DOMContentLoaded', function() {
             updateBestBar();
             Logger.log('Record aggiornato');
         }
+    }
+
+    // Funzione di reset
+    function resetTimer() {
+        console.log('resetTimer chiamato');
+        
+        if (isRunning) {
+            stopTimer();
+        }
+        
+        // Prendiamo il valore corrente prima del reset
+        const timeString = secondTimeLabel.textContent;
+        const recordSeconds = timeString.split(':')
+            .reduce((acc, time) => (60 * acc) + parseInt(time), 0);
+        
+        console.log('Invio record al server:', recordSeconds);
+        
+        // Debug della chiamata al server
+        console.log('Tentativo di chiamata al server...');
+        
+        $.ajax({
+            type: "POST",
+            url: "benefici.aspx/UpdateUserRecord",
+            data: JSON.stringify({ recordTime: recordSeconds }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(response) {
+                console.log('Risposta server:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Errore chiamata server:', error);
+                console.error('Status:', status);
+                console.error('Response:', xhr.responseText);
+            }
+        });
+
+        // Continua con il reset normale
+        startTime = 0;
+        lastTimeLabel.textContent = "00:00:00";
+        updateLastBar();
+    }
+
+    // Funzione helper per le chiamate al server
+    function serverCall(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then(response => response.json());
     }
 }); 
