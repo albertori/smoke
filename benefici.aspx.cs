@@ -379,6 +379,8 @@ namespace NomeProgetto
         [ScriptMethod(ResponseFormat = ResponseFormat.Json)]
         public static object GetUserRecord()
         {
+            LogError("=== INIZIO GetUserRecord ===");
+            
             try
             {
                 var context = System.Web.HttpContext.Current;
@@ -387,36 +389,43 @@ namespace NomeProgetto
                 if (context.Session["UtenteID"] != null)
                 {
                     userId = Convert.ToInt32(context.Session["UtenteID"]);
+                    LogError("UserID trovato: " + userId);
                 }
 
                 if (!userId.HasValue)
                 {
+                    LogError("ERRORE: Utente non autenticato");
                     throw new Exception("Utente non autenticato");
                 }
 
                 using (OleDbConnection conn = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
                 {
                     conn.Open();
-                    // Usa la tabella StatoTimer invece di TempiIntervalli
-                    string query = @"SELECT TOP 1 RecordTime 
-                                   FROM StatoTimer 
-                                   WHERE UtenteID = ? 
-                                   ORDER BY RecordTime DESC";
+                    LogError("Connessione DB aperta");
+                    
+                    string query = "SELECT RecordTime FROM StatoTimer WHERE UtenteID = ?";
                     
                     using (OleDbCommand cmd = new OleDbCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("?", userId.Value);
                         object result = cmd.ExecuteScalar();
                         
-                        return new { 
-                            success = true,
-                            bestTime = result != null ? Convert.ToInt32(result) : 0
-                        };
+                        if (result != null && result != DBNull.Value)
+                        {
+                            int bestTime = Convert.ToInt32(result);
+                            LogError("Record trovato: " + bestTime);
+                            return new { success = true, bestTime = bestTime };
+                        }
+                        
+                        LogError("Nessun record trovato");
+                        return new { success = true, bestTime = 0 };
                     }
                 }
             }
             catch (Exception ex)
             {
+                LogError("ERRORE in GetUserRecord: " + ex.Message);
+                LogError("Stack trace: " + ex.StackTrace);
                 return new { success = false, error = ex.Message };
             }
         }
