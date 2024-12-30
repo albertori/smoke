@@ -1,0 +1,1201 @@
+/* ============================================
+   1. VARIABILI E STILI BASE
+   ============================================ */
+
+:root {
+    --primary-color: #808080;
+    --secondary-color: #2ECC71;
+    --danger-color: #E74C3C;
+    --background-gradient-1: #E8E8E8;
+    --background-gradient-2: #D3D3D3;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #2C3E50;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+body {
+    background: linear-gradient(135deg, var(--background-gradient-1), var(--background-gradient-2));
+    min-height: 100vh;
+    color: var(--text-color);
+}
+
+.app-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.stats-container {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.progress-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    width: 100%;
+}
+
+.progress-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hover-shadow);
+}
+
+.progress-card h3 {
+    color: transparent;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+.progress-card h3 i {
+    color: var(--text-color);
+    font-size: 3rem;
+    margin: 0 auto;
+}
+
+.progress-card .value,
+#sigaretteLabel,
+#risparmioValue,
+#catrameLabel,
+#tempoLabel {
+    width: 100%;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.progress-card .label {
+    display: none;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+#nonFumareBtn {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent !important;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    z-index: 1;
+}
+
+#nonFumareBtn.clicked {
+    transform: none;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+#nonFumareBtn.green, #nonFumareBtn.red {
+    background: transparent !important;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+#nonFumareBtn.red .button-number {
+    color: #E74C3C;  /* Rosso per modalità "Ho fumato" */
+}
+
+#nonFumareBtn.green .button-number {
+    color: #2ECC71;  /* Verde per modalità "Non ho fumato" */
+}
+
+/* Testo circolare */
+.circular-text {
+    position: absolute !important;
+    width: 95px !important;  /* Leggermente aumentata */
+    height: 95px !important;
+    z-index: 2 !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    pointer-events: none !important;
+}
+
+.circular-text text {
+    fill: white !important;
+    font-weight: bold !important;
+    font-size: 10px !important;  /* Aumentata da 8px a 10px */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Per assicurarci che il testo sia visibile anche sul path */
+.circular-text textPath {
+    fill: white !important;
+    font-weight: bold !important;
+}
+
+/* Contenuto del bottone */
+.button-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.button-number {
+    font-size: 32px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.8);
+    padding: 10px;
+    letter-spacing: 1px;
+}
+
+.button-number.green {
+    color: #2ECC71;
+    text-shadow: 
+        2px 2px 4px rgba(46, 204, 113, 0.4), 
+        0 0 15px rgba(46, 204, 113, 0.3);
+}
+
+.button-number.red {
+    color: #E74C3C;
+    text-shadow: 
+        2px 2px 4px rgba(231, 76, 60, 0.4), 
+        0 0 15px rgba(231, 76, 60, 0.3);
+}
+
+/* Mobile-first approach per clickButton */
+#clickButton {
+    width: 100px !important;  /* Dimensione base per mobile */
+    height: 100px !important;
+    border-radius: 50% !important;
+    border: none !important;
+    background: linear-gradient(145deg, #3498db, #2980b9) !important;
+    box-shadow: 
+        0 8px 15px rgba(0, 0, 0, 0.1),
+        inset 0 -5px 15px rgba(0, 0, 0, 0.2),
+        inset 0 5px 15px rgba(255, 255, 255, 0.2) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: absolute !important;
+    top: 50% !important;  /* Centrato verticalmente */
+    left: 50% !important;  /* Centrato orizzontalmente */
+    transform: translate(-50%, -50%) !important;  /* Perfettamente centrato */
+    z-index: 1 !important;
+}
+
+/* Stili per tablet */
+@media screen and (min-width: 768px) {
+    #clickButton {
+        width: 120px !important;
+        height: 120px !important;
+    }
+}
+
+/* Stili per desktop */
+@media screen and (min-width: 1024px) {
+    #clickButton {
+        width: 150px !important;
+        height: 150px !important;
+    }
+}
+
+#clickButton:before {
+    content: '' !important;
+    position: absolute !important;
+    top: -2px !important;
+    left: -2px !important;
+    right: -2px !important;
+    bottom: -2px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(45deg, #3498db, #2980b9, #3498db) !important;
+    z-index: -1 !important;
+    animation: rotate 3s linear infinite !important;
+}
+
+#clickButton:hover {
+    transform: translate(-50%, -52%) !important; /* Mantiene il centraggio durante l'hover */
+    box-shadow: 
+        0 12px 20px rgba(0, 0, 0, 0.2),
+        inset 0 -5px 15px rgba(0, 0, 0, 0.2),
+        inset 0 5px 15px rgba(255, 255, 255, 0.2) !important;
+    background: linear-gradient(145deg, #2980b9, #3498db) !important;
+}
+
+#clickButton:active {
+    transform: translate(-50%, -49%) !important; /* Mantiene il centraggio durante il click */
+    box-shadow: 
+        0 5px 10px rgba(0, 0, 0, 0.1),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+        inset 0 3px 10px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Stati del bottone */
+#clickButton.success {
+    background: linear-gradient(145deg, #2ecc71, #27ae60) !important;
+}
+
+#clickButton.error {
+    background: linear-gradient(145deg, #e74c3c, #c0392b) !important;
+}
+
+.daily-progress-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(180deg, 
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.9) 20%,
+        rgba(255,255,255,0.95) 100%);
+    z-index: 1001;
+}
+
+.daily-progress {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    height: 8px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.time-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    color: var(--text-color);
+    font-size: 0.6rem;
+    font-weight: 500;
+}
+
+/* Media query per schermi più grandi */
+@media (min-width: 768px) {
+    .app-container {
+        padding: 30px;
+    }
+
+    .progress-card {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .progress-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .progress-card .value {
+        font-size: 2rem;
+    }
+
+    .progress-card .label {
+        font-size: 0.9rem;
+    }
+
+    .button-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .circular-text {
+        font-size: 14px;
+    }
+
+    .button-content {
+        font-size: 24px;
+    }
+
+    .daily-progress {
+        height: 12px;
+    }
+
+    .time-markers {
+        font-size: 0.8rem;
+        padding: 10px 15px;
+    }
+}
+
+/* Pannello Impostazioni */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100%;
+    background: var(--background-gradient-1);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease;
+    padding: 20px;
+    z-index: 100000;
+    pointer-events: all;
+}
+
+.settings-panel.open {
+    right: 0;
+}
+
+.settings-toggle {
+    position: absolute;
+    left: -40px;
+    top: 20px;
+    z-index: 100001;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.settings-toggle:hover {
+    background: darken(var(--primary-color), 10%);
+}
+
+.settings-content {
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    z-index: 100000;
+}
+
+.settings-content h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.color-picker-group {
+    margin-bottom: 15px;
+}
+
+.color-picker-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.color-picker-group input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.reset-button {
+    width: 100%;
+    padding: 10px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.reset-button:hover {
+    background: var(--secondary-color);
+}
+
+/* Assicurati che la barra del tempo rimanga in fondo */
+.daily-progress-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(180deg, 
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.9) 20%,
+        rgba(255,255,255,0.95) 100%);
+    z-index: 1001;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .settings-content {
+        grid-template-columns: 1fr;
+        padding: 15px;
+    }
+}
+
+/* Stile per lo switch */
+.switch-container {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+#switchLabel {
+    font-size: 14px;
+    color: var(--text-color, #2C3E50);
+}
+
+/* Nascondi il selettore della lingua */
+.language-selector {
+    display: none;
+}
+
+/* Media queries per schermi più piccoli */
+@media screen and (max-width: 768px) {
+    #nonFumareBtn {
+        width: 150px;
+        height: 150px;
+    }
+
+    .button-number {
+        font-size: 36px;
+    }
+
+    .circular-text text {
+        font-size: 10px;
+    }
+
+    .progress-card {
+        padding: 1rem;
+    }
+
+    .progress-card h3 {
+        font-size: 1rem;
+    }
+
+    .progress-card .value {
+        font-size: 1.8rem;
+    }
+
+    .progress-card .label {
+        font-size: 0.8rem;
+    }
+
+    .container {
+        padding: 0.5rem;
+    }
+}
+
+/* Per schermi molto piccoli */
+@media screen and (max-width: 480px) {
+    #nonFumareBtn {
+        width: 120px;
+        height: 120px;
+    }
+
+    #clickButton {
+        width: 120px;
+        height: 120px;
+    }
+
+    .button-number {
+        font-size: 28px;
+    }
+
+    .circular-text text {
+        font-size: 8px;
+    }
+
+    .progress-card {
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+    }
+
+    .progress-card .value {
+        font-size: 1.5rem;
+    }
+
+    .app-container {
+        gap: 0.5rem;
+    }
+}
+
+/* Per schermi molto piccoli */
+@media screen and (max-width: 320px) {
+    #nonFumareBtn {
+        width: 100px;
+        height: 100px;
+    }
+
+    #clickButton {
+        width: 100px;
+        height: 100px;
+    }
+
+    .button-number {
+        font-size: 24px;
+    }
+
+    .circular-text text {
+        font-size: 7px;
+    }
+}
+
+/* Ottimizzazioni per dispositivi mobili - AGGIUNGERE ALLA FINE DEL FILE */
+@media screen and (max-width: 480px) {
+    .app-container {
+        gap: 0.5rem;
+        padding: 0.3rem;
+    }
+
+    .stats-container {
+        width: 32%;  /* Leggermente più largo per il contenuto */
+    }
+
+    .progress-card {
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+    }
+
+    .progress-card h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-card .value {
+        font-size: 1.3rem;
+        margin: 0.3rem 0;
+    }
+
+    .progress-card .label {
+        font-size: 0.7rem;
+    }
+
+    .time-markers {
+        font-size: 0.7rem;
+    }
+
+    /* Ottimizzazione dimensioni icone */
+    .progress-card h3 i {
+        font-size: 0.9rem;  /* Riduce la dimensione delle icone nei titoli delle card */
+    }
+
+    .settings-toggle {
+        width: 40px;        /* Riduce la dimensione del bottone impostazioni */
+        height: 40px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .settings-toggle i {
+        font-size: 18px;    /* Riduce la dimensione dell'icona ingranaggio */
+    }
+
+    .fas {  /* Per tutte le icone Font Awesome */
+        margin-right: 3px;  /* Riduce lo spazio tra icona e testo */
+    }
+}
+
+/* Stili per il container dell'email utente */
+.user-email-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--card-bg);
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-email-container i {
+    color: var(--primary-color);
+}
+
+@media screen and (max-width: 480px) {
+    .user-email-container {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
+
+/* Aggiungere questi stili al file benefici.css esistente */
+
+.top-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-items {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-email-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 20px;
+}
+
+.menu-item {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.menu-item span {
+    max-width: 150px;  /* o il valore che preferisci */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Per dispositivi mobili */
+@media (max-width: 768px) {
+    .menu-item span {
+        max-width: 100px;  /* ancora più corto su mobile */
+    }
+    
+    .menu-items {
+        gap: 10px;  /* riduce lo spazio tra gli elementi del menu */
+    }
+    
+    .menu-item {
+        padding: 5px;  /* riduce il padding */
+    }
+}
+
+/* Nascondiamo solo il bottone delle impostazioni */
+.settings-toggle {
+    display: none !important;
+}
+
+/* Per tablet */
+@media screen and (max-width: 768px) {
+    .progress-card h3 i {
+        font-size: 2.8rem;  /* Leggermente più piccolo su tablet */
+    }
+    
+    .progress-card .value,
+    #sigaretteLabel,
+    #risparmioValue,
+    #catrameLabel,
+    #tempoLabel {
+        font-size: 1.8rem;
+    }
+}
+
+/* Per smartphone */
+@media screen and (max-width: 480px) {
+    .progress-card h3 i {
+        font-size: 2.5rem;  /* Manteniamo una buona dimensione su mobile */
+    }
+    
+    .progress-card {
+        padding: 0.8rem;  /* Riduciamo leggermente il padding */
+    }
+    
+    .progress-card .value,
+    #sigaretteLabel,
+    #risparmioValue,
+    #catrameLabel,
+    #tempoLabel {
+        font-size: 1.5rem;
+    }
+}
+
+/* Per schermi molto piccoli */
+@media screen and (max-width: 320px) {
+    .progress-card h3 i {
+        font-size: 2.2rem;  /* Ancora visibile ma più compatto */
+    }
+    
+    .progress-card .value,
+    #sigaretteLabel,
+    #risparmioValue,
+    #catrameLabel,
+    #tempoLabel {
+        font-size: 1.3rem;
+    }
+}
+
+/* Overlay per il pannello quando è aperto */
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99999;
+    display: none;
+    pointer-events: all;
+}
+
+.settings-panel.open ~ .settings-overlay {
+    display: block;
+}
+
+/* Assicuriamoci che tutti gli elementi nel pannello siano cliccabili */
+.settings-panel * {
+    pointer-events: all;
+}
+
+/* Reset per gli altri elementi */
+.stats-container,
+.daily-progress,
+.top-menu {
+    position: relative;
+    z-index: 1;
+}
+
+/* Menu Styles */
+.top-menu {
+    position: relative;
+    padding: 10px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    padding: 5px;
+    cursor: pointer;
+    color: #333;
+}
+
+.mobile-menu-toggle:hover {
+    color: #4CAF50;
+}
+
+.menu-items {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 6px;
+}
+
+.user-info {
+    margin-right: auto;
+    font-weight: 500;
+}
+
+/* Stili mobile */
+@media (max-width: 768px) {
+    .top-menu {
+        position: relative;
+        z-index: 9999;
+        width: 100%;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        position: relative;
+        z-index: 10000;
+    }
+
+    .menu-items {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        flex-direction: column;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        z-index: 9998;
+        margin-top: 0;
+        height: auto;
+        max-height: 100vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .menu-items.show {
+        display: flex;
+    }
+
+    .menu-item {
+        width: 100%;
+        padding: 15px;
+        margin: 2px 0;
+        font-size: 16px;
+    }
+
+    .user-info {
+        border-bottom: 1px solid #eee;
+        margin: 10px 0 20px 0;
+        padding: 10px 0 20px 0;
+    }
+
+    /* Sfondo scuro quando il menu è aperto */
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9997;
+    }
+
+    .menu-overlay.show {
+        display: block;
+    }
+
+    /* Fix per iOS */
+    .menu-items, .menu-overlay {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+}
+
+/* Fix per notch su iPhone */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .menu-items {
+        padding-top: calc(env(safe-area-inset-top) + 20px);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* Stili navbar personalizzati */
+.navbar {
+    padding: 0.8rem;
+}
+
+.navbar-text {
+    color: #333;
+    font-weight: 500;
+}
+
+.nav-link {
+    color: #333 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 6px;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .nav-link {
+        padding: 0.8rem !important;
+    }
+} 
+
+/* Timer Styles */
+.timer-container {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+.timer-container:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hover-shadow);
+}
+
+/* Timer Labels */
+#currentTimeLabel,
+#secondTimeLabel {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    text-align: center;
+    margin: 0.5rem 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Progress Bars */
+.progress-container {
+    background: var(--background-gradient-1);
+    border-radius: 10px;
+    padding: 3px;
+    margin: 15px 0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+#lastTimeBar,
+#secondTimeBar {
+    height: 20px;
+    border-radius: 8px;
+    transition: width 0.3s ease-out, background-color 0.3s ease;
+}
+
+#lastTimeBar {
+    height: 20px !important;
+    border-radius: 8px !important;
+    position: relative !important;
+    z-index: 2 !important;
+    transition: all 0.3s ease-out !important;
+    background: linear-gradient(90deg, 
+        #ff4b4b 0%,      /* Rosso all'inizio */
+        #ffa500 50%,     /* Arancione a metà */
+        #2ecc71 100%     /* Verde alla fine */
+    ) !important;
+    background-size: 200% 100% !important;
+    background-position: 100% 0 !important;
+}
+
+#secondTimeBar {
+    background: linear-gradient(90deg, var(--primary-color), #34495E);
+    box-shadow: 0 0 10px rgba(52, 73, 94, 0.3);
+}
+
+/* Timer Button */
+#resetBestTime {
+    background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    margin: 1rem 0;
+}
+
+#resetBestTime:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+    background: linear-gradient(145deg, var(--secondary-color), var(--primary-color));
+}
+
+#resetBestTime:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Animazioni per le barre */
+@keyframes pulse {
+    0% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(46, 204, 113, 0.5); }
+    100% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
+}
+
+#lastTimeBar.active {
+    animation: pulse 2s infinite !important;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 10px rgba(255, 75, 75, 0.3) !important; }
+    50% { box-shadow: 0 0 20px rgba(255, 75, 75, 0.5) !important; }
+    100% { box-shadow: 0 0 10px rgba(255, 75, 75, 0.3) !important; }
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    #currentTimeLabel,
+    #secondTimeLabel {
+        font-size: 2rem;
+    }
+    
+    #resetBestTime {
+        padding: 10px 25px;
+        font-size: 1rem;
+    }
+    
+    .timer-container {
+        padding: 1rem;
+    }
+} 
+
+/* Tablet */
+@media screen and (min-width: 768px) {
+    .circular-text {
+        width: 115px !important;
+        height: 115px !important;
+    }
+    
+    .circular-text text {
+        font-size: 12px !important;  /* Aumentata da 10px a 12px */
+    }
+}
+
+/* Desktop */
+@media screen and (min-width: 1024px) {
+    .circular-text {
+        width: 145px !important;
+        height: 145px !important;
+    }
+    
+    .circular-text text {
+        font-size: 14px !important;  /* Aumentata da 12px a 14px */
+    }
+} 
+
+/* Colori per le icone nelle progress card */
+.progress-card h3 i.fa-smoking-ban {
+    color: #e74c3c !important; /* Rosso */
+}
+
+.progress-card h3 i.fa-euro-sign {
+    color: #2ecc71 !important; /* Verde */
+}
+
+.progress-card h3 i.fa-lungs {
+    color: #3498db !important; /* Blu */
+}
+
+.progress-card h3 i.fa-clock {
+    color: #f1c40f !important; /* Giallo */
+}
+
+/* Effetto hover sulle icone */
+.progress-card:hover h3 i {
+    transform: scale(1.1) !important;
+    transition: transform 0.3s ease !important;
+} 
+
+/* Contenitore per le barre di progresso */
+.timer-tracking-container {
+    background: white !important;
+    border-radius: 15px !important;
+    padding: 20px !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    margin: 20px 0 !important;
+}
+
+/* Hover effect leggero */
+.timer-tracking-container:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Responsive padding */
+@media screen and (max-width: 768px) {
+    .timer-tracking-container {
+        padding: 15px !important;
+        margin: 15px 0 !important;
+    }
+} 
