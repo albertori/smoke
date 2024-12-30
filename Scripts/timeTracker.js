@@ -255,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
             Logger.log('Sessione di login:', isLoginSession);
 
             if (isLoginSession) {
-                // Carica i dati dal server dopo il login
+                Logger.log('Sessione di login rilevata - caricamento dal DB');
+                // Al login, carica sempre dal server
                 const response = await fetch('benefici.aspx/GetUserRecord', {
                     method: 'POST',
                     headers: {
@@ -276,37 +277,48 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Salva nel localStorage per uso futuro
                     StorageManager.save(StorageManager.KEYS.BEST_TIMES, serverRecord);
-                    Logger.log('Record salvato nel localStorage');
+                    Logger.log('Record dal server salvato nel localStorage:', serverRecord);
                 }
             } else {
-                // Non è una sessione di login, usa il comportamento esistente
-                const savedState = StorageManager.load(StorageManager.KEYS.TIMER_STATE);
-                if (savedState) {
-                    try {
-                        const state = JSON.parse(savedState);
-                        const now = Date.now();
-                        const savedStartTime = new Date(state.startTime).getTime();
-                        const timeDiff = now - savedStartTime;
-                        
-                        if (timeDiff <= 3 * 60 * 60 * 1000) {
-                            startTime = savedStartTime;
-                            isTimerActive = true;
-                            const currentElapsed = Math.floor(timeDiff / 1000);
-                            updateCurrentBar(currentElapsed);
-                            resetButton.textContent = 'Resetta';
-                            startTimer();
-                        }
-                    } catch (error) {
-                        Logger.error('Errore nel parsing dello stato locale:', error);
+                Logger.log('Sessione normale - caricamento dal localStorage');
+                // Non è una sessione di login, usa il localStorage
+                const savedRecord = StorageManager.load(StorageManager.KEYS.BEST_TIMES);
+                if (savedRecord) {
+                    const recordTime = parseInt(savedRecord);
+                    secondTimeLabel.textContent = formatTime(recordTime);
+                    updateBestBar();
+                    Logger.log('Record caricato dal localStorage:', recordTime);
+                }
+            }
+
+            // Gestione timer attivo (rimane invariata)
+            const savedState = StorageManager.load(StorageManager.KEYS.TIMER_STATE);
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    const now = Date.now();
+                    const savedStartTime = new Date(state.startTime).getTime();
+                    const timeDiff = now - savedStartTime;
+                    
+                    if (timeDiff <= 3 * 60 * 60 * 1000) {
+                        startTime = savedStartTime;
+                        isTimerActive = true;
+                        const currentElapsed = Math.floor(timeDiff / 1000);
+                        updateCurrentBar(currentElapsed);
+                        resetButton.textContent = 'Resetta';
+                        startTimer();
                     }
+                } catch (error) {
+                    Logger.error('Errore nel parsing dello stato timer:', error);
                 }
             }
         } catch (error) {
-            Logger.error('Errore nel caricamento dello stato iniziale:', error);
-            // In caso di errore, usa i dati dal localStorage
+            Logger.error('Errore nel caricamento dello stato:', error);
+            // In caso di errore, prova a usare il localStorage
             const savedRecord = StorageManager.load(StorageManager.KEYS.BEST_TIMES);
             if (savedRecord) {
-                secondTimeLabel.textContent = formatTime(parseInt(savedRecord));
+                const recordTime = parseInt(savedRecord);
+                secondTimeLabel.textContent = formatTime(recordTime);
                 updateBestBar();
                 Logger.log('Usati dati dal localStorage dopo errore');
             }
@@ -715,4 +727,12 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify(data)
         }).then(response => response.json());
     }
+
+    // Aggiungi un event listener per il pageshow
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            Logger.log('Pagina ripristinata dalla cache');
+            loadInitialState();
+        }
+    });
 }); 
